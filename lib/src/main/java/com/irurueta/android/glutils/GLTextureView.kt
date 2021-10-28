@@ -362,6 +362,23 @@ open class GLTextureView @JvmOverloads constructor(
     }
 
     /**
+     * Creates and starts GL thread if not already initialized.
+     */
+    protected open fun initializeGlThread() {
+        val renderMode = glThread?.renderMode ?: RENDERMODE_CONTINUOUSLY
+        glThreadManager.lock.withLock {
+            val threadAlive = glThread?.isAlive ?: false
+            if (!threadAlive) {
+                glThread = GLThread(thisWeakRef, glThreadManager)
+                if (renderMode != RENDERMODE_CONTINUOUSLY) {
+                    glThread?.renderMode = renderMode
+                }
+                glThread?.start()
+            }
+        }
+    }
+
+    /**
      * This method is used as part of the View class and is not normally called or subclassed by
      * clients of GLTextureView.
      */
@@ -388,23 +405,6 @@ open class GLTextureView @JvmOverloads constructor(
         glThread?.requestExitAndWait()
         detached = true
         super.onDetachedFromWindow()
-    }
-
-    /**
-     * Creates and starts GL thread if not already initialized.
-     */
-    private fun initializeGlThread() {
-        val renderMode = glThread?.renderMode ?: RENDERMODE_CONTINUOUSLY
-        glThreadManager.lock.withLock {
-            val threadAlive = glThread?.isAlive ?: false
-            if (!threadAlive) {
-                glThread = GLThread(thisWeakRef, glThreadManager)
-                if (renderMode != RENDERMODE_CONTINUOUSLY) {
-                    glThread?.renderMode = renderMode
-                }
-                glThread?.start()
-            }
-        }
     }
 
     private fun checkRenderThreadState() {

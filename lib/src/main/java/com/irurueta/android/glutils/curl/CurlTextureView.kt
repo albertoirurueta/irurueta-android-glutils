@@ -168,13 +168,25 @@ class CurlTextureView @JvmOverloads constructor(
          * further renders are requested until animation finishes.
          */
         override fun onDrawFrame() {
-            // We are not animating
-            if (!animate) return
             val renderer = curlRenderer ?: return
+
             val targetIndex = this@CurlTextureView.targetIndex
 
-            val currentTime = System.currentTimeMillis()
-            if (currentTime >= animationStartTime + animationDurationTime) {
+            // We are not animating
+            if (!animate) {
+                // notify page position changed
+                if (!notifySmoothChange) {
+                    notifySmoothChange = true
+                    currentIndexChangedListener?.onCurrentIndexChanged(
+                        this@CurlTextureView,
+                        currentIndex
+                    )
+                }
+                return
+            }
+
+            val currentTime = System.nanoTime()
+            if (currentTime >= animationStartTime + millisToNanos(animationDurationTime)) {
                 // If animation is done
                 if (animationTargetEvent == SET_CURL_TO_RIGHT) {
                     // Switch curled page to right.
@@ -218,16 +230,11 @@ class CurlTextureView @JvmOverloads constructor(
                 }
                 curlState = CURL_NONE
                 animate = false
+                notifySmoothChange = false
                 if (targetIndex != null) {
                     updatePages()
                 }
                 requestRender()
-
-                // notify page position changed
-                currentIndexChangedListener?.onCurrentIndexChanged(
-                    this@CurlTextureView,
-                    currentIndex
-                )
             } else {
                 pointerPos.pos.set(animationSource)
                 var t =
@@ -261,6 +268,11 @@ class CurlTextureView @JvmOverloads constructor(
             pageCurl?.resetTexture()
         }
     }
+
+    /**
+     * Indicates whether smooth page change must bee notified
+     */
+    private var notifySmoothChange = true
 
     /**
      * Allows curl on last page.
@@ -345,12 +357,11 @@ class CurlTextureView @JvmOverloads constructor(
      */
     var viewMode: Int = SHOW_ONE_PAGE
         set(value) {
+            field = value
             if (value == SHOW_ONE_PAGE) {
-                field = value
                 pageLeft?.setFlipTexture(true)
                 curlRenderer?.setViewMode(CurlRenderer.SHOW_ONE_PAGE)
             } else if (value == SHOW_TWO_PAGES) {
-                field = value
                 pageLeft?.setFlipTexture(false)
                 curlRenderer?.setViewMode(CurlRenderer.SHOW_TWO_PAGES)
             }
@@ -388,6 +399,7 @@ class CurlTextureView @JvmOverloads constructor(
      */
     fun setCurrentIndex(index: Int) {
         val pageProvider = this.pageProvider
+        notifySmoothChange = false
         currentIndex = if (pageProvider == null || index < 0) {
             0
         } else {
@@ -429,6 +441,8 @@ class CurlTextureView @JvmOverloads constructor(
                 )
             }
         }
+
+        notifySmoothChange = true
 
         when {
             currentIndex < newIndex -> {
@@ -493,6 +507,13 @@ class CurlTextureView @JvmOverloads constructor(
         sizeChangedObserver?.onSizeChanged(w, h)
     }
 
+    override fun initializeGlThread() {
+        super.initializeGlThread()
+        // refresh view mode to ensure that render thread has proper value once it
+        // is initialized.
+        viewMode = viewMode
+    }
+
     /**
      * Handles touch event with up or cancel action.
      *
@@ -534,7 +555,7 @@ class CurlTextureView @JvmOverloads constructor(
             // direction directly), this is done in a hope it made code a
             // bit more readable and easier to maintain.
             animationSource.set(pointerPos.pos)
-            animationStartTime = System.currentTimeMillis()
+            animationStartTime = System.nanoTime()
 
             // Given the explanation, here we decide whether to simulate
             // drag to left or right end.
@@ -1401,6 +1422,12 @@ class CurlTextureView @JvmOverloads constructor(
          * The smaller the value, the darker the area will be.
          */
         const val DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH = 0.3f
+
+        private const val MILLIS_TO_NANOS = 1000000
+
+        private fun millisToNanos(millis: Int): Long {
+            return (millis * MILLIS_TO_NANOS).toLong()
+        }
     }
 
     /**
