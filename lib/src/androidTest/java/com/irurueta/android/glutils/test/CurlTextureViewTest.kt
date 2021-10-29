@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-//TODO: @RequiresDevice
+@RequiresDevice
 @RunWith(AndroidJUnit4::class)
 class CurlTextureViewTest {
 
