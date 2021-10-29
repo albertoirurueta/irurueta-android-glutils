@@ -169,6 +169,7 @@ class CurlTextureViewTest {
     @Test
     fun sizeChangeObserver_setsExpectedValue() {
         val view = this.view ?: return fail()
+        view.pageProvider = pageProvider
         view.sizeChangedObserver = sizeChangeObserver
 
         assertSame(sizeChangeObserver, view.sizeChangedObserver)
