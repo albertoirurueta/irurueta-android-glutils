@@ -4,6 +4,7 @@ import android.graphics.*
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.RequiresDevice
 import androidx.test.rule.ActivityTestRule
 import com.irurueta.android.glutils.GLTextureView
 import com.irurueta.android.glutils.curl.CurlPage
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
+@RequiresDevice
 @RunWith(AndroidJUnit4::class)
 class CurlTextureViewTest {
 
