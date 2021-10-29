@@ -511,7 +511,8 @@ class CurlTextureView @JvmOverloads constructor(
         super.initializeGlThread()
         // refresh view mode to ensure that render thread has proper value once it
         // is initialized.
-        viewMode = viewMode
+        val viewMode = this.viewMode
+        this.viewMode = viewMode
     }
 
     /**

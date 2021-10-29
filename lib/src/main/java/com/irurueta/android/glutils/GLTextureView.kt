@@ -422,6 +422,7 @@ open class GLTextureView @JvmOverloads constructor(
         private const val LOG_RENDERER = true
         private const val LOG_RENDERER_DRAW_FRAME = false
         private const val LOG_EGL = true
+        const val MAIN_THREAD = "Main thread"
 
         /**
          * The renderer only renders when the surface is created, or when [requestRender] is called.
@@ -1048,7 +1049,7 @@ open class GLTextureView @JvmOverloads constructor(
                 glThreadManager.condition.signalAll()
                 while (!exited && !paused) {
                     if (LOG_PAUSE_RESUME) {
-                        Log.i("Main thread", "onPause waiting for paused.")
+                        Log.i(MAIN_THREAD, "onPause waiting for paused.")
                     }
                     try {
                         glThreadManager.condition.await()
@@ -1070,7 +1071,7 @@ open class GLTextureView @JvmOverloads constructor(
                 glThreadManager.condition.signalAll()
                 while (!exited && paused && !renderComplete) {
                     if (LOG_PAUSE_RESUME) {
-                        Log.i("Main thread", "onResume waiting for !paused")
+                        Log.i(MAIN_THREAD, "onResume waiting for !paused")
                     }
                     try {
                         glThreadManager.condition.await()
@@ -1094,7 +1095,7 @@ open class GLTextureView @JvmOverloads constructor(
                 while (!exited && !paused && !renderComplete && ableToDraw()) {
                     if (LOG_SURFACE) {
                         Log.i(
-                            "Main thread",
+                            MAIN_THREAD,
                             "onWindowResize waiting for render complete from tid=$id"
                         )
                     }
@@ -1249,12 +1250,10 @@ open class GLTextureView @JvmOverloads constructor(
                             }
 
                             // When pausing, optionally terminate EGL:
-                            if (pausing) {
-                                if (glThreadManager.shouldTerminateEGLWhenPausing()) {
-                                    eglHelper?.finish()
-                                    if (LOG_SURFACE) {
-                                        Log.i("GLThread", "terminating EGL because paused tid=$id")
-                                    }
+                            if (pausing && glThreadManager.shouldTerminateEGLWhenPausing()) {
+                                eglHelper?.finish()
+                                if (LOG_SURFACE) {
+                                    Log.i("GLThread", "terminating EGL because paused tid=$id")
                                 }
                             }
 
@@ -1421,8 +1420,7 @@ open class GLTextureView @JvmOverloads constructor(
                     val view = glSurfaceViewWeakRef.get()
                     view?.renderer?.onDrawFrame(gl)
                     when (val swapError = eglHelper?.swap()) {
-                        EGL10.EGL_SUCCESS -> {
-                        }
+                        EGL10.EGL_SUCCESS -> Unit // make no action
                         EGL11.EGL_CONTEXT_LOST -> {
                             if (LOG_SURFACE) {
                                 Log.i("GLThread", "egl context lost tid=$id")

@@ -201,7 +201,7 @@ class CurlGLSurfaceView @JvmOverloads constructor(
             }
         }
 
-    private val touchListener = OnTouchListener { v, event ->
+    private val touchListener = OnTouchListener { _, event ->
         // No dragging during animation at the moment.
         // TODO: Stop animation on touch event and return to drag mode.
         if (animate || pageProvider == null) {
