@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.RequiresDevice
 import androidx.test.rule.ActivityTestRule
 import com.irurueta.android.glutils.GLTextureView
+import com.irurueta.android.glutils.InstrumentationTestHelper.tap
 import com.irurueta.android.glutils.curl.CurlPage
 import com.irurueta.android.glutils.curl.CurlTextureView
 import org.junit.After
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-@RequiresDevice
+//TODO: @RequiresDevice
 @RunWith(AndroidJUnit4::class)
 class CurlTextureViewTest {
 
@@ -283,11 +284,27 @@ class CurlTextureViewTest {
         assertEquals(0, view.currentIndex)
     }
 
+    @Test
+    fun pageClickListener_whenPageClick_isNotified() {
+        val view = this.view ?: return fail()
+        view.pageProvider = pageProvider
+        view.pageClickListener = pageClickListener
+
+        assertSame(pageClickListener, view.pageClickListener)
+
+        // perform click
+        tap(view)
+
+        waitOnCondition({ pageClicked == 0 })
+
+        assertEquals(1, pageClicked)
+    }
     // TODO: renderLeftPage when TWO page view mode
 
-    private fun loadBitmap(width: Int, height: Int, index: Int): Bitmap {
+    private fun loadBitmap(width: Int, height: Int, index: Int): Bitmap? {
         val drawables = listOf(R.drawable.image1, R.drawable.image2, R.drawable.image3)
-        val bitmap = BitmapFactory.decodeResource(activity?.resources, drawables[index])
+        val bitmap =
+            BitmapFactory.decodeResource(activity?.resources, drawables[index]) ?: return null
 
         val bitmapWidth = bitmap.width
         val bitmapHeight = bitmap.height
@@ -297,20 +314,6 @@ class CurlTextureViewTest {
         val imageHeight = rect.height()
         val scale = imageHeight.toFloat() / bitmapHeight.toFloat()
         val imageWidth = (scale * bitmapWidth.toFloat()).toInt()
-
-        /*if (imageWidth > rect.width()) {
-            imageWidth
-        }
-
-        var imageWidth = rect.width()
-        var scale = imageWidth.toFloat() / bitmapWidth.toFloat()
-        var imageHeight = (scale * bitmapHeight.toFloat()).toInt()
-
-        if (imageHeight > rect.height()) {
-            imageHeight = rect.height()
-            scale = imageHeight.toFloat() / bitmapHeight.toFloat()
-            imageWidth = (scale * bitmapWidth.toFloat()).toInt()
-        }*/
 
         // center image on page
         rect.left += ((rect.width() - imageWidth) / 2)
