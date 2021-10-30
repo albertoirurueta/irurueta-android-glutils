@@ -170,20 +170,23 @@ class CurlTextureView @JvmOverloads constructor(
         override fun onDrawFrame() {
             val renderer = curlRenderer ?: return
 
-            val targetIndex = this@CurlTextureView.targetIndex
-
             // We are not animating
             if (!animate) {
                 // notify page position changed
                 if (!notifySmoothChange) {
                     notifySmoothChange = true
-                    currentIndexChangedListener?.onCurrentIndexChanged(
-                        this@CurlTextureView,
-                        currentIndex
-                    )
+                    post {
+                        // notify on UI thread
+                        currentIndexChangedListener?.onCurrentIndexChanged(
+                            this@CurlTextureView,
+                            currentIndex
+                        )
+                    }
                 }
                 return
             }
+
+            val targetIndex = this@CurlTextureView.targetIndex
 
             val currentTime = System.nanoTime()
             if (currentTime >= animationStartTime + millisToNanos(animationDurationTime)) {
@@ -830,6 +833,7 @@ class CurlTextureView @JvmOverloads constructor(
         // Even though left and right pages are static we have to allocate room
         // for curl on them too as we are switching meshes. Another way would be
         // to swap texture ids only.
+        // TODO: additional properties can be set (draw polygons, change shadow colors, etc)
         pageLeft = CurlMesh(
             MAX_CURL_SPLITS_IN_MESH,
             DRAW_CURL_POSITION_IN_MESH,
@@ -1064,8 +1068,6 @@ class CurlTextureView @JvmOverloads constructor(
         var pageLeft = pageLeft ?: return
         var pageRight = pageRight ?: return
         var pageCurl = pageCurl ?: return
-
-        // if (page != CURL_LEFT || page != CURL_RIGHT) return
 
         // Remove meshes from renderer.
         curlRenderer?.removeCurlMesh(pageLeft)

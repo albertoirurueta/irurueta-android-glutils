@@ -1,13 +1,16 @@
 package com.irurueta.android.glutils.test
 
+import android.content.res.Resources
 import android.graphics.*
+import android.util.TypedValue
 import android.view.View
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.RequiresDevice
 import androidx.test.rule.ActivityTestRule
 import com.irurueta.android.glutils.GLTextureView
-import com.irurueta.android.glutils.InstrumentationTestHelper.tap
+import com.irurueta.android.glutils.InstrumentationTestHelper
 import com.irurueta.android.glutils.curl.CurlPage
 import com.irurueta.android.glutils.curl.CurlTextureView
 import org.junit.After
@@ -30,12 +33,16 @@ class CurlTextureViewTest {
     private var activity: CurlTextureViewActivity? = null
     private var view: CurlTextureView? = null
 
+    private var textView: TextView? = null
+
     private val lock = ReentrantLock()
     private val condition = lock.newCondition()
 
     private var currentIndex = 0
     private var pageClicked = 0
     private var sizeChanged = 0
+
+    private var bitmaps = arrayOfNulls<Bitmap>(3)
 
     private val pageProvider = object : CurlTextureView.PageProvider {
         override val pageCount: Int
@@ -48,7 +55,9 @@ class CurlTextureViewTest {
             index: Int,
             backIndex: Int?
         ) {
-            // load new bitmap for curl page view
+            // Load new bitmap for curl page view.
+            // In real world scenario, images should be cached in memory for
+            // performance reasons.
             val bitmap = loadBitmap(width, height, index)
             if (backIndex == null) {
                 page.setTexture(bitmap, CurlPage.SIDE_BOTH)
@@ -101,11 +110,16 @@ class CurlTextureViewTest {
     fun setUp() {
         activity = activityRule.activity
         view = activity?.findViewById(R.id.curl_texture_view_test)
+        textView = activity?.findViewById(R.id.title)
         reset()
+
+        loadAllBitmaps()
     }
 
     @After
     fun tearDown() {
+        unloadAllBitmaps()
+
         view = null
         activity = null
         reset()
@@ -199,7 +213,7 @@ class CurlTextureViewTest {
     }
 
     @Test
-    fun currentIndexChangedListener_whenNotAnimated_setsExpectedValue() {
+    fun currentIndexChangedListener_whenSinglePageModeNotAnimated_setsExpectedValue() {
         val view = this.view ?: return fail()
         view.pageProvider = pageProvider
         view.currentIndexChangedListener = currentIndexChangeListener
@@ -207,6 +221,7 @@ class CurlTextureViewTest {
         assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
 
         assertEquals(0, view.currentIndex)
+        assertEquals(CurlTextureView.SHOW_ONE_PAGE, view.viewMode)
 
         Thread.sleep(SLEEP)
 
@@ -245,7 +260,7 @@ class CurlTextureViewTest {
     }
 
     @Test
-    fun currentIndexChangedListener_whenAnimated_setsExpectedValue() {
+    fun currentIndexChangedListener_whenOnePageAnimated_setsExpectedValue() {
         val view = this.view ?: return fail()
         view.pageProvider = pageProvider
         view.currentIndexChangedListener = currentIndexChangeListener
@@ -253,6 +268,56 @@ class CurlTextureViewTest {
         assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
 
         assertEquals(0, view.currentIndex)
+        assertEquals(CurlTextureView.SHOW_ONE_PAGE, view.viewMode)
+        assertTrue(view.allowLastPageCurl)
+
+        reset()
+
+        // change current index
+        activityRule.runOnUiThread {
+            view.setSmoothCurrentIndex(1)
+        }
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+
+        // change current index again
+        activityRule.runOnUiThread {
+            view.setSmoothCurrentIndex(2)
+        }
+
+        waitOnCondition({ currentIndex == 1 })
+
+        assertEquals(2, view.currentIndex)
+
+        // change current index again
+        activityRule.runOnUiThread {
+            view.setSmoothCurrentIndex(0)
+        }
+
+        waitOnCondition({ currentIndex == 2 })
+
+        assertEquals(0, view.currentIndex)
+    }
+
+    @Test
+    fun currentIndexChangedListener_whenTwoPageAnimated_setsExpectedValue() {
+        val view = this.view ?: return fail()
+        assertEquals(CurlTextureView.SHOW_ONE_PAGE, view.viewMode)
+
+        activityRule.runOnUiThread {
+            view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+        }
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        assertEquals(0, view.currentIndex)
+        assertEquals(CurlTextureView.SHOW_TWO_PAGES, view.viewMode)
+        assertTrue(view.allowLastPageCurl)
 
         reset()
 
@@ -293,18 +358,240 @@ class CurlTextureViewTest {
         assertSame(pageClickListener, view.pageClickListener)
 
         // perform click
-        tap(view)
+        InstrumentationTestHelper.tap(view)
 
         waitOnCondition({ pageClicked == 0 })
 
         assertEquals(1, pageClicked)
     }
-    // TODO: renderLeftPage when TWO page view mode
+
+    @Test
+    fun setMargins_drawsPagesWithTransparentBackground() {
+        val view = this.view ?: return fail()
+        val textView = this.textView ?: return fail()
+        val topMargin = textView.measuredHeight
+        val margin = dp2px(MARGIN_DP)
+
+        activityRule.runOnUiThread {
+            view.setMargins(margin, topMargin, margin, margin)
+        }
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        assertEquals(0, view.currentIndex)
+        assertEquals(CurlTextureView.SHOW_ONE_PAGE, view.viewMode)
+        assertTrue(view.allowLastPageCurl)
+
+        reset()
+
+        // change current index
+        activityRule.runOnUiThread {
+            view.setSmoothCurrentIndex(1)
+        }
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @Test
+    fun setProportionalMargins_drawsPagesWithTransparentBackground() {
+        val view = this.view ?: return fail()
+
+        activityRule.runOnUiThread {
+            view.setProportionalMargins(0.1f, 0.1f, 0.1f, 0.1f)
+        }
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        assertEquals(0, view.currentIndex)
+        assertEquals(CurlTextureView.SHOW_ONE_PAGE, view.viewMode)
+        assertTrue(view.allowLastPageCurl)
+
+        reset()
+
+        // change current index
+        activityRule.runOnUiThread {
+            view.setSmoothCurrentIndex(1)
+        }
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @Test
+    fun drag_whenLastPageCurlAllowed_changesPage() {
+        val view = this.view ?: return fail()
+        val textView = this.textView ?: return fail()
+        val topMargin = textView.measuredHeight
+        val margin = dp2px(MARGIN_DP)
+
+        activityRule.runOnUiThread {
+            view.setMargins(margin, topMargin, margin, margin)
+        }
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        assertEquals(0, view.currentIndex)
+        assertEquals(CurlTextureView.SHOW_ONE_PAGE, view.viewMode)
+        assertTrue(view.allowLastPageCurl)
+
+        reset()
+
+        val xy = IntArray(2)
+        view.getLocationOnScreen(xy)
+
+        val viewLeft = xy[0]
+        val viewTop = xy[1]
+
+        // drag to next page
+        val fromX1 = viewLeft + view.width / 2
+        val fromY1 = viewTop + view.height - margin
+        val toX1 = viewLeft + margin
+        val toY1 = viewTop + topMargin
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+
+        // drag to next page
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 1 })
+
+        assertEquals(2, view.currentIndex)
+
+        // drag to next page
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 2 })
+
+        assertEquals(3, view.currentIndex)
+
+        // curl last page
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        // drag to previous page
+        val fromX2 = viewLeft + view.width / 3
+        val fromY2 = viewTop + view.height / 2
+        val toX2 = viewLeft + view.width - margin
+        val toY2 = viewTop + topMargin
+        InstrumentationTestHelper.drag(fromX2, fromY2, toX2, toY2)
+
+        waitOnCondition({ currentIndex == 3 })
+
+        Thread.sleep(SLEEP)
+
+        assertEquals(2, view.currentIndex)
+
+        // drag to previous page again
+        InstrumentationTestHelper.drag(fromX2, fromY2, toX2, toY2)
+
+        Thread.sleep(SLEEP)
+
+        assertEquals(1, view.currentIndex)
+
+        // drag to previous page again
+        InstrumentationTestHelper.drag(fromX2, fromY2, toX2, toY2)
+
+        Thread.sleep(SLEEP)
+
+        assertEquals(0, view.currentIndex)
+    }
+
+    @Test
+    fun drag_whenLastPageCurlDisallowed_changesPage() {
+        val view = this.view ?: return fail()
+        val textView = this.textView ?: return fail()
+        val topMargin = textView.measuredHeight
+        val margin = dp2px(MARGIN_DP)
+
+        activityRule.runOnUiThread {
+            view.setMargins(margin, topMargin, margin, margin)
+        }
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+        view.allowLastPageCurl = false
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        assertEquals(0, view.currentIndex)
+        assertEquals(CurlTextureView.SHOW_ONE_PAGE, view.viewMode)
+        assertFalse(view.allowLastPageCurl)
+
+        reset()
+
+        val xy = IntArray(2)
+        view.getLocationOnScreen(xy)
+
+        val viewLeft = xy[0]
+        val viewTop = xy[1]
+
+        // drag to next page
+        val fromX1 = viewLeft + view.width / 2
+        val fromY1 = viewTop + view.height - margin
+        val toX1 = viewLeft + margin
+        val toY1 = viewTop + topMargin
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+
+        // drag to next page
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 1 })
+
+        assertEquals(2, view.currentIndex)
+
+        // drag to next page
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        assertEquals(2, view.currentIndex)
+
+        // attempt to curl last page
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        // doesn't change page
+        assertEquals(2, view.currentIndex)
+    }
+
+    private fun loadAllBitmaps() {
+        // bitmaps need to be loaded in memory first for performance reasons
+        val drawables = listOf(R.drawable.image1, R.drawable.image2, R.drawable.image3)
+        for (i in bitmaps.indices) {
+            val bitmap = bitmaps[i]
+            if (bitmap == null || bitmap.isRecycled ) {
+                bitmaps[i] = BitmapFactory.decodeResource(activity?.resources, drawables[i])
+            }
+        }
+    }
+
+    private fun unloadAllBitmaps() {
+        for (i in bitmaps.indices) {
+            val bitmap = bitmaps[i]
+            if (bitmap != null && !bitmap.isRecycled) {
+                bitmap.recycle()
+            }
+            bitmaps[i] = null
+        }
+    }
 
     private fun loadBitmap(width: Int, height: Int, index: Int): Bitmap? {
-        val drawables = listOf(R.drawable.image1, R.drawable.image2, R.drawable.image3)
-        val bitmap =
-            BitmapFactory.decodeResource(activity?.resources, drawables[index]) ?: return null
+        val bitmap = bitmaps[index] ?: return null
 
         val bitmapWidth = bitmap.width
         val bitmapHeight = bitmap.height
@@ -355,5 +642,16 @@ class CurlTextureViewTest {
         const val PAGE_COUNT = 3
         const val MAX_RETRIES = 2
         const val TIMEOUT_MILLIS = 10000L
+
+        const val MARGIN_DP = 20.0f
+
+        @Suppress("SameParameterValue")
+        private fun dp2px(dp: Float): Int {
+            return TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                Resources.getSystem().displayMetrics
+            ).toInt()
+        }
     }
 }

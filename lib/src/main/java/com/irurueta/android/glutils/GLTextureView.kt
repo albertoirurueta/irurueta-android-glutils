@@ -150,9 +150,7 @@ open class GLTextureView @JvmOverloads constructor(
             eglWindowSurfaceFactory = DefaultWindowSurfaceFactory()
         }
         this.renderer = renderer
-        glThreadManager.lock.withLock {
-            initializeGlThread()
-        }
+        initializeGlThread()
     }
 
     /**
@@ -932,8 +930,7 @@ open class GLTextureView @JvmOverloads constructor(
     private class GLThread(
         private val glSurfaceViewWeakRef: WeakReference<GLTextureView>,
         private val glThreadManager: GLThreadManager
-    ) :
-        Thread() {
+    ) : Thread() {
 
         // Once the thread is started, all accesses to the following member variables are protected
         // by the glThreadManager monitor
