@@ -9,6 +9,8 @@
 
         <activity
             android:name="com.irurueta.android.glutils.test.CurlTextureViewActivity"
-            android:label="CurlTextureViewActivity" />
+            android:label="CurlTextureView" />
+        <activity android:name="com.irurueta.android.glutils.test.CurlGLSurfaceViewActivity"
+            android:label="CurlGLSurfaceView" />
     </application>
 </manifest>

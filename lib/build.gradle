@@ -58,6 +58,16 @@ tasks.withType(Test) {
     jacoco.excludes = ['jdk.internal.*']
 }
 
+configurations.all{
+    resolutionStrategy {
+        eachDependency { details ->
+            if ('org.jacoco' == details.requested.group) {
+                details.useVersion "$jacoco_version"
+            }
+        }
+    }
+}
+
 sonarqube {
     properties {
         property "sonar.projectKey", "albertoirurueta_irurueta-android-glutils"
