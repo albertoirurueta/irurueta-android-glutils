@@ -42,6 +42,17 @@ class CurlTextureViewTest {
         assertNull(view.currentIndexChangedListener)
         assertEquals(CurlTextureView.SHOW_ONE_PAGE, view.viewMode)
         assertNull(view.pageClickListener)
+        assertEquals(CurlTextureView.MAX_CURL_SPLITS_IN_MESH, view.maxCurlSplitsInMesh)
+        assertEquals(CurlTextureView.DRAW_CURL_POSITION_IN_MESH, view.drawCurlPositionInMesh)
+        assertEquals(CurlTextureView.DRAW_POLYGON_OUTLINES_IN_MESH, view.drawPolygonOutlinesInMesh)
+        assertEquals(CurlTextureView.DRAW_SHADOW_IN_MESH, view.drawShadowInMesh)
+        assertEquals(CurlTextureView.DRAW_TEXTURE_IN_MESH, view.drawTextureInMesh)
+        assertTrue(CurlTextureView.SHADOW_INNER_COLOR_IN_MESH.contentEquals(view.shadowInnerColorInMesh))
+        assertTrue(CurlTextureView.SHADOW_OUTER_COLOR_IN_MESH.contentEquals(view.shadowOuterColorInMesh))
+        assertEquals(
+            CurlTextureView.DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH,
+            view.colorFactorOffsetInMesh
+        )
 
         val animate: Boolean? = view.getPrivateProperty("animate")
         requireNotNull(animate)
@@ -162,6 +173,339 @@ class CurlTextureViewTest {
         // check
         assertSame(pageProvider, view.pageProvider)
         assertEquals(0, view.currentIndex)
+    }
+
+    @Test
+    fun maxCurlSplitsInMesh_whenNoPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(CurlTextureView.MAX_CURL_SPLITS_IN_MESH, view.maxCurlSplitsInMesh)
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.maxCurlSplitsInMesh = 20
+
+        // check
+        assertEquals(20, view.maxCurlSplitsInMesh)
+    }
+
+    @Test
+    fun maxCurlSplitsInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(CurlTextureView.MAX_CURL_SPLITS_IN_MESH, view.maxCurlSplitsInMesh)
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.maxCurlSplitsInMesh = 20 }
+    }
+
+    @Test
+    fun drawCurlPositionInMesh_whenNoPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(CurlTextureView.DRAW_CURL_POSITION_IN_MESH, view.drawCurlPositionInMesh)
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.drawCurlPositionInMesh = !CurlTextureView.DRAW_CURL_POSITION_IN_MESH
+
+        // check
+        assertEquals(!CurlTextureView.DRAW_CURL_POSITION_IN_MESH, view.drawCurlPositionInMesh)
+    }
+
+    @Test
+    fun drawCurlPositionInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(CurlTextureView.DRAW_CURL_POSITION_IN_MESH, view.drawCurlPositionInMesh)
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.drawCurlPositionInMesh = true }
+    }
+
+    @Test
+    fun drawPolygonOutlinesInMesh_whenNoPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(CurlTextureView.DRAW_POLYGON_OUTLINES_IN_MESH, view.drawPolygonOutlinesInMesh)
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.drawPolygonOutlinesInMesh = !CurlTextureView.DRAW_POLYGON_OUTLINES_IN_MESH
+
+        // check
+        assertEquals(!CurlTextureView.DRAW_POLYGON_OUTLINES_IN_MESH, view.drawPolygonOutlinesInMesh)
+    }
+
+    @Test
+    fun drawPolygonOutlinesInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(CurlTextureView.DRAW_POLYGON_OUTLINES_IN_MESH, view.drawPolygonOutlinesInMesh)
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.drawPolygonOutlinesInMesh = true }
+    }
+
+    @Test
+    fun drawShadowInMesh_whenNoPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(CurlTextureView.DRAW_SHADOW_IN_MESH, view.drawShadowInMesh)
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.drawShadowInMesh = !CurlTextureView.DRAW_SHADOW_IN_MESH
+
+        // check
+        assertEquals(!CurlTextureView.DRAW_SHADOW_IN_MESH, view.drawShadowInMesh)
+    }
+
+    @Test
+    fun drawShadowInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(CurlTextureView.DRAW_SHADOW_IN_MESH, view.drawShadowInMesh)
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.drawShadowInMesh = false }
+    }
+
+    @Test
+    fun drawTextureInMesh_whenNoPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(CurlTextureView.DRAW_TEXTURE_IN_MESH, view.drawTextureInMesh)
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.drawTextureInMesh = !CurlTextureView.DRAW_TEXTURE_IN_MESH
+
+        // check
+        assertEquals(!CurlTextureView.DRAW_TEXTURE_IN_MESH, view.drawTextureInMesh)
+    }
+
+    @Test
+    fun drawTextureInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(CurlTextureView.DRAW_TEXTURE_IN_MESH, view.drawTextureInMesh)
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.drawTextureInMesh = false }
+    }
+
+    @Test
+    fun shadowInnerColorInMesh_whenValid_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertTrue(CurlTextureView.SHADOW_INNER_COLOR_IN_MESH.contentEquals(view.shadowInnerColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.0f, 0.0f, 0.5f)
+        view.shadowInnerColorInMesh = color
+
+        // check
+        assertSame(color, view.shadowInnerColorInMesh)
+    }
+
+    @Test
+    fun shadowInnerColorInMesh_whenInvalidLength_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertTrue(CurlTextureView.SHADOW_INNER_COLOR_IN_MESH.contentEquals(view.shadowInnerColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.5f, 0.25f)
+        assertThrows(IllegalArgumentException::class.java) {
+            view.shadowInnerColorInMesh = color
+        }
+    }
+
+    @Test
+    fun shadowInnerColorInMesh_whenInvalidValue_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertTrue(CurlTextureView.SHADOW_INNER_COLOR_IN_MESH.contentEquals(view.shadowInnerColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(2.0f, 0.0f, 0.0f, 0.5f)
+        assertThrows(IllegalArgumentException::class.java) {
+            view.shadowInnerColorInMesh = color
+        }
+    }
+
+    @Test
+    fun shadowInnerColorInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertTrue(CurlTextureView.SHADOW_INNER_COLOR_IN_MESH.contentEquals(view.shadowInnerColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.0f, 0.0f, 0.5f)
+        assertThrows(IllegalArgumentException::class.java) { view.shadowInnerColorInMesh = color }
+    }
+
+    @Test
+    fun shadowOuterColorInMesh_whenValid_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertTrue(CurlTextureView.SHADOW_OUTER_COLOR_IN_MESH.contentEquals(view.shadowOuterColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f)
+        view.shadowOuterColorInMesh = color
+
+        // check
+        assertSame(color, view.shadowOuterColorInMesh)
+    }
+
+    @Test
+    fun shadowOuterColorInMesh_whenInvalidLength_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertTrue(CurlTextureView.SHADOW_OUTER_COLOR_IN_MESH.contentEquals(view.shadowOuterColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.5f, 0.25f)
+        assertThrows(IllegalArgumentException::class.java) {
+            view.shadowOuterColorInMesh = color
+        }
+    }
+
+    @Test
+    fun shadowOuterColorInMesh_whenInvalidValue_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertTrue(CurlTextureView.SHADOW_OUTER_COLOR_IN_MESH.contentEquals(view.shadowOuterColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(2.0f, 0.0f, 0.0f, 0.5f)
+        assertThrows(IllegalArgumentException::class.java) {
+            view.shadowOuterColorInMesh = color
+        }
+    }
+
+    @Test
+    fun shadowOuterColorInMesh_whenPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertTrue(CurlTextureView.SHADOW_OUTER_COLOR_IN_MESH.contentEquals(view.shadowOuterColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f)
+        assertThrows(IllegalArgumentException::class.java) { view.shadowOuterColorInMesh = color }
+    }
+
+    @Test
+    fun colorFactorOffsetInMesh_whenValid_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(
+            CurlTextureView.DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH,
+            view.colorFactorOffsetInMesh
+        )
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.colorFactorOffsetInMesh = 0.5f
+
+        assertEquals(0.5f, view.colorFactorOffsetInMesh)
+    }
+
+    @Test
+    fun colorFactorOffsetInMesh_whenInvalid_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(
+            CurlTextureView.DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH,
+            view.colorFactorOffsetInMesh
+        )
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) {
+            view.colorFactorOffsetInMesh = -1.0f
+        }
+    }
+
+    @Test
+    fun colorFactorOffsetInMesh_whenPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertEquals(
+            CurlTextureView.DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH,
+            view.colorFactorOffsetInMesh
+        )
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.colorFactorOffsetInMesh = 0.5f }
     }
 
     @Test

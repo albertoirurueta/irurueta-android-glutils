@@ -157,10 +157,14 @@ class CurlRenderer(
 
     @Suppress("ControlFlowWithEmptyBody")
     @Synchronized
-    fun removeCurlMesh(mesh: CurlMesh) {
+    fun removeCurlMesh(mesh: CurlMesh) : Boolean {
         // Remove repeated instance until no more instances remain
+        var result = false
         while (curlMeshes.remove(mesh)) {
+            result = true
         }
+
+        return result
     }
 
     /**

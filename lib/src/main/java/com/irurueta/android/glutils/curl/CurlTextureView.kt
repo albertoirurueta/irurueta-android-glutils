@@ -376,6 +376,124 @@ class CurlTextureView @JvmOverloads constructor(
     var pageClickListener: PageClickListener? = null
 
     /**
+     * Gets or sets maximum number of times the curl can be divided into. The bigger the
+     * value the smoother the curl will be, at the expense of having more polygons to be drawn.
+     */
+    var maxCurlSplitsInMesh: Int = MAX_CURL_SPLITS_IN_MESH
+        set(value) {
+            require(pageProvider == null)
+
+            if (field != value) {
+                field = value
+                rebuildPages()
+            }
+        }
+
+    /**
+     * Enables or disables flag for rendering some lines used for development.
+     * When enabled, shows curl position.
+     */
+    var drawCurlPositionInMesh: Boolean = DRAW_CURL_POSITION_IN_MESH
+        set(value) {
+            require(pageProvider == null)
+
+            if (field != value) {
+                field = value
+                rebuildPages()
+            }
+        }
+
+    /**
+     * Enables or disables flag for drawing polygon outlines.
+     * Seeing polygon outlines gives good insight on how original rectangle is
+     * divided.
+     */
+    var drawPolygonOutlinesInMesh: Boolean = DRAW_POLYGON_OUTLINES_IN_MESH
+        set(value) {
+            require(pageProvider == null)
+
+            if (field != value) {
+                field = value
+                rebuildPages()
+            }
+        }
+
+    /**
+     * Enables or disables flag for enabling shadow rendering.
+     */
+    var drawShadowInMesh: Boolean = DRAW_SHADOW_IN_MESH
+        set(value) {
+            require(pageProvider == null)
+
+            if (field != value) {
+                field = value
+                rebuildPages()
+            }
+        }
+
+    /**
+     * Enables or disables flag for texture rendering.
+     */
+    var drawTextureInMesh: Boolean = DRAW_TEXTURE_IN_MESH
+        set(value) {
+            require(pageProvider == null)
+
+            if (field != value) {
+                field = value
+                rebuildPages()
+            }
+        }
+
+    /**
+     * Gets or sets inner color for shadow. Inner color is the color drawn next to
+     * surface where shadowed area starts.
+     */
+    var shadowInnerColorInMesh: FloatArray = SHADOW_INNER_COLOR_IN_MESH
+        set(value) {
+            require(pageProvider == null)
+            require(value.size == 4)
+            require(value.all { it in 0.0f..1.0f })
+
+            if (!field.contentEquals(value)) {
+                field = value
+                rebuildPages()
+            }
+        }
+
+    /**
+     * Gets or sets outer color for shadow. Outer color is the color the shadow ends to.
+     */
+    var shadowOuterColorInMesh: FloatArray = SHADOW_OUTER_COLOR_IN_MESH
+        set(value) {
+            require(pageProvider == null)
+            require(value.size == 4)
+            require(value.all { it in 0.0f..1.0f })
+
+            if (!field.contentEquals(value)) {
+                field = value
+                rebuildPages()
+            }
+        }
+
+    /**
+     * Gets or sets color factor offset to make darker or clearer the area of the
+     * texture close to the curl.
+     * Value must be between 0.0f and 1.0f (both included).
+     * The larger the value, the clearer the are will be.
+     * The smaller the value, the darker the area will be.
+     */
+    var colorFactorOffsetInMesh: Float = DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH
+        set(value) {
+            require(pageProvider == null)
+            require(value in 0.0f..1.0f)
+
+            if (field != value) {
+                field = value
+                rebuildPages()
+            }
+        }
+
+    /**
      * Called when a touch event is received on this view.
      *
      * @param event a touch event.
@@ -510,6 +628,9 @@ class CurlTextureView @JvmOverloads constructor(
         sizeChangedObserver?.onSizeChanged(w, h)
     }
 
+    /**
+     * Creates and starts GL thread if not already initialized and then sets current view mode.
+     */
     override fun initializeGlThread() {
         super.initializeGlThread()
         // refresh view mode to ensure that render thread has proper value once it
@@ -768,6 +889,84 @@ class CurlTextureView @JvmOverloads constructor(
         updateCurlPos(pointerPos)
     }
 
+    /**
+     * Rebuilds pages meshes when their configuration changes.
+     */
+    private fun rebuildPages() {
+        // Even though left and right pages are static we have to allocate room
+        // for curl on them too as we are switching meshes. Another way would be
+        // to swap texture ids only.
+        val previousPageLeft = pageLeft
+        val existedPreviousLeft = if (previousPageLeft != null) {
+            curlRenderer?.removeCurlMesh(previousPageLeft) ?: false
+        } else {
+            false
+        }
+
+        val previousPageRight = pageRight
+        val existedPreviousRight = if (previousPageRight != null) {
+            curlRenderer?.removeCurlMesh(previousPageRight) ?: false
+        } else {
+            false
+        }
+
+        val previousPageCurl = pageCurl
+        val existedPreviousCurl = if (previousPageCurl != null) {
+            curlRenderer?.removeCurlMesh(previousPageCurl) ?: false
+        } else {
+            false
+        }
+
+        val pageLeft = CurlMesh(
+            maxCurlSplitsInMesh,
+            drawCurlPositionInMesh,
+            drawPolygonOutlinesInMesh,
+            drawShadowInMesh,
+            drawTextureInMesh,
+            shadowInnerColorInMesh,
+            shadowOuterColorInMesh,
+            colorFactorOffsetInMesh
+        )
+        this.pageLeft = pageLeft
+
+        val pageRight = CurlMesh(
+            maxCurlSplitsInMesh,
+            drawCurlPositionInMesh,
+            drawPolygonOutlinesInMesh,
+            drawShadowInMesh,
+            drawTextureInMesh,
+            shadowInnerColorInMesh,
+            shadowOuterColorInMesh,
+            colorFactorOffsetInMesh
+        )
+        this.pageRight = pageRight
+
+        val pageCurl = CurlMesh(
+            maxCurlSplitsInMesh,
+            drawCurlPositionInMesh,
+            drawPolygonOutlinesInMesh,
+            drawShadowInMesh,
+            drawTextureInMesh,
+            shadowInnerColorInMesh,
+            shadowOuterColorInMesh,
+            colorFactorOffsetInMesh
+        )
+        this.pageCurl = pageCurl
+
+        pageLeft.setFlipTexture(true)
+        pageRight.setFlipTexture(false)
+
+        if (existedPreviousLeft) {
+            curlRenderer?.addCurlMesh(pageLeft)
+        }
+        if (existedPreviousRight) {
+            curlRenderer?.addCurlMesh(pageRight)
+        }
+        if (existedPreviousCurl) {
+            curlRenderer?.addCurlMesh(pageCurl)
+        }
+    }
+
     init {
         // To allow transparent background
         isOpaque = false
@@ -830,42 +1029,7 @@ class CurlTextureView @JvmOverloads constructor(
                 }
             )
 
-        // Even though left and right pages are static we have to allocate room
-        // for curl on them too as we are switching meshes. Another way would be
-        // to swap texture ids only.
-        // TODO: additional properties can be set (draw polygons, change shadow colors, etc)
-        pageLeft = CurlMesh(
-            MAX_CURL_SPLITS_IN_MESH,
-            DRAW_CURL_POSITION_IN_MESH,
-            DRAW_POLYGON_OUTLINES_IN_MESH,
-            DRAW_SHADOW_IN_MESH,
-            DRAW_TEXTURE_IN_MESH,
-            SHADOW_INNER_COLOR_IN_MESH,
-            SHADOW_OUTER_COLOR_IN_MESH,
-            DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH
-        )
-        pageRight = CurlMesh(
-            MAX_CURL_SPLITS_IN_MESH,
-            DRAW_CURL_POSITION_IN_MESH,
-            DRAW_POLYGON_OUTLINES_IN_MESH,
-            DRAW_SHADOW_IN_MESH,
-            DRAW_TEXTURE_IN_MESH,
-            SHADOW_INNER_COLOR_IN_MESH,
-            SHADOW_OUTER_COLOR_IN_MESH,
-            DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH
-        )
-        pageCurl = CurlMesh(
-            MAX_CURL_SPLITS_IN_MESH,
-            DRAW_CURL_POSITION_IN_MESH,
-            DRAW_POLYGON_OUTLINES_IN_MESH,
-            DRAW_SHADOW_IN_MESH,
-            DRAW_TEXTURE_IN_MESH,
-            SHADOW_INNER_COLOR_IN_MESH,
-            SHADOW_OUTER_COLOR_IN_MESH,
-            DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH
-        )
-        pageLeft?.setFlipTexture(true)
-        pageRight?.setFlipTexture(false)
+        rebuildPages()
     }
 
     /**
@@ -1246,6 +1410,7 @@ class CurlTextureView @JvmOverloads constructor(
 
     /**
      * Updates given CurlPage via PageProvider for page located at index.
+     *
      * @param page page to be updated.
      * @param index index of front side of page to be updated.
      * @param backIndex (optional) index of back side of page to be updated.
@@ -1426,8 +1591,17 @@ class CurlTextureView @JvmOverloads constructor(
          */
         const val DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH = 0.3f
 
+        /**
+         * Value to convert milliseconds to nanoseconds
+         */
         private const val MILLIS_TO_NANOS = 1000000
 
+        /**
+         * Converts milliseconds to nanoseconds.
+         *
+         * @param millis value to be converted, expressed in milliseconds.
+         * @return converted value expressed in nanoseconds.
+         */
         private fun millisToNanos(millis: Int): Long {
             return (millis * MILLIS_TO_NANOS).toLong()
         }

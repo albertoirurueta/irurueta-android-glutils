@@ -569,12 +569,362 @@ class CurlTextureViewTest {
         assertEquals(2, view.currentIndex)
     }
 
+    @Test
+    fun maxCurlSplitsInMesh_setsExpectedValue() {
+        val view = this.view ?: return fail()
+
+        assertEquals(0, view.currentIndex)
+        assertEquals(CurlTextureView.MAX_CURL_SPLITS_IN_MESH, view.maxCurlSplitsInMesh)
+
+        activityRule.runOnUiThread {
+            view.maxCurlSplitsInMesh = 20
+        }
+
+        assertEquals(20, view.maxCurlSplitsInMesh)
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        reset()
+
+        // change current index
+        activityRule.runOnUiThread {
+            view.setSmoothCurrentIndex(1)
+        }
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @Test
+    fun drawCurlPositionInMesh_setsExpectedValue() {
+        val view = this.view ?: return fail()
+        val textView = this.textView ?: return fail()
+        val topMargin = textView.measuredHeight
+        val margin = dp2px(MARGIN_DP)
+
+        activityRule.runOnUiThread {
+            view.setMargins(margin, topMargin, margin, margin)
+        }
+
+        assertEquals(0, view.currentIndex)
+        assertFalse(view.drawCurlPositionInMesh)
+
+        activityRule.runOnUiThread {
+            view.drawCurlPositionInMesh = true
+        }
+
+        assertTrue(view.drawCurlPositionInMesh)
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        reset()
+
+        val xy = IntArray(2)
+        view.getLocationOnScreen(xy)
+
+        val viewLeft = xy[0]
+        val viewTop = xy[1]
+
+        // drag to next page
+        val fromX1 = viewLeft + view.width / 2
+        val fromY1 = viewTop + view.height - margin
+        val toX1 = viewLeft + margin
+        val toY1 = viewTop + topMargin
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @Test
+    fun drawPolygonOutlinesInMesh_setsExpectedValue() {
+        val view = this.view ?: return fail()
+        val textView = this.textView ?: return fail()
+        val topMargin = textView.measuredHeight
+        val margin = dp2px(MARGIN_DP)
+
+        activityRule.runOnUiThread {
+            view.setMargins(margin, topMargin, margin, margin)
+        }
+
+        assertEquals(0, view.currentIndex)
+        assertFalse(view.drawPolygonOutlinesInMesh)
+
+        activityRule.runOnUiThread {
+            view.drawPolygonOutlinesInMesh = true
+        }
+
+        assertTrue(view.drawPolygonOutlinesInMesh)
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        reset()
+
+        val xy = IntArray(2)
+        view.getLocationOnScreen(xy)
+
+        val viewLeft = xy[0]
+        val viewTop = xy[1]
+
+        // drag to next page
+        val fromX1 = viewLeft + view.width / 2
+        val fromY1 = viewTop + view.height - margin
+        val toX1 = viewLeft + margin
+        val toY1 = viewTop + topMargin
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @Test
+    fun drawShadowInMesh_setsExpectedValue() {
+        val view = this.view ?: return fail()
+        val textView = this.textView ?: return fail()
+        val topMargin = textView.measuredHeight
+        val margin = dp2px(MARGIN_DP)
+
+        activityRule.runOnUiThread {
+            view.setMargins(margin, topMargin, margin, margin)
+        }
+
+        assertEquals(0, view.currentIndex)
+        assertTrue(view.drawShadowInMesh)
+
+        activityRule.runOnUiThread {
+            view.drawShadowInMesh = false
+        }
+
+        assertFalse(view.drawShadowInMesh)
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        reset()
+
+        val xy = IntArray(2)
+        view.getLocationOnScreen(xy)
+
+        val viewLeft = xy[0]
+        val viewTop = xy[1]
+
+        // drag to next page
+        val fromX1 = viewLeft + view.width / 2
+        val fromY1 = viewTop + view.height - margin
+        val toX1 = viewLeft + margin
+        val toY1 = viewTop + topMargin
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @Test
+    fun drawTextureInMesh_setsExpectedValue() {
+        val view = this.view ?: return fail()
+        val textView = this.textView ?: return fail()
+        val topMargin = textView.measuredHeight
+        val margin = dp2px(MARGIN_DP)
+
+        activityRule.runOnUiThread {
+            view.setMargins(margin, topMargin, margin, margin)
+        }
+
+        assertEquals(0, view.currentIndex)
+        assertTrue(view.drawTextureInMesh)
+
+        activityRule.runOnUiThread {
+            view.drawTextureInMesh = false
+        }
+
+        assertFalse(view.drawTextureInMesh)
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        reset()
+
+        val xy = IntArray(2)
+        view.getLocationOnScreen(xy)
+
+        val viewLeft = xy[0]
+        val viewTop = xy[1]
+
+        // drag to next page
+        val fromX1 = viewLeft + view.width / 2
+        val fromY1 = viewTop + view.height - margin
+        val toX1 = viewLeft + margin
+        val toY1 = viewTop + topMargin
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @Test
+    fun shadowInnerColorInMesh_setsExpectedValue() {
+        val view = this.view ?: return fail()
+        val textView = this.textView ?: return fail()
+        val topMargin = textView.measuredHeight
+        val margin = dp2px(MARGIN_DP)
+
+        activityRule.runOnUiThread {
+            view.setMargins(margin, topMargin, margin, margin)
+        }
+
+        assertEquals(0, view.currentIndex)
+        assertTrue(CurlTextureView.SHADOW_INNER_COLOR_IN_MESH.contentEquals(view.shadowInnerColorInMesh))
+
+        val color = floatArrayOf(1.0f, 0.0f, 0.0f, 0.5f)
+        activityRule.runOnUiThread {
+            view.shadowInnerColorInMesh = color
+        }
+
+        assertSame(color, view.shadowInnerColorInMesh)
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        reset()
+
+        val xy = IntArray(2)
+        view.getLocationOnScreen(xy)
+
+        val viewLeft = xy[0]
+        val viewTop = xy[1]
+
+        // drag to next page
+        val fromX1 = viewLeft + view.width / 2
+        val fromY1 = viewTop + view.height - margin
+        val toX1 = viewLeft + margin
+        val toY1 = viewTop + topMargin
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @Test
+    fun shadowOuterColorInMesh_setsExpectedValue() {
+        val view = this.view ?: return fail()
+        val textView = this.textView ?: return fail()
+        val topMargin = textView.measuredHeight
+        val margin = dp2px(MARGIN_DP)
+
+        activityRule.runOnUiThread {
+            view.setMargins(margin, topMargin, margin, margin)
+        }
+
+        assertEquals(0, view.currentIndex)
+        assertTrue(CurlTextureView.SHADOW_OUTER_COLOR_IN_MESH.contentEquals(view.shadowOuterColorInMesh))
+
+        val color = floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f)
+        activityRule.runOnUiThread {
+            view.shadowOuterColorInMesh = color
+        }
+
+        assertSame(color, view.shadowOuterColorInMesh)
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        reset()
+
+        val xy = IntArray(2)
+        view.getLocationOnScreen(xy)
+
+        val viewLeft = xy[0]
+        val viewTop = xy[1]
+
+        // drag to next page
+        val fromX1 = viewLeft + view.width / 2
+        val fromY1 = viewTop + view.height - margin
+        val toX1 = viewLeft + margin
+        val toY1 = viewTop + topMargin
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @Test
+    fun colorFactorOffsetInMesh_setsExpectedValue() {
+        val view = this.view ?: return fail()
+        val textView = this.textView ?: return fail()
+        val topMargin = textView.measuredHeight
+        val margin = dp2px(MARGIN_DP)
+
+        activityRule.runOnUiThread {
+            view.setMargins(margin, topMargin, margin, margin)
+        }
+
+        assertEquals(0, view.currentIndex)
+        assertEquals(
+            CurlTextureView.DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH,
+            view.colorFactorOffsetInMesh
+        )
+
+        activityRule.runOnUiThread {
+            view.colorFactorOffsetInMesh = 1.0f
+        }
+
+        assertEquals(1.0f, view.colorFactorOffsetInMesh)
+
+        view.pageProvider = pageProvider
+        view.currentIndexChangedListener = currentIndexChangeListener
+
+        assertSame(currentIndexChangeListener, view.currentIndexChangedListener)
+
+        reset()
+
+        val xy = IntArray(2)
+        view.getLocationOnScreen(xy)
+
+        val viewLeft = xy[0]
+        val viewTop = xy[1]
+
+        // drag to next page
+        val fromX1 = viewLeft + view.width / 2
+        val fromY1 = viewTop + view.height - margin
+        val toX1 = viewLeft + margin
+        val toY1 = viewTop + topMargin
+        InstrumentationTestHelper.drag(fromX1, fromY1, toX1, toY1)
+
+        waitOnCondition({ currentIndex == 0 })
+
+        assertEquals(1, view.currentIndex)
+    }
+
     private fun loadAllBitmaps() {
         // bitmaps need to be loaded in memory first for performance reasons
         val drawables = listOf(R.drawable.image1, R.drawable.image2, R.drawable.image3)
         for (i in bitmaps.indices) {
             val bitmap = bitmaps[i]
-            if (bitmap == null || bitmap.isRecycled ) {
+            if (bitmap == null || bitmap.isRecycled) {
                 bitmaps[i] = BitmapFactory.decodeResource(activity?.resources, drawables[i])
             }
         }

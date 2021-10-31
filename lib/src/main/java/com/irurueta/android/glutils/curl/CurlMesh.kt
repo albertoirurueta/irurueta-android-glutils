@@ -14,7 +14,7 @@ import kotlin.math.*
  * Class implementing actual curl page rendering.
  * This class is based on https://github.com/harism/android-pagecurl
  *
- * @property drawCurlPosition lag for rendering some lines used for development.
+ * @property drawCurlPosition Flag for rendering some lines used for development.
  * Shows curl position and one for the direction from the given position.
  * Comes handy one playing around with different ways for following pointer.
  * @property drawPolygonOutlines Flag for drawing polygon outlines.
@@ -131,7 +131,7 @@ class CurlMesh private constructor(
     /**
      * Constructor for mesh object.
      *
-     * @param maxCurlSplits maximum number of time the curl can be divided into. The bigger the
+     * @param maxCurlSplits maximum number of times the curl can be divided into. The bigger the
      * value the smoother the curl will be, at the expense of having more polygons to be drawn.
      */
     constructor(
@@ -1007,7 +1007,7 @@ class CurlMesh private constructor(
          * The larger the value, the clearer the area will be.
          * The smaller the value, the darker the area will be.
          */
-        const val DEFAULT_COLOR_FACTOR_OFFSET = 0.3f
+        const val DEFAULT_COLOR_FACTOR_OFFSET = 0.1f
     }
 
     /**

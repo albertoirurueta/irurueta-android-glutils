@@ -293,7 +293,14 @@ class CurlRendererTest {
         assertTrue(curlMeshes.contains(mesh))
 
         // remove mesh
-        renderer.removeCurlMesh(mesh)
+        assertTrue(renderer.removeCurlMesh(mesh))
+
+        // check
+        assertTrue(curlMeshes.isEmpty())
+        assertFalse(curlMeshes.contains(mesh))
+
+        // remove again
+        assertFalse(renderer.removeCurlMesh(mesh))
 
         // check
         assertTrue(curlMeshes.isEmpty())

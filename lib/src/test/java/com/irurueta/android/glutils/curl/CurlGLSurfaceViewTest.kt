@@ -1,11 +1,26 @@
 package com.irurueta.android.glutils.curl
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.RectF
+import android.os.Looper
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.View
 import androidx.test.core.app.ApplicationProvider
+import com.irurueta.android.glutils.getPrivateProperty
+import com.irurueta.android.glutils.setPrivateProperty
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
+import org.robolectric.annotation.LooperMode
+import javax.microedition.khronos.opengles.GL10
 
 @RunWith(RobolectricTestRunner::class)
 class CurlGLSurfaceViewTest {
@@ -17,6 +32,927 @@ class CurlGLSurfaceViewTest {
 
         assertEquals(CurlGLSurfaceView.ALLOW_LAST_PAGE_CURL, view.allowLastPageCurl)
         assertEquals(CurlGLSurfaceView.ANIMATION_DURATION_MILLIS, view.animationDurationTime)
+        assertEquals(
+            CurlGLSurfaceView.PAGE_JUMP_ANIMATION_DURATION_MILLIS,
+            view.pageJumpDurationTime
+        )
+        assertEquals(CurlGLSurfaceView.TOUCH_PRESSURE_ENABLED, view.enableTouchPressure)
+        assertNull(view.pageProvider)
+        assertEquals(CurlGLSurfaceView.CURL_NONE, view.curlState)
+        assertEquals(0, view.currentIndex)
+        assertTrue(view.renderLeftPage)
+        assertNull(view.sizeChangedObserver)
+        assertNull(view.currentIndexChangedListener)
+        assertEquals(CurlGLSurfaceView.SHOW_ONE_PAGE, view.viewMode)
+        assertNull(view.pageClickListener)
+        assertEquals(CurlGLSurfaceView.MAX_CURL_SPLITS_IN_MESH, view.maxCurlSplitsInMesh)
+        assertEquals(CurlGLSurfaceView.DRAW_CURL_POSITION_IN_MESH, view.drawCurlPositionInMesh)
+        assertEquals(
+            CurlGLSurfaceView.DRAW_POLYGON_OUTLINES_IN_MESH,
+            view.drawPolygonOutlinesInMesh
+        )
+        assertEquals(CurlGLSurfaceView.DRAW_SHADOW_IN_MESH, view.drawShadowInMesh)
+        assertEquals(CurlGLSurfaceView.DRAW_TEXTURE_IN_MESH, view.drawTextureInMesh)
+        assertTrue(CurlGLSurfaceView.SHADOW_INNER_COLOR_IN_MESH.contentEquals(view.shadowInnerColorInMesh))
+        assertTrue(CurlGLSurfaceView.SHADOW_OUTER_COLOR_IN_MESH.contentEquals(view.shadowOuterColorInMesh))
+        assertEquals(
+            CurlGLSurfaceView.DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH,
+            view.colorFactorOffsetInMesh
+        )
+
+        val animate: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate)
+        assertFalse(animate)
+        assertNotNull(view.getPrivateProperty("animationSource"))
+        val animationStartTime: Long? = view.getPrivateProperty("animationStartTime")
+        assertEquals(0L, animationStartTime)
+        assertNotNull(view.getPrivateProperty("animationTarget"))
+        val animationTargetEvent: Int? = view.getPrivateProperty("animationTargetEvent")
+        assertEquals(0, animationTargetEvent)
+        assertNotNull(view.getPrivateProperty("curlDir"))
+        assertNotNull(view.getPrivateProperty("curlPos"))
+        assertNull(view.getPrivateProperty("targetIndex"))
+        assertNotNull(view.getPrivateProperty("dragStartPos"))
+        val pageBitmapWidth: Int? = view.getPrivateProperty("pageBitmapWidth")
+        assertEquals(-1, pageBitmapWidth)
+        val pageBitmapHeight: Int? = view.getPrivateProperty("pageBitmapHeight")
+        assertEquals(-1, pageBitmapHeight)
+        assertNotNull(view.getPrivateProperty("pageCurl"))
+        assertNotNull(view.getPrivateProperty("pageLeft"))
+        assertNotNull(view.getPrivateProperty("pageRight"))
+        assertNull(view.getPrivateProperty("pointerPost"))
+        assertNotNull(view.getPrivateProperty("curlRenderer"))
+        assertNotNull(view.getPrivateProperty("gestureDetector"))
+        assertNull(view.getPrivateProperty("curlAnimator"))
+        val scrollX: Float? = view.getPrivateProperty("scrollX")
+        assertEquals(0.0f, scrollX)
+        val scrollY: Float? = view.getPrivateProperty("scrollY")
+        assertEquals(0.0f, scrollY)
+        val scrollP: Float? = view.getPrivateProperty("scrollP")
+        assertEquals(0.0f, scrollP)
+        assertNotNull(view.getPrivateProperty("observer"))
+    }
+
+    @Test
+    fun allowLastPageCurl_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(CurlGLSurfaceView.ALLOW_LAST_PAGE_CURL, view.allowLastPageCurl)
+
+        // set new value
+        view.allowLastPageCurl = !CurlGLSurfaceView.ALLOW_LAST_PAGE_CURL
+
+        // check
+        assertEquals(!CurlGLSurfaceView.ALLOW_LAST_PAGE_CURL, view.allowLastPageCurl)
+    }
+
+    @Test
+    fun animationDurationTime_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(CurlGLSurfaceView.ANIMATION_DURATION_MILLIS, view.animationDurationTime)
+
+        // set new value
+        view.animationDurationTime = 500
+
+        // check
+        assertEquals(500, view.animationDurationTime)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun animationDurationTie_whenNegative_throwsException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.animationDurationTime = -1
+    }
+
+    @Test
+    fun pageJumpDurationTime_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(
+            CurlGLSurfaceView.PAGE_JUMP_ANIMATION_DURATION_MILLIS,
+            view.pageJumpDurationTime
+        )
+
+        // set new value
+        view.pageJumpDurationTime = 300L
+
+        // check
+        assertEquals(300L, view.pageJumpDurationTime)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun pageJumpDurationTime_whenNegative_throwsException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.pageJumpDurationTime = -1
+    }
+
+    @Test
+    fun enableTouchPressure_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(CurlGLSurfaceView.TOUCH_PRESSURE_ENABLED, view.enableTouchPressure)
+
+        // set new value
+        view.enableTouchPressure = !CurlGLSurfaceView.TOUCH_PRESSURE_ENABLED
+
+        // check
+        assertEquals(!CurlGLSurfaceView.TOUCH_PRESSURE_ENABLED, view.enableTouchPressure)
+    }
+
+    @Test
+    fun pageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertNull(view.pageProvider)
+
+        // set new value
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // check
+        assertSame(pageProvider, view.pageProvider)
+        assertEquals(0, view.currentIndex)
+    }
+
+    @Test
+    fun maxCurlSplitsInMesh_whenNoPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(CurlGLSurfaceView.MAX_CURL_SPLITS_IN_MESH, view.maxCurlSplitsInMesh)
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.maxCurlSplitsInMesh = 20
+
+        // check
+        assertEquals(20, view.maxCurlSplitsInMesh)
+    }
+
+    @Test
+    fun maxCurlSplitsInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(CurlGLSurfaceView.MAX_CURL_SPLITS_IN_MESH, view.maxCurlSplitsInMesh)
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.maxCurlSplitsInMesh = 20 }
+    }
+
+    @Test
+    fun drawCurlPositionInMesh_whenNoPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(CurlGLSurfaceView.DRAW_CURL_POSITION_IN_MESH, view.drawCurlPositionInMesh)
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.drawCurlPositionInMesh = !CurlGLSurfaceView.DRAW_CURL_POSITION_IN_MESH
+
+        // check
+        assertEquals(!CurlGLSurfaceView.DRAW_CURL_POSITION_IN_MESH, view.drawCurlPositionInMesh)
+    }
+
+    @Test
+    fun drawCurlPositionInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(CurlGLSurfaceView.DRAW_CURL_POSITION_IN_MESH, view.drawCurlPositionInMesh)
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.drawCurlPositionInMesh = true }
+    }
+
+    @Test
+    fun drawPolygonOutlinesInMesh_whenNoPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(
+            CurlGLSurfaceView.DRAW_POLYGON_OUTLINES_IN_MESH,
+            view.drawPolygonOutlinesInMesh
+        )
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.drawPolygonOutlinesInMesh = !CurlGLSurfaceView.DRAW_POLYGON_OUTLINES_IN_MESH
+
+        // check
+        assertEquals(
+            !CurlGLSurfaceView.DRAW_POLYGON_OUTLINES_IN_MESH,
+            view.drawPolygonOutlinesInMesh
+        )
+    }
+
+    @Test
+    fun drawPolygonOutlinesInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(
+            CurlGLSurfaceView.DRAW_POLYGON_OUTLINES_IN_MESH,
+            view.drawPolygonOutlinesInMesh
+        )
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.drawPolygonOutlinesInMesh = true }
+    }
+
+    @Test
+    fun drawShadowInMesh_whenNoPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(CurlGLSurfaceView.DRAW_SHADOW_IN_MESH, view.drawShadowInMesh)
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.drawShadowInMesh = !CurlGLSurfaceView.DRAW_SHADOW_IN_MESH
+
+        // check
+        assertEquals(!CurlGLSurfaceView.DRAW_SHADOW_IN_MESH, view.drawShadowInMesh)
+    }
+
+    @Test
+    fun drawShadowInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(CurlGLSurfaceView.DRAW_SHADOW_IN_MESH, view.drawShadowInMesh)
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.drawShadowInMesh = false }
+    }
+
+    @Test
+    fun drawTextureInMesh_whenNoPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(CurlGLSurfaceView.DRAW_TEXTURE_IN_MESH, view.drawTextureInMesh)
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.drawTextureInMesh = !CurlGLSurfaceView.DRAW_TEXTURE_IN_MESH
+
+        // check
+        assertEquals(!CurlGLSurfaceView.DRAW_TEXTURE_IN_MESH, view.drawTextureInMesh)
+    }
+
+    @Test
+    fun drawTextureInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(CurlGLSurfaceView.DRAW_TEXTURE_IN_MESH, view.drawTextureInMesh)
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.drawTextureInMesh = false }
+    }
+
+    @Test
+    fun shadowInnerColorInMesh_whenValid_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertTrue(CurlGLSurfaceView.SHADOW_INNER_COLOR_IN_MESH.contentEquals(view.shadowInnerColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.0f, 0.0f, 0.5f)
+        view.shadowInnerColorInMesh = color
+
+        // check
+        assertSame(color, view.shadowInnerColorInMesh)
+    }
+
+    @Test
+    fun shadowInnerColorInMesh_whenInvalidLength_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertTrue(CurlGLSurfaceView.SHADOW_INNER_COLOR_IN_MESH.contentEquals(view.shadowInnerColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.5f, 0.25f)
+        assertThrows(IllegalArgumentException::class.java) {
+            view.shadowInnerColorInMesh = color
+        }
+    }
+
+    @Test
+    fun shadowInnerColorInMesh_whenInvalidValue_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertTrue(CurlGLSurfaceView.SHADOW_INNER_COLOR_IN_MESH.contentEquals(view.shadowInnerColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(2.0f, 0.0f, 0.0f, 0.5f)
+        assertThrows(IllegalArgumentException::class.java) {
+            view.shadowInnerColorInMesh = color
+        }
+    }
+
+    @Test
+    fun shadowInnerColorInMesh_whenPageProvider_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertTrue(CurlGLSurfaceView.SHADOW_INNER_COLOR_IN_MESH.contentEquals(view.shadowInnerColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.0f, 0.0f, 0.5f)
+        assertThrows(IllegalArgumentException::class.java) { view.shadowInnerColorInMesh = color }
+    }
+
+    @Test
+    fun shadowOuterColorInMesh_whenValid_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertTrue(CurlGLSurfaceView.SHADOW_OUTER_COLOR_IN_MESH.contentEquals(view.shadowOuterColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f)
+        view.shadowOuterColorInMesh = color
+
+        // check
+        assertSame(color, view.shadowOuterColorInMesh)
+    }
+
+    @Test
+    fun shadowOuterColorInMesh_whenInvalidLength_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertTrue(CurlGLSurfaceView.SHADOW_OUTER_COLOR_IN_MESH.contentEquals(view.shadowOuterColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.5f, 0.25f)
+        assertThrows(IllegalArgumentException::class.java) {
+            view.shadowOuterColorInMesh = color
+        }
+    }
+
+    @Test
+    fun shadowOuterColorInMesh_whenInvalidValue_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertTrue(CurlGLSurfaceView.SHADOW_OUTER_COLOR_IN_MESH.contentEquals(view.shadowOuterColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set new value
+        val color = floatArrayOf(2.0f, 0.0f, 0.0f, 0.5f)
+        assertThrows(IllegalArgumentException::class.java) {
+            view.shadowOuterColorInMesh = color
+        }
+    }
+
+    @Test
+    fun shadowOuterColorInMesh_whenPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertTrue(CurlGLSurfaceView.SHADOW_OUTER_COLOR_IN_MESH.contentEquals(view.shadowOuterColorInMesh))
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        val color = floatArrayOf(1.0f, 0.0f, 0.0f, 0.0f)
+        assertThrows(IllegalArgumentException::class.java) { view.shadowOuterColorInMesh = color }
+    }
+
+    @Test
+    fun colorFactorOffsetInMesh_whenValid_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(
+            CurlGLSurfaceView.DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH,
+            view.colorFactorOffsetInMesh
+        )
+        assertNull(view.pageProvider)
+
+        // set new value
+        view.colorFactorOffsetInMesh = 0.5f
+
+        assertEquals(0.5f, view.colorFactorOffsetInMesh)
+    }
+
+    @Test
+    fun colorFactorOffsetInMesh_whenInvalid_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(
+            CurlGLSurfaceView.DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH,
+            view.colorFactorOffsetInMesh
+        )
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) {
+            view.colorFactorOffsetInMesh = -1.0f
+        }
+    }
+
+    @Test
+    fun colorFactorOffsetInMesh_whenPageProvider_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(
+            CurlGLSurfaceView.DEFAULT_COLOR_FACTOR_OFFSET_IN_MESH,
+            view.colorFactorOffsetInMesh
+        )
+        assertNull(view.pageProvider)
+
+        // set page provider
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        view.pageProvider = pageProvider
+
+        // set new value
+        assertThrows(IllegalArgumentException::class.java) { view.colorFactorOffsetInMesh = 0.5f }
+    }
+
+    @Test
+    fun renderLeftPage_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        // check
+        assertTrue(view.renderLeftPage)
+
+        // set new value
+        view.renderLeftPage = false
+
+        // check
+        assertFalse(view.renderLeftPage)
+    }
+
+    @Test
+    fun sizeChangeObserver_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        // check
+        assertNull(view.sizeChangedObserver)
+
+        // set new value
+        val observer = mockk<CurlGLSurfaceView.SizeChangedObserver>()
+        view.sizeChangedObserver = observer
+
+        // check
+        assertSame(observer, view.sizeChangedObserver)
+    }
+
+    @Test
+    fun currentIndexChangedListener_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        // check
+        assertNull(view.currentIndexChangedListener)
+
+        // set new value
+        val listener = mockk<CurlGLSurfaceView.CurrentIndexChangedListener>()
+        view.currentIndexChangedListener = listener
+
+        // check
+        assertSame(listener, view.currentIndexChangedListener)
+    }
+
+    @Test
+    fun viewMode_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        // check default value
+        assertEquals(CurlGLSurfaceView.SHOW_ONE_PAGE, view.viewMode)
+
+        // set two pages
+        view.viewMode = CurlGLSurfaceView.SHOW_TWO_PAGES
+
+        // check
+        assertEquals(CurlGLSurfaceView.SHOW_TWO_PAGES, view.viewMode)
+
+        // set one page
+        view.viewMode = CurlGLSurfaceView.SHOW_ONE_PAGE
+
+        // check
+        assertEquals(CurlGLSurfaceView.SHOW_ONE_PAGE, view.viewMode)
+    }
+
+    @Test
+    fun pageClickListener_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        // check default value
+        assertNull(view.pageClickListener)
+
+        // set new value
+        val listener = mockk<CurlGLSurfaceView.PageClickListener>()
+        view.pageClickListener = listener
+
+        // check
+        assertSame(listener, view.pageClickListener)
+    }
+
+    @Test(expected = NullPointerException::class)
+    fun onTouchEvent_whenNoEvent_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.onTouchEvent(null)
+    }
+
+    @Test
+    fun onTouchEvent_whenActionCancel_handlesTouchUp() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        // set mock for gesture detector
+        val gestureDetector = mockk<GestureDetector>()
+        every { gestureDetector.onTouchEvent(any()) }.returns(true)
+        view.setPrivateProperty("gestureDetector", gestureDetector)
+
+        val event = mockk<MotionEvent>()
+        every { event.action }.returns(MotionEvent.ACTION_CANCEL)
+        every { event.x }.returns(100.0f)
+        every { event.y }.returns(200.0f)
+        every { event.pressure }.returns(1.0f)
+
+        assertTrue(view.onTouchEvent(event))
+
+        verify(exactly = 1) { gestureDetector.onTouchEvent(event) }
+    }
+
+    @Test
+    fun onTouchEvent_whenActionUp_handlesTouchUp() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        // set mock for gesture detector
+        val gestureDetector = mockk<GestureDetector>()
+        every { gestureDetector.onTouchEvent(any()) }.returns(true)
+        view.setPrivateProperty("gestureDetector", gestureDetector)
+
+        val event = mockk<MotionEvent>()
+        every { event.action }.returns(MotionEvent.ACTION_UP)
+        every { event.x }.returns(100.0f)
+        every { event.y }.returns(200.0f)
+        every { event.pressure }.returns(1.0f)
+
+        assertTrue(view.onTouchEvent(event))
+
+        verify(exactly = 1) { gestureDetector.onTouchEvent(event) }
+    }
+
+    @Test
+    fun onTouchEvent_whenOtherAction_callsGestureDetector() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        // set mock for gesture detector
+        val gestureDetector = mockk<GestureDetector>()
+        every { gestureDetector.onTouchEvent(any()) }.returns(true)
+        view.setPrivateProperty("gestureDetector", gestureDetector)
+
+        val event = mockk<MotionEvent>()
+        every { event.action }.returns(MotionEvent.ACTION_MOVE)
+
+        assertTrue(view.onTouchEvent(event))
+
+        verify(exactly = 1) { gestureDetector.onTouchEvent(event) }
+    }
+
+    @Test
+    fun setCurrentIndex_whenNoPageProvider_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(0, view.currentIndex)
+
+        view.setCurrentIndex(1)
+
+        assertEquals(0, view.currentIndex)
+    }
+
+    @Test
+    fun setCurrentIndex_whenPageProviderAndLastPageCurlAllowed_setsExpectedCurrentIndex() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.allowLastPageCurl = true
+
+        assertEquals(0, view.currentIndex)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        view.setCurrentIndex(2)
+
+        assertEquals(2, view.currentIndex)
+    }
+
+    @Test
+    fun setCurrentIndex_whenPageProviderAndLastPageCurlNotAllowed_setsExpectedCurrentIndex() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.allowLastPageCurl = false
+
+        assertEquals(0, view.currentIndex)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        view.setCurrentIndex(2)
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @LooperMode(LooperMode.Mode.PAUSED)
+    @Test
+    fun setSmoothCurrentIndex_whenNoPageProvider_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertEquals(0, view.currentIndex)
+
+        view.setSmoothCurrentIndex(1)
+
+        //finish animation
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(0, view.currentIndex)
+    }
+
+    @LooperMode(LooperMode.Mode.PAUSED)
+    @Test
+    fun setSmoothCurrentIndex_whenPageProviderButNoPageSizeChangeNotified_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        view.allowLastPageCurl = true
+
+        assertEquals(0, view.currentIndex)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        every { pageProvider.pageCount }.returns(2)
+        every { pageProvider.updatePage(any(), any(), any(), any(), any()) }
+            .answers { call ->
+                val page = call.invocation.args[0] as CurlPage
+                val width = call.invocation.args[1] as Int
+                val height = call.invocation.args[2] as Int
+
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                page.setTexture(bitmap, CurlPage.SIDE_BOTH)
+            }
+        view.pageProvider = pageProvider
+
+        view.setSmoothCurrentIndex(2)
+
+        //finish animation
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(0, view.currentIndex)
+    }
+
+    @LooperMode(LooperMode.Mode.PAUSED)
+    @Test
+    fun setSmoothCurrentIndex_whenPageProviderNoPageSizeChangeNotifiedAndGoingToPrevious_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        view.allowLastPageCurl = true
+
+        assertEquals(0, view.currentIndex)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        every { pageProvider.pageCount }.returns(2)
+        every { pageProvider.updatePage(any(), any(), any(), any(), any()) }
+            .answers { call ->
+                val page = call.invocation.args[0] as CurlPage
+                val width = call.invocation.args[1] as Int
+                val height = call.invocation.args[2] as Int
+
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                page.setTexture(bitmap, CurlPage.SIDE_BOTH)
+            }
+        view.pageProvider = pageProvider
+
+        view.setCurrentIndex(2)
+
+        assertEquals(2, view.currentIndex)
+
+        view.setSmoothCurrentIndex(1)
+
+        //finish animation
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(2, view.currentIndex)
+    }
+
+    @LooperMode(LooperMode.Mode.PAUSED)
+    @Test
+    fun setSmoothCurrentIndex_whenPageProviderButNoPageSizeChangeNotifiedAndLastPageCurlNotAllowed_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        view.allowLastPageCurl = false
+
+        assertEquals(0, view.currentIndex)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>()
+        every { pageProvider.pageCount }.returns(2)
+        every { pageProvider.updatePage(any(), any(), any(), any(), any()) }
+            .answers { call ->
+                val page = call.invocation.args[0] as CurlPage
+                val width = call.invocation.args[1] as Int
+                val height = call.invocation.args[2] as Int
+
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                page.setTexture(bitmap, CurlPage.SIDE_BOTH)
+            }
+        view.pageProvider = pageProvider
+
+        view.setSmoothCurrentIndex(2)
+
+        //finish animation
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(0, view.currentIndex)
+    }
+
+    @Test
+    fun setMargins_setsExpectedMargins() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        // check
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        val margins: RectF? = renderer.getPrivateProperty("margins")
+        requireNotNull(margins)
+        assertEquals(0.0f, margins.left, 0.0f)
+        assertEquals(0.0f, margins.right, 0.0f)
+        assertEquals(0.0f, margins.top, 0.0f)
+        assertEquals(0.0f, margins.bottom, 0.0f)
+
+        // set margins
+        view.setMargins(100, 200, 300, 400)
+
+        // check
+        assertEquals(100.0f / WIDTH, margins.left, 0.0f)
+        assertEquals(200.0f / HEIGHT, margins.top, 0.0f)
+        assertEquals(300.0f / WIDTH, margins.right, 0.0f)
+        assertEquals(400.0f / HEIGHT, margins.bottom, 0.0f)
+    }
+
+    @Test
+    fun setProportionalMargins_setsExpectedMargins() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        // check
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        val margins: RectF? = renderer.getPrivateProperty("margins")
+        requireNotNull(margins)
+        assertEquals(0.0f, margins.left, 0.0f)
+        assertEquals(0.0f, margins.right, 0.0f)
+        assertEquals(0.0f, margins.top, 0.0f)
+        assertEquals(0.0f, margins.bottom, 0.0f)
+
+        // set margins
+        view.setProportionalMargins(100.0f, 200.0f, 300.0f, 400.0f)
+
+        // check
+        assertEquals(100.0f, margins.left, 0.0f)
+        assertEquals(200.0f, margins.top, 0.0f)
+        assertEquals(300.0f, margins.right, 0.0f)
+        assertEquals(400.0f, margins.bottom, 0.0f)
+    }
+
+    @Test
+    fun setBackgroundColor_setsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        // check default value
+        assertEquals(Color.TRANSPARENT, renderer.backgroundColor)
+
+        // set new background color
+        view.setBackgroundColor(Color.RED)
+
+        // check
+        assertEquals(Color.RED, renderer.backgroundColor)
     }
 
     private companion object {
