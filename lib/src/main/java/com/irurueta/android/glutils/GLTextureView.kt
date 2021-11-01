@@ -716,11 +716,13 @@ open class GLTextureView @JvmOverloads constructor(
      */
     private class EglHelper(private val glSurfaceViewWeakRef: WeakReference<GLTextureView>) {
 
-        var egl: EGL10? = null
-        var eglDisplay: EGLDisplay? = null
-        var eglSurface: EGLSurface? = null
+        private var egl: EGL10? = null
+        private var eglDisplay: EGLDisplay? = null
+        private var eglSurface: EGLSurface? = null
+        private var eglContext: EGLContext? = null
+
         var eglConfig: EGLConfig? = null
-        var eglContext: EGLContext? = null
+            private set
 
         /**
          * Initialize EGL for a given configuration spec.

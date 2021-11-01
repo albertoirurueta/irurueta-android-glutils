@@ -7,7 +7,6 @@ import android.view.TextureView
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
 import io.mockk.*
-import io.mockk.impl.WeakRef
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,6 +14,7 @@ import org.robolectric.RobolectricTestRunner
 import java.lang.ref.WeakReference
 import java.lang.reflect.InvocationTargetException
 import javax.microedition.khronos.egl.*
+import javax.microedition.khronos.opengles.GL
 
 @RunWith(RobolectricTestRunner::class)
 class GLTextureViewTest {
@@ -1679,6 +1679,7 @@ class GLTextureViewTest {
         mockkStatic(EGLContext::class)
         every { EGLContext.getEGL() }.returns(egl)
 
+        // invoke start method
         val eglHelperStartMethod = eglHelper.javaClass.getMethod("start")
         try {
             eglHelperStartMethod.invoke(eglHelper)
@@ -1717,6 +1718,7 @@ class GLTextureViewTest {
         mockkStatic(EGLContext::class)
         every { EGLContext.getEGL() }.returns(egl)
 
+        // invoke start method
         val eglHelperStartMethod = eglHelper.javaClass.getMethod("start")
         try {
             eglHelperStartMethod.invoke(eglHelper)
@@ -1759,6 +1761,7 @@ class GLTextureViewTest {
         mockkStatic(EGLContext::class)
         every { EGLContext.getEGL() }.returns(egl)
 
+        // invoke start method
         val eglHelperStartMethod = eglHelper.javaClass.getMethod("start")
         try {
             eglHelperStartMethod.invoke(eglHelper)
@@ -1810,6 +1813,7 @@ class GLTextureViewTest {
         every { eglContextFactory.createContext(egl, eglDisplay, eglConfig) }.returns(eglContext)
         view.setPrivateProperty("eglContextFactory", eglContextFactory)
 
+        // invoke start method
         val eglHelperStartMethod = eglHelper.javaClass.getMethod("start")
         eglHelperStartMethod.invoke(eglHelper)
 
@@ -1820,6 +1824,763 @@ class GLTextureViewTest {
         val eglHelperContextField = eglHelper.javaClass.getDeclaredField("eglContext")
         eglHelperContextField.isAccessible = true
         assertSame(eglContext, eglHelperContextField.get(eglHelper))
+    }
+
+    @Test(expected = RuntimeException::class)
+    fun eglHelper_whenCreateSurfaceAndNoEgl_throwsRuntimeException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val eglField = eglHelper.javaClass.getDeclaredField("egl")
+        eglField.isAccessible = true
+
+        // missing egl
+        assertNull(eglField.get(eglHelper))
+
+        val eglDisplayField = eglHelper.javaClass.getDeclaredField("eglDisplay")
+        eglDisplayField.isAccessible = true
+
+        assertNull(eglDisplayField.get(eglHelper))
+
+        val eglConfigField = eglHelper.javaClass.getDeclaredField("eglConfig")
+        eglConfigField.isAccessible = true
+
+        assertNull(eglConfigField.get(eglHelper))
+
+        // invoke createSurface
+        val eglHelperCreateSurfaceMethod = eglHelper.javaClass.getMethod("createSurface")
+        try {
+            eglHelperCreateSurfaceMethod.invoke(eglHelper)
+        } catch (e: InvocationTargetException) {
+            val cause = e.cause
+            requireNotNull(cause)
+            throw cause
+        }
+    }
+
+    @Test(expected = RuntimeException::class)
+    fun eglHelper_whenCreateSurfaceAndNoEglDisplay_throwsRuntimeException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val eglField = eglHelper.javaClass.getDeclaredField("egl")
+        eglField.isAccessible = true
+
+        assertNull(eglField.get(eglHelper))
+
+        // set egl
+        val egl = mockk<EGL10>()
+        eglField.set(eglHelper, egl)
+
+        assertSame(egl, eglField.get(eglHelper))
+
+        val eglDisplayField = eglHelper.javaClass.getDeclaredField("eglDisplay")
+        eglDisplayField.isAccessible = true
+
+        // missing eglDisplay
+        assertNull(eglDisplayField.get(eglHelper))
+
+        val eglConfigField = eglHelper.javaClass.getDeclaredField("eglConfig")
+        eglConfigField.isAccessible = true
+
+        assertNull(eglConfigField.get(eglHelper))
+
+        // invoke createSurface
+        val eglHelperCreateSurfaceMethod = eglHelper.javaClass.getMethod("createSurface")
+        try {
+            eglHelperCreateSurfaceMethod.invoke(eglHelper)
+        } catch (e: InvocationTargetException) {
+            val cause = e.cause
+            requireNotNull(cause)
+            throw cause
+        }
+    }
+
+    @Test(expected = RuntimeException::class)
+    fun eglHelper_whenCreateSurfaceAndNoEglConfig_throwsRuntimeException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val eglField = eglHelper.javaClass.getDeclaredField("egl")
+        eglField.isAccessible = true
+
+        assertNull(eglField.get(eglHelper))
+
+        // set egl
+        val egl = mockk<EGL10>()
+        eglField.set(eglHelper, egl)
+
+        assertSame(egl, eglField.get(eglHelper))
+
+        val eglDisplayField = eglHelper.javaClass.getDeclaredField("eglDisplay")
+        eglDisplayField.isAccessible = true
+
+        assertNull(eglDisplayField.get(eglHelper))
+
+        // set eglDisplay
+        val eglDisplay = mockk<EGLDisplay>()
+        eglDisplayField.set(eglHelper, eglDisplay)
+
+        assertSame(eglDisplay, eglDisplayField.get(eglHelper))
+
+        val eglConfigField = eglHelper.javaClass.getDeclaredField("eglConfig")
+        eglConfigField.isAccessible = true
+
+        assertNull(eglConfigField.get(eglHelper))
+
+        // invoke createSurface
+        val eglHelperCreateSurfaceMethod = eglHelper.javaClass.getMethod("createSurface")
+        try {
+            eglHelperCreateSurfaceMethod.invoke(eglHelper)
+        } catch (e: InvocationTargetException) {
+            val cause = e.cause
+            requireNotNull(cause)
+            throw cause
+        }
+    }
+
+    @Test
+    fun eglHelper_whenCreateSurfaceAndNoViewAndBadNativeWindowError_returnsFalse() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val eglField = eglHelper.javaClass.getDeclaredField("egl")
+        eglField.isAccessible = true
+
+        assertNull(eglField.get(eglHelper))
+
+        // set egl
+        val egl = mockk<EGL10>()
+        every { egl.eglGetError() }.returns(EGL10.EGL_BAD_NATIVE_WINDOW)
+        eglField.set(eglHelper, egl)
+
+        assertSame(egl, eglField.get(eglHelper))
+
+        val eglDisplayField = eglHelper.javaClass.getDeclaredField("eglDisplay")
+        eglDisplayField.isAccessible = true
+
+        assertNull(eglDisplayField.get(eglHelper))
+
+        // set eglDisplay
+        val eglDisplay = mockk<EGLDisplay>()
+        eglDisplayField.set(eglHelper, eglDisplay)
+
+        assertSame(eglDisplay, eglDisplayField.get(eglHelper))
+
+        val eglConfigField = eglHelper.javaClass.getDeclaredField("eglConfig")
+        eglConfigField.isAccessible = true
+
+        assertNull(eglConfigField.get(eglHelper))
+
+        // set eglConfig
+        val eglConfig = mockk<EGLConfig>()
+        eglConfigField.set(eglHelper, eglConfig)
+
+        assertSame(eglConfig, eglConfigField.get(eglHelper))
+
+        every {
+            egl.eglMakeCurrent(
+                eglDisplay,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_CONTEXT
+            )
+        }.returns(true)
+
+        val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
+        glSurfaceViewWeakRefField.isAccessible = true
+        glSurfaceViewWeakRefField.set(eglHelper, WeakReference(null))
+
+        // invoke createSurface
+        val eglHelperCreateSurfaceMethod = eglHelper.javaClass.getMethod("createSurface")
+        val result = eglHelperCreateSurfaceMethod.invoke(eglHelper) as Boolean
+        assertFalse(result)
+    }
+
+    @Test
+    fun eglHelper_whenCreateSurfaceNoViewAndOtherError_returnsFalse() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val eglField = eglHelper.javaClass.getDeclaredField("egl")
+        eglField.isAccessible = true
+
+        assertNull(eglField.get(eglHelper))
+
+        // set egl
+        val egl = mockk<EGL10>()
+        every { egl.eglGetError() }.returns(EGL10.EGL_BAD_DISPLAY)
+        eglField.set(eglHelper, egl)
+
+        assertSame(egl, eglField.get(eglHelper))
+
+        val eglDisplayField = eglHelper.javaClass.getDeclaredField("eglDisplay")
+        eglDisplayField.isAccessible = true
+
+        assertNull(eglDisplayField.get(eglHelper))
+
+        // set eglDisplay
+        val eglDisplay = mockk<EGLDisplay>()
+        eglDisplayField.set(eglHelper, eglDisplay)
+
+        assertSame(eglDisplay, eglDisplayField.get(eglHelper))
+
+        val eglConfigField = eglHelper.javaClass.getDeclaredField("eglConfig")
+        eglConfigField.isAccessible = true
+
+        assertNull(eglConfigField.get(eglHelper))
+
+        // set eglConfig
+        val eglConfig = mockk<EGLConfig>()
+        eglConfigField.set(eglHelper, eglConfig)
+
+        assertSame(eglConfig, eglConfigField.get(eglHelper))
+
+        every {
+            egl.eglMakeCurrent(
+                eglDisplay,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_CONTEXT
+            )
+        }.returns(true)
+
+        // set no view
+        val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
+        glSurfaceViewWeakRefField.isAccessible = true
+        glSurfaceViewWeakRefField.set(eglHelper, WeakReference(null))
+
+        // invoke createSurface
+        val eglHelperCreateSurfaceMethod = eglHelper.javaClass.getMethod("createSurface")
+        val result = eglHelperCreateSurfaceMethod.invoke(eglHelper) as Boolean
+        assertFalse(result)
+    }
+
+    @Test
+    fun eglHelper_whenCreateSurfaceAndNoSurface_returnsFalse() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val eglField = eglHelper.javaClass.getDeclaredField("egl")
+        eglField.isAccessible = true
+
+        assertNull(eglField.get(eglHelper))
+
+        // set egl
+        val egl = mockk<EGL10>()
+        every { egl.eglGetError() }.returns(EGL10.EGL_BAD_NATIVE_WINDOW)
+        eglField.set(eglHelper, egl)
+
+        assertSame(egl, eglField.get(eglHelper))
+
+        val eglDisplayField = eglHelper.javaClass.getDeclaredField("eglDisplay")
+        eglDisplayField.isAccessible = true
+
+        assertNull(eglDisplayField.get(eglHelper))
+
+        // set eglDisplay
+        val eglDisplay = mockk<EGLDisplay>()
+        eglDisplayField.set(eglHelper, eglDisplay)
+
+        assertSame(eglDisplay, eglDisplayField.get(eglHelper))
+
+        val eglConfigField = eglHelper.javaClass.getDeclaredField("eglConfig")
+        eglConfigField.isAccessible = true
+
+        assertNull(eglConfigField.get(eglHelper))
+
+        // set eglConfig
+        val eglConfig = mockk<EGLConfig>()
+        eglConfigField.set(eglHelper, eglConfig)
+
+        assertSame(eglConfig, eglConfigField.get(eglHelper))
+
+        every {
+            egl.eglMakeCurrent(
+                eglDisplay,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_CONTEXT
+            )
+        }.returns(true)
+
+        val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
+        glSurfaceViewWeakRefField.isAccessible = true
+        assertNotNull(glSurfaceViewWeakRefField.get(eglHelper))
+
+        val eglWindowSurfaceFactory: GLTextureView.EGLWindowSurfaceFactory? =
+            view.getPrivateProperty("eglWindowSurfaceFactory")
+        assertNotNull(eglWindowSurfaceFactory)
+
+        every {
+            egl.eglCreateWindowSurface(
+                eglDisplay,
+                eglConfig,
+                any(),
+                null
+            )
+        }.returns(EGL10.EGL_NO_SURFACE)
+
+        // invoke createSurface
+        val eglHelperCreateSurfaceMethod = eglHelper.javaClass.getMethod("createSurface")
+        val result = eglHelperCreateSurfaceMethod.invoke(eglHelper) as Boolean
+        assertFalse(result)
+    }
+
+    @Test
+    fun eglHelper_whenCreateSurfaceAndMakeCurrentFails_returnsFalse() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val eglField = eglHelper.javaClass.getDeclaredField("egl")
+        eglField.isAccessible = true
+
+        assertNull(eglField.get(eglHelper))
+
+        // set egl
+        val egl = mockk<EGL10>()
+        every { egl.eglGetError() }.returns(EGL10.EGL_BAD_NATIVE_WINDOW)
+        eglField.set(eglHelper, egl)
+
+        assertSame(egl, eglField.get(eglHelper))
+
+        val eglDisplayField = eglHelper.javaClass.getDeclaredField("eglDisplay")
+        eglDisplayField.isAccessible = true
+
+        assertNull(eglDisplayField.get(eglHelper))
+
+        // set eglDisplay
+        val eglDisplay = mockk<EGLDisplay>()
+        eglDisplayField.set(eglHelper, eglDisplay)
+
+        assertSame(eglDisplay, eglDisplayField.get(eglHelper))
+
+        val eglConfigField = eglHelper.javaClass.getDeclaredField("eglConfig")
+        eglConfigField.isAccessible = true
+
+        assertNull(eglConfigField.get(eglHelper))
+
+        // set eglConfig
+        val eglConfig = mockk<EGLConfig>()
+        eglConfigField.set(eglHelper, eglConfig)
+
+        assertSame(eglConfig, eglConfigField.get(eglHelper))
+
+        // set eglContext
+        val eglContextField = eglHelper.javaClass.getDeclaredField("eglContext")
+        eglContextField.isAccessible = true
+
+        assertNull(eglContextField.get(eglHelper))
+
+        // set eglContext
+        val eglContext = mockk<EGLContext>()
+        eglContextField.set(eglHelper, eglContext)
+
+
+        every {
+            egl.eglMakeCurrent(
+                eglDisplay,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_CONTEXT
+            )
+        }.returns(true)
+
+        val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
+        glSurfaceViewWeakRefField.isAccessible = true
+        assertNotNull(glSurfaceViewWeakRefField.get(eglHelper))
+
+        val eglWindowSurfaceFactory: GLTextureView.EGLWindowSurfaceFactory? =
+            view.getPrivateProperty("eglWindowSurfaceFactory")
+        assertNotNull(eglWindowSurfaceFactory)
+
+        val eglSurface = mockk<EGLSurface>()
+        every {
+            egl.eglCreateWindowSurface(
+                eglDisplay,
+                eglConfig,
+                any(),
+                null
+            )
+        }.returns(eglSurface)
+
+        every { egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext) }.returns(false)
+
+        // invoke createSurface
+        val eglHelperCreateSurfaceMethod = eglHelper.javaClass.getMethod("createSurface")
+        val result = eglHelperCreateSurfaceMethod.invoke(eglHelper) as Boolean
+        assertFalse(result)
+    }
+
+    @Test
+    fun eglHelper_whenCreateSurfaceSucceeds_returnsTrue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val eglField = eglHelper.javaClass.getDeclaredField("egl")
+        eglField.isAccessible = true
+
+        assertNull(eglField.get(eglHelper))
+
+        // set egl
+        val egl = mockk<EGL10>()
+        every { egl.eglGetError() }.returns(EGL10.EGL_BAD_NATIVE_WINDOW)
+        eglField.set(eglHelper, egl)
+
+        assertSame(egl, eglField.get(eglHelper))
+
+        val eglDisplayField = eglHelper.javaClass.getDeclaredField("eglDisplay")
+        eglDisplayField.isAccessible = true
+
+        assertNull(eglDisplayField.get(eglHelper))
+
+        // set eglDisplay
+        val eglDisplay = mockk<EGLDisplay>()
+        eglDisplayField.set(eglHelper, eglDisplay)
+
+        assertSame(eglDisplay, eglDisplayField.get(eglHelper))
+
+        val eglConfigField = eglHelper.javaClass.getDeclaredField("eglConfig")
+        eglConfigField.isAccessible = true
+
+        assertNull(eglConfigField.get(eglHelper))
+
+        // set eglConfig
+        val eglConfig = mockk<EGLConfig>()
+        eglConfigField.set(eglHelper, eglConfig)
+
+        assertSame(eglConfig, eglConfigField.get(eglHelper))
+
+        // set eglContext
+        val eglContextField = eglHelper.javaClass.getDeclaredField("eglContext")
+        eglContextField.isAccessible = true
+
+        assertNull(eglContextField.get(eglHelper))
+
+        val eglContext = mockk<EGLContext>()
+        eglContextField.set(eglHelper, eglContext)
+
+
+        every {
+            egl.eglMakeCurrent(
+                eglDisplay,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_CONTEXT
+            )
+        }.returns(true)
+
+        val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
+        glSurfaceViewWeakRefField.isAccessible = true
+        assertNotNull(glSurfaceViewWeakRefField.get(eglHelper))
+
+        val eglWindowSurfaceFactory: GLTextureView.EGLWindowSurfaceFactory? =
+            view.getPrivateProperty("eglWindowSurfaceFactory")
+        assertNotNull(eglWindowSurfaceFactory)
+
+        val eglSurface = mockk<EGLSurface>()
+        every {
+            egl.eglCreateWindowSurface(
+                eglDisplay,
+                eglConfig,
+                any(),
+                null
+            )
+        }.returns(eglSurface)
+
+        every { egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext) }.returns(true)
+
+        // invoke createSurface
+        val eglHelperCreateSurfaceMethod = eglHelper.javaClass.getMethod("createSurface")
+        val result = eglHelperCreateSurfaceMethod.invoke(eglHelper) as Boolean
+        assertTrue(result)
+    }
+
+    @Test
+    fun eglHelper_whenCreateGLAndNoView_returnsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        // set no view
+        val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
+        glSurfaceViewWeakRefField.isAccessible = true
+        glSurfaceViewWeakRefField.set(eglHelper, WeakReference(null))
+
+        // invoke createGL
+        val eglHelperCreateGLMethod = eglHelper.javaClass.getMethod("createGL")
+        val result = eglHelperCreateGLMethod.invoke(eglHelper) as GL?
+        assertNull(result)
+    }
+
+    @Test
+    fun eglHelper_whenCreateGLAndExistingViewWithoutGlWrapper_returnsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
+        glSurfaceViewWeakRefField.isAccessible = true
+        assertNotNull(glSurfaceViewWeakRefField.get(eglHelper))
+
+        // invoke createGL
+        val eglHelperCreateGLMethod = eglHelper.javaClass.getMethod("createGL")
+        val result = eglHelperCreateGLMethod.invoke(eglHelper) as GL?
+        assertNull(result)
+    }
+
+    @Test
+    fun eglHelper_whenCreateGLAndExistingViewWithGlWrapper_returnsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
+        glSurfaceViewWeakRefField.isAccessible = true
+        assertNotNull(glSurfaceViewWeakRefField.get(eglHelper))
+
+        val glWrapper = mockk<GLTextureView.GLWrapper>()
+        every { glWrapper.wrap(any()) }.returns(null)
+        view.setGLWrapper(glWrapper)
+
+        // invoke createGL
+        val eglHelperCreateGLMethod = eglHelper.javaClass.getMethod("createGL")
+        val result = eglHelperCreateGLMethod.invoke(eglHelper) as GL?
+        assertNull(result)
+    }
+
+    @Test
+    fun eglHelper_whenCreateGLAndDebugGLError_returnsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        view.debugFlags = GLTextureView.DEBUG_CHECK_GL_ERROR
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
+        glSurfaceViewWeakRefField.isAccessible = true
+        assertNotNull(glSurfaceViewWeakRefField.get(eglHelper))
+
+        val glWrapper = mockk<GLTextureView.GLWrapper>()
+        every { glWrapper.wrap(any()) }.returns(null)
+        view.setGLWrapper(glWrapper)
+
+        // invoke createGL
+        val eglHelperCreateGLMethod = eglHelper.javaClass.getMethod("createGL")
+        val result = eglHelperCreateGLMethod.invoke(eglHelper) as GL?
+        assertNotNull(result)
+    }
+
+    @Test
+    fun eglHelper_whenCreateGLAndDebugGLCalls_returnsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        view.debugFlags = GLTextureView.DEBUG_LOG_GL_CALLS
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
+        glSurfaceViewWeakRefField.isAccessible = true
+        assertNotNull(glSurfaceViewWeakRefField.get(eglHelper))
+
+        val glWrapper = mockk<GLTextureView.GLWrapper>()
+        every { glWrapper.wrap(any()) }.returns(null)
+        view.setGLWrapper(glWrapper)
+
+        // invoke createGL
+        val eglHelperCreateGLMethod = eglHelper.javaClass.getMethod("createGL")
+        val result = eglHelperCreateGLMethod.invoke(eglHelper) as GL?
+        assertNotNull(result)
     }
 
     private companion object {
