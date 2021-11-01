@@ -1665,6 +1665,8 @@ class GLTextureViewTest {
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
+        Thread.sleep(SLEEP)
+
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
         requireNotNull(glThreadClass)
@@ -1701,6 +1703,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
@@ -1740,6 +1744,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
@@ -1783,6 +1789,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
@@ -1838,6 +1846,8 @@ class GLTextureViewTest {
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
+        Thread.sleep(SLEEP)
+
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
         requireNotNull(glThreadClass)
@@ -1884,6 +1894,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
@@ -1937,6 +1949,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
@@ -1995,6 +2009,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
@@ -2069,6 +2085,8 @@ class GLTextureViewTest {
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
+        Thread.sleep(SLEEP)
+
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
         requireNotNull(glThreadClass)
@@ -2142,6 +2160,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
@@ -2228,6 +2248,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
@@ -2329,6 +2351,8 @@ class GLTextureViewTest {
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
+        Thread.sleep(SLEEP)
+
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
         requireNotNull(glThreadClass)
@@ -2428,6 +2452,8 @@ class GLTextureViewTest {
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
+        Thread.sleep(SLEEP)
+
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
         requireNotNull(glThreadClass)
@@ -2459,6 +2485,8 @@ class GLTextureViewTest {
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
+        Thread.sleep(SLEEP)
+
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
         requireNotNull(glThreadClass)
@@ -2488,6 +2516,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
@@ -2525,6 +2555,8 @@ class GLTextureViewTest {
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
+        Thread.sleep(SLEEP)
+
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
         requireNotNull(glThreadClass)
@@ -2561,6 +2593,8 @@ class GLTextureViewTest {
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
+        Thread.sleep(SLEEP)
+
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
         requireNotNull(glThreadClass)
@@ -2596,6 +2630,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
@@ -2637,6 +2673,8 @@ class GLTextureViewTest {
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
+        Thread.sleep(SLEEP)
+
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
         requireNotNull(glThreadClass)
@@ -2673,6 +2711,8 @@ class GLTextureViewTest {
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
+        Thread.sleep(SLEEP)
+
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
         requireNotNull(glThreadClass)
@@ -2702,6 +2742,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
@@ -2763,6 +2805,8 @@ class GLTextureViewTest {
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
+        Thread.sleep(SLEEP)
+
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
         requireNotNull(glThreadClass)
@@ -2813,6 +2857,8 @@ class GLTextureViewTest {
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
 
         val classes = view.javaClass.declaredClasses
         val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
