@@ -3,14 +3,18 @@ package com.irurueta.android.glutils
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.opengl.GLSurfaceView
+import android.view.TextureView
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import javax.microedition.khronos.egl.*
 
 @RunWith(RobolectricTestRunner::class)
 class GLTextureViewTest {
@@ -933,6 +937,562 @@ class GLTextureViewTest {
 
         assertEquals(WIDTH, width2)
         assertEquals(HEIGHT, height2)
+    }
+
+    @Test
+    fun surfaceTextureListener_whenOnSurfaceTextureAvailableAndNoRenderer_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        val surfaceTextureListener: TextureView.SurfaceTextureListener? =
+            view.getPrivateProperty("surfaceTextureListener")
+        requireNotNull(surfaceTextureListener)
+
+        val surface = mockk<SurfaceTexture>()
+        surfaceTextureListener.onSurfaceTextureAvailable(surface, WIDTH, HEIGHT)
+
+        assertNull(view.getPrivateProperty("glThread"))
+    }
+
+    @Test
+    fun surfaceTextureListener_whenOnSurfaceTextureSizeChangedAndNoRenderer_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        val surfaceTextureListener: TextureView.SurfaceTextureListener? =
+            view.getPrivateProperty("surfaceTextureListener")
+        requireNotNull(surfaceTextureListener)
+
+        val surface = mockk<SurfaceTexture>()
+        surfaceTextureListener.onSurfaceTextureSizeChanged(surface, WIDTH, HEIGHT)
+
+        assertNull(view.getPrivateProperty("glThread"))
+    }
+
+    @Test
+    fun surfaceTextureListener_whenOnSurfaceTextureDestroyedAndNoRenderer_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        val surfaceTextureListener: TextureView.SurfaceTextureListener? =
+            view.getPrivateProperty("surfaceTextureListener")
+        requireNotNull(surfaceTextureListener)
+
+        val surface = mockk<SurfaceTexture>()
+        assertTrue(surfaceTextureListener.onSurfaceTextureDestroyed(surface))
+
+        assertNull(view.getPrivateProperty("glThread"))
+    }
+
+    @Test
+    fun surfaceTextureListener_whenOnSurfaceTextureUpdated_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        val surfaceTextureListener: TextureView.SurfaceTextureListener? =
+            view.getPrivateProperty("surfaceTextureListener")
+        requireNotNull(surfaceTextureListener)
+
+        val surface = mockk<SurfaceTexture>()
+        surfaceTextureListener.onSurfaceTextureUpdated(surface)
+
+        assertNull(view.getPrivateProperty("glThread"))
+    }
+
+    @Test
+    fun eglContextFactory_whenCreateContext_executesExpectedGLCommands() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check
+        val eglContextFactory: GLTextureView.EGLContextFactory? =
+            view.getPrivateProperty("eglContextFactory")
+        requireNotNull(eglContextFactory)
+
+        val egl = mockk<EGL10>()
+        val display = mockk<EGLDisplay>()
+        val eglConfig = mockk<EGLConfig>()
+        val eglContext = mockk<EGLContext>()
+        every { egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, null) }.returns(
+            eglContext
+        )
+
+        assertSame(eglContext, eglContextFactory.createContext(egl, display, eglConfig))
+
+        verify(exactly = 1) { egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, null) }
+    }
+
+    @Test
+    fun eglContextFactory_whenDestroyContextFails_throwsRuntimeException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check
+        val eglContextFactory: GLTextureView.EGLContextFactory? =
+            view.getPrivateProperty("eglContextFactory")
+        requireNotNull(eglContextFactory)
+
+        val egl = mockk<EGL10>()
+        val display = mockk<EGLDisplay>()
+        val eglContext = mockk<EGLContext>()
+
+        every { egl.eglDestroyContext(display, eglContext) }.returns(false)
+
+        assertThrows(RuntimeException::class.java) {
+            eglContextFactory.destroyContext(
+                egl,
+                display,
+                eglContext
+            )
+        }
+        verify(exactly = 1) { egl.eglDestroyContext(display, eglContext) }
+    }
+
+    @Test
+    fun eglContextFactory_whenDestroyContextSucceeds_executesExpectedGLCommands() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check
+        val eglContextFactory: GLTextureView.EGLContextFactory? =
+            view.getPrivateProperty("eglContextFactory")
+        requireNotNull(eglContextFactory)
+
+        val egl = mockk<EGL10>()
+        val display = mockk<EGLDisplay>()
+        val eglContext = mockk<EGLContext>()
+
+        every { egl.eglDestroyContext(display, eglContext) }.returns(true)
+
+        eglContextFactory.destroyContext(egl, display, eglContext)
+
+        verify(exactly = 1) { egl.eglDestroyContext(display, eglContext) }
+    }
+
+    @Test
+    fun eglWindowSurfaceFactory_whenCreateWindowSurfaceFails_executesExpectedGLCommandsAndLogs() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check
+        val eglWindowSurfaceFactory: GLTextureView.EGLWindowSurfaceFactory? =
+            view.getPrivateProperty("eglWindowSurfaceFactory")
+        requireNotNull(eglWindowSurfaceFactory)
+
+        val egl = mockk<EGL10>()
+        val display = mockk<EGLDisplay>()
+        val config = mockk<EGLConfig>()
+        val surfaceTexture = mockk<SurfaceTexture>()
+        every { egl.eglCreateWindowSurface(display, config, surfaceTexture, null) }.throws(
+            IllegalArgumentException()
+        )
+
+        assertNull(
+            eglWindowSurfaceFactory.createWindowSurface(
+                egl,
+                display,
+                config,
+                surfaceTexture
+            )
+        )
+
+        verify(exactly = 1) { egl.eglCreateWindowSurface(display, config, surfaceTexture, null) }
+    }
+
+    @Test
+    fun eglWindowSurfaceFactory_whenCreateWindowSurfaceSucceeds_executesExpectedGLCommands() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check
+        val eglWindowSurfaceFactory: GLTextureView.EGLWindowSurfaceFactory? =
+            view.getPrivateProperty("eglWindowSurfaceFactory")
+        requireNotNull(eglWindowSurfaceFactory)
+
+        val egl = mockk<EGL10>()
+        val display = mockk<EGLDisplay>()
+        val config = mockk<EGLConfig>()
+        val surfaceTexture = mockk<SurfaceTexture>()
+        val eglSurface = mockk<EGLSurface>()
+        every { egl.eglCreateWindowSurface(display, config, surfaceTexture, null) }.returns(
+            eglSurface
+        )
+
+        assertSame(
+            eglSurface,
+            eglWindowSurfaceFactory.createWindowSurface(egl, display, config, surfaceTexture)
+        )
+
+        verify(exactly = 1) { egl.eglCreateWindowSurface(display, config, surfaceTexture, null) }
+    }
+
+    @Test
+    fun eglWindowSurfaceFactory_whenDestroySurface_executesExpectedGLCommands() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check
+        val eglWindowSurfaceFactory: GLTextureView.EGLWindowSurfaceFactory? =
+            view.getPrivateProperty("eglWindowSurfaceFactory")
+        requireNotNull(eglWindowSurfaceFactory)
+
+        val egl = mockk<EGL10>()
+        val display = mockk<EGLDisplay>()
+        val surface = mockk<EGLSurface>()
+        every { egl.eglDestroySurface(display, surface) }.returns(true)
+
+        eglWindowSurfaceFactory.destroySurface(egl, display, surface)
+
+        verify(exactly = 1) { egl.eglDestroySurface(display, surface) }
+    }
+
+    @Test
+    fun eglConfigChooser_whenChooseConfigAndConfigFails_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check
+        val eglConfigChooser: GLTextureView.EGLConfigChooser? =
+            view.getPrivateProperty("eglConfigChooser")
+        requireNotNull(eglConfigChooser)
+
+        val egl = mockk<EGL10>()
+        val display = mockk<EGLDisplay>()
+
+        every { egl.eglChooseConfig(display, any(), null, 0, any()) }.returns(
+            false
+        )
+
+        assertThrows(IllegalArgumentException::class.java) {
+            eglConfigChooser.chooseConfig(
+                egl,
+                display
+            )
+        }
+
+        verify(exactly = 1) { egl.eglChooseConfig(display, any(), null, 0, any()) }
+    }
+
+    @Test
+    fun eglConfigChooser_whenChooseConfigAndNoConfigMatch_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check
+        val eglConfigChooser: GLTextureView.EGLConfigChooser? =
+            view.getPrivateProperty("eglConfigChooser")
+        requireNotNull(eglConfigChooser)
+
+        val egl = mockk<EGL10>()
+        val display = mockk<EGLDisplay>()
+
+        every { egl.eglChooseConfig(display, any(), null, 0, any()) }.answers { call ->
+            val numConfig = call.invocation.args[4] as IntArray
+            numConfig[0] = 0
+            return@answers true
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            eglConfigChooser.chooseConfig(
+                egl,
+                display
+            )
+        }
+
+        val slot = slot<IntArray>()
+        verify(exactly = 1) { egl.eglChooseConfig(display, any(), null, 0, capture(slot)) }
+        val numConfigs = slot.captured
+        assertEquals(1, numConfigs.size)
+        assertEquals(0, numConfigs[0])
+    }
+
+    @Test
+    fun eglConfigChooser_whenChooseConfigAndHasConfigMatchButFails_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check
+        val eglConfigChooser: GLTextureView.EGLConfigChooser? =
+            view.getPrivateProperty("eglConfigChooser")
+        requireNotNull(eglConfigChooser)
+
+        val egl = mockk<EGL10>()
+        val display = mockk<EGLDisplay>()
+
+        every { egl.eglChooseConfig(display, any(), null, 0, any()) }.answers { call ->
+            val numConfig = call.invocation.args[4] as IntArray
+            numConfig[0] = 1
+            return@answers true
+        }
+        every { egl.eglChooseConfig(display, any(), any<Array<EGLConfig?>>(), 1, any()) }.returns(
+            false
+        )
+
+        assertThrows(IllegalArgumentException::class.java) {
+            eglConfigChooser.chooseConfig(
+                egl,
+                display
+            )
+        }
+
+        val list = mutableListOf<IntArray>()
+        verify(exactly = 1) { egl.eglChooseConfig(display, any(), null, 0, capture(list)) }
+        val numConfigs = list[0]
+        assertEquals(1, numConfigs.size)
+        assertEquals(1, numConfigs[0])
+
+        verify(exactly = 1) {
+            egl.eglChooseConfig(
+                display,
+                any(),
+                any<Array<EGLConfig?>>(),
+                1,
+                any()
+            )
+        }
+    }
+
+    @Test
+    fun eglConfigChooser_whenChooseConfigAndNoConfigChosen_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check
+        val eglConfigChooser: GLTextureView.EGLConfigChooser? =
+            view.getPrivateProperty("eglConfigChooser")
+        requireNotNull(eglConfigChooser)
+
+        val egl = mockk<EGL10>()
+        val display = mockk<EGLDisplay>()
+
+        every { egl.eglChooseConfig(display, any(), null, 0, any()) }.answers { call ->
+            val numConfig = call.invocation.args[4] as IntArray
+            numConfig[0] = 1
+            return@answers true
+        }
+        every { egl.eglChooseConfig(display, any(), any<Array<EGLConfig?>>(), 1, any()) }.returns(
+            true
+        )
+        every { egl.eglGetConfigAttrib(display, any(), any(), any()) }.returns(false)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            eglConfigChooser.chooseConfig(
+                egl,
+                display
+            )
+        }
+
+        val list = mutableListOf<IntArray>()
+        verify(exactly = 1) { egl.eglChooseConfig(display, any(), null, 0, capture(list)) }
+        val numConfigs = list[0]
+        assertEquals(1, numConfigs.size)
+        assertEquals(1, numConfigs[0])
+
+        verify(exactly = 1) {
+            egl.eglChooseConfig(
+                display,
+                any(),
+                any<Array<EGLConfig?>>(),
+                1,
+                any()
+            )
+        }
+    }
+
+    @Test
+    fun eglConfigChooser_whenChooseConfigSucceeds_returnsExpectedValue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check
+        val eglConfigChooser: GLTextureView.EGLConfigChooser? =
+            view.getPrivateProperty("eglConfigChooser")
+        requireNotNull(eglConfigChooser)
+
+        val egl = mockk<EGL10>()
+        val display = mockk<EGLDisplay>()
+
+        every { egl.eglChooseConfig(display, any(), null, 0, any()) }.answers { call ->
+            val numConfig = call.invocation.args[4] as IntArray
+            numConfig[0] = 1
+            return@answers true
+        }
+
+        val config = mockk<EGLConfig>()
+        every {
+            egl.eglChooseConfig(
+                display,
+                any(),
+                any<Array<EGLConfig?>>(),
+                1,
+                any()
+            )
+        }.answers { call ->
+            @Suppress("UNCHECKED_CAST")
+            val configs = call.invocation.args[2] as Array<EGLConfig?>
+            configs[0] = config
+            return@answers true
+        }
+
+        every {
+            egl.eglGetConfigAttrib(
+                display,
+                config,
+                EGL10.EGL_DEPTH_SIZE,
+                any()
+            )
+        }.answers { call ->
+            val value = call.invocation.args[3] as IntArray
+            value[0] = 16
+            return@answers true
+        }
+
+        every {
+            egl.eglGetConfigAttrib(
+                display,
+                config,
+                EGL10.EGL_STENCIL_SIZE,
+                any()
+            )
+        }.answers { call ->
+            val value = call.invocation.args[3] as IntArray
+            value[0] = 0
+            return@answers true
+        }
+
+        every {
+            egl.eglGetConfigAttrib(
+                display,
+                config,
+                EGL10.EGL_RED_SIZE,
+                any()
+            )
+        }.answers { call ->
+            val value = call.invocation.args[3] as IntArray
+            value[0] = 8
+            return@answers true
+        }
+
+        every {
+            egl.eglGetConfigAttrib(
+                display,
+                config,
+                EGL10.EGL_GREEN_SIZE,
+                any()
+            )
+        }.answers { call ->
+            val value = call.invocation.args[3] as IntArray
+            value[0] = 8
+            return@answers true
+        }
+
+        every {
+            egl.eglGetConfigAttrib(
+                display,
+                config,
+                EGL10.EGL_BLUE_SIZE,
+                any()
+            )
+        }.answers { call ->
+            val value = call.invocation.args[3] as IntArray
+            value[0] = 8
+            return@answers true
+        }
+
+        every {
+            egl.eglGetConfigAttrib(
+                display,
+                config,
+                EGL10.EGL_ALPHA_SIZE,
+                any()
+            )
+        }.answers { call ->
+            val value = call.invocation.args[3] as IntArray
+            value[0] = 0
+            return@answers true
+        }
+
+        assertSame(config, eglConfigChooser.chooseConfig(egl, display))
+
+        val list = mutableListOf<IntArray>()
+        verify(exactly = 1) { egl.eglChooseConfig(display, any(), null, 0, capture(list)) }
+        val numConfigs = list[0]
+        assertEquals(1, numConfigs.size)
+        assertEquals(1, numConfigs[0])
+
+        verify(exactly = 1) {
+            egl.eglChooseConfig(
+                display,
+                any(),
+                any<Array<EGLConfig?>>(),
+                1,
+                any()
+            )
+        }
+
+
+        verify(exactly = 1) { egl.eglGetConfigAttrib(display, config, EGL10.EGL_DEPTH_SIZE, any()) }
+        verify(exactly = 1) {
+            egl.eglGetConfigAttrib(
+                display,
+                config,
+                EGL10.EGL_STENCIL_SIZE,
+                any()
+            )
+        }
+        verify(exactly = 1) { egl.eglGetConfigAttrib(display, config, EGL10.EGL_RED_SIZE, any()) }
+        verify(exactly = 1) { egl.eglGetConfigAttrib(display, config, EGL10.EGL_GREEN_SIZE, any()) }
+        verify(exactly = 1) { egl.eglGetConfigAttrib(display, config, EGL10.EGL_BLUE_SIZE, any()) }
+        verify(exactly = 1) { egl.eglGetConfigAttrib(display, config, EGL10.EGL_ALPHA_SIZE, any()) }
+    }
+
+    @Test
+    fun eglHelper_whenStart_executesExpectedCommands() {
+        // TODO: finish
     }
 
     private companion object {
