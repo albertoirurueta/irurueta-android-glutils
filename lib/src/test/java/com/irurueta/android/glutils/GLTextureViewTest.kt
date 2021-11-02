@@ -8,16 +8,27 @@ import android.view.View
 import androidx.test.core.app.ApplicationProvider
 import io.mockk.*
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.lang.ref.WeakReference
 import java.lang.reflect.InvocationTargetException
+import java.util.concurrent.locks.Condition
+import java.util.concurrent.locks.ReentrantLock
 import javax.microedition.khronos.egl.*
 import javax.microedition.khronos.opengles.GL
+import kotlin.concurrent.withLock
 
 @RunWith(RobolectricTestRunner::class)
 class GLTextureViewTest {
+
+    private var threadFailures = 0
+
+    @Before
+    fun setUp() {
+        threadFailures = 0
+    }
 
     @Test
     fun constructor_setsDefaultValues() {
@@ -3612,8 +3623,119 @@ class GLTextureViewTest {
         verify(exactly = 1) { renderer.onSurfaceChanged(any(), WIDTH, HEIGHT) }
     }
 
-    // TODO: glThread requestReleaseEglContextLocked
+    @Test
+    fun glThread_whenRequestReleaseEglContextLocked_requestsEglContextRelease() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
 
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val glThreadManagerField = glThreadClass.getDeclaredField("glThreadManager")
+        glThreadManagerField.isAccessible = true
+        val glThreadManager = glThreadManagerField.get(glThread)
+        requireNotNull(glThreadManager)
+
+        val glThreadManagerClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThreadManager") }
+        requireNotNull(glThreadManagerClass)
+
+        val lockField = glThreadManagerClass.getDeclaredField("lock")
+        lockField.isAccessible = true
+        val lock = lockField.get(glThreadManager) as ReentrantLock
+
+        val shouldReleaseEglContextField = glThreadClass.getDeclaredField("shouldReleaseEglContext")
+        shouldReleaseEglContextField.isAccessible = true
+        val shouldReleaseEglContext1 = shouldReleaseEglContextField.getBoolean(glThread)
+        assertFalse(shouldReleaseEglContext1)
+
+        // invoke requestReleaseEglContextLocked
+        val requestReleaseEglContextMethod =
+            glThread.javaClass.getMethod("requestReleaseEglContextLocked")
+        lock.withLock {
+            // invocation must occur within the same reentrant locked used for condition signaling
+            requestReleaseEglContextMethod.invoke(glThread)
+        }
+
+        // check
+        val shouldReleaseEglContext2 = shouldReleaseEglContextField.getBoolean(glThread)
+        assertTrue(shouldReleaseEglContext2)
+    }
+
+    @Test
+    fun glThread_whenGuardedRunShouldReleaseEglContext() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val shouldReleaseEglContextField = glThreadClass.getDeclaredField("shouldReleaseEglContext")
+        shouldReleaseEglContextField.isAccessible = true
+        shouldReleaseEglContextField.set(glThread, true)
+
+        val glThreadManagerField = glThreadClass.getDeclaredField("glThreadManager")
+        glThreadManagerField.isAccessible = true
+        val glThreadManager = glThreadManagerField.get(glThread)
+        requireNotNull(glThreadManager)
+
+        val glThreadManagerClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThreadManager") }
+        requireNotNull(glThreadManagerClass)
+
+        val lockField = glThreadManagerClass.getDeclaredField("lock")
+        lockField.isAccessible = true
+        val lock = lockField.get(glThreadManager) as ReentrantLock
+
+        val conditionField = glThreadManagerClass.getDeclaredField("condition")
+        conditionField.isAccessible = true
+        val condition = conditionField.get(glThreadManager) as Condition
+
+        val requestExitMethod = glThread.javaClass.getDeclaredMethod("requestExitAndWait")
+        requestExitMethod.isAccessible = true
+
+        // since gl thread will lock waiting for next render, we need to signal next
+        // render from another thread, and then we need to request thread to exit
+        val t1 = Thread {
+            try {
+                glThread.run()
+            } catch (e: Throwable) {
+                threadFailures++
+                fail()
+            }
+        }
+        t1.uncaughtExceptionHandler
+        val t2 = Thread {
+            lock.withLock {
+                condition.signalAll()
+            }
+
+            // request exit
+            requestExitMethod.invoke(glThread)
+        }
+
+        t1.start()
+        t2.start()
+
+        t1.join()
+        t2.join()
+
+        assertEquals(0, threadFailures)
+    }
     // TODO: glThread guardedRun when shouldReleaseEglContext
 
     // TODO: glThread guardedRun when lostEglContext
