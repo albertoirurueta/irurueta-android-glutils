@@ -332,6 +332,22 @@ class GLTextureViewTest {
         assertEquals(GLTextureView.RENDERMODE_WHEN_DIRTY, view.renderMode)
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun renderMode_whenInvalidValue_throwsException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        // check default value
+        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, view.renderMode)
+
+        // set new value
+        view.renderMode = 2
+    }
+
     @Test
     fun requestRender_whenNoRenderer_makesNoAction() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -2906,6 +2922,490 @@ class GLTextureViewTest {
         assertNull(eglContextField.get(eglHelper))
         assertNull(eglDisplayField.get(eglHelper))
     }
+
+    @Test
+    fun glThread_whenAbleToDrawAndNoContextOrSurfaceAndNotReadyToDraw_returnsFalse() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val haveEglContextField = glThreadClass.getDeclaredField("haveEglContext")
+        haveEglContextField.isAccessible = true
+        val haveEglContext = haveEglContextField.getBoolean(glThread)
+        assertFalse(haveEglContext)
+
+        val haveEglSurfaceField = glThreadClass.getDeclaredField("haveEglSurface")
+        haveEglSurfaceField.isAccessible = true
+        val haveEglSurface = haveEglSurfaceField.getBoolean(glThread)
+        assertFalse(haveEglSurface)
+
+        val pausedField = glThreadClass.getDeclaredField("paused")
+        pausedField.isAccessible = true
+        val paused = pausedField.getBoolean(glThread)
+        assertFalse(paused)
+
+        val hasSurfaceField = glThreadClass.getDeclaredField("hasSurface")
+        hasSurfaceField.isAccessible = true
+        val hasSurface = hasSurfaceField.getBoolean(glThread)
+        assertFalse(hasSurface)
+
+        val surfaceIsBadField = glThreadClass.getDeclaredField("surfaceIsBad")
+        surfaceIsBadField.isAccessible = true
+        val surfaceIsBad = surfaceIsBadField.getBoolean(glThread)
+        assertFalse(surfaceIsBad)
+
+        val widthField = glThreadClass.getDeclaredField("width")
+        widthField.isAccessible = true
+        val width = widthField.getInt(glThread)
+        assertEquals(0, width)
+
+        val heightField = glThreadClass.getDeclaredField("height")
+        heightField.isAccessible = true
+        val height = heightField.getInt(glThread)
+        assertEquals(0, height)
+
+        val requestRenderField = glThreadClass.getDeclaredField("requestRender")
+        requestRenderField.isAccessible = true
+        val requestRender = requestRenderField.getBoolean(glThread)
+        assertTrue(requestRender)
+
+        val renderModeField = glThreadClass.getDeclaredField("_renderMode")
+        renderModeField.isAccessible = true
+        val renderMode = renderModeField.getInt(glThread)
+        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+
+        // invoke ableToDraw
+        val ableToDrawMethod = glThread.javaClass.getMethod("ableToDraw")
+        val result = ableToDrawMethod.invoke(glThread) as Boolean
+        assertFalse(result)
+    }
+
+    @Test
+    fun glThread_whenAbleToDrawAndHasContextButNoSurfaceOrReadyToDraw_returnsFalse() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val haveEglContextField = glThreadClass.getDeclaredField("haveEglContext")
+        haveEglContextField.isAccessible = true
+        val haveEglContext1 = haveEglContextField.getBoolean(glThread)
+        assertFalse(haveEglContext1)
+
+        // set haveEglContext
+        haveEglContextField.set(glThread, true)
+
+        val haveEglContext2 = haveEglContextField.getBoolean(glThread)
+        assertTrue(haveEglContext2)
+
+        val haveEglSurfaceField = glThreadClass.getDeclaredField("haveEglSurface")
+        haveEglSurfaceField.isAccessible = true
+        val haveEglSurface = haveEglSurfaceField.getBoolean(glThread)
+        assertFalse(haveEglSurface)
+
+        val pausedField = glThreadClass.getDeclaredField("paused")
+        pausedField.isAccessible = true
+        val paused = pausedField.getBoolean(glThread)
+        assertFalse(paused)
+
+        val hasSurfaceField = glThreadClass.getDeclaredField("hasSurface")
+        hasSurfaceField.isAccessible = true
+        val hasSurface = hasSurfaceField.getBoolean(glThread)
+        assertFalse(hasSurface)
+
+        val surfaceIsBadField = glThreadClass.getDeclaredField("surfaceIsBad")
+        surfaceIsBadField.isAccessible = true
+        val surfaceIsBad = surfaceIsBadField.getBoolean(glThread)
+        assertFalse(surfaceIsBad)
+
+        val widthField = glThreadClass.getDeclaredField("width")
+        widthField.isAccessible = true
+        val width = widthField.getInt(glThread)
+        assertEquals(0, width)
+
+        val heightField = glThreadClass.getDeclaredField("height")
+        heightField.isAccessible = true
+        val height = heightField.getInt(glThread)
+        assertEquals(0, height)
+
+        val requestRenderField = glThreadClass.getDeclaredField("requestRender")
+        requestRenderField.isAccessible = true
+        val requestRender = requestRenderField.getBoolean(glThread)
+        assertTrue(requestRender)
+
+        val renderModeField = glThreadClass.getDeclaredField("_renderMode")
+        renderModeField.isAccessible = true
+        val renderMode = renderModeField.getInt(glThread)
+        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+
+        // invoke ableToDraw
+        val ableToDrawMethod = glThread.javaClass.getMethod("ableToDraw")
+        val result = ableToDrawMethod.invoke(glThread) as Boolean
+        assertFalse(result)
+    }
+
+    @Test
+    fun glThread_whenAbleToDrawHasContextAndSurfaceButNotReadyToDraw_returnsFalse() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val haveEglContextField = glThreadClass.getDeclaredField("haveEglContext")
+        haveEglContextField.isAccessible = true
+        val haveEglContext1 = haveEglContextField.getBoolean(glThread)
+        assertFalse(haveEglContext1)
+
+        // set haveEglContext
+        haveEglContextField.set(glThread, true)
+
+        val haveEglContext2 = haveEglContextField.getBoolean(glThread)
+        assertTrue(haveEglContext2)
+
+        val haveEglSurfaceField = glThreadClass.getDeclaredField("haveEglSurface")
+        haveEglSurfaceField.isAccessible = true
+        val haveEglSurface1 = haveEglSurfaceField.getBoolean(glThread)
+        assertFalse(haveEglSurface1)
+
+        // set haveEglSurface
+        haveEglSurfaceField.set(glThread, true)
+
+        val haveEglSurface2 = haveEglSurfaceField.getBoolean(glThread)
+        assertTrue(haveEglSurface2)
+
+        val pausedField = glThreadClass.getDeclaredField("paused")
+        pausedField.isAccessible = true
+        val paused = pausedField.getBoolean(glThread)
+        assertFalse(paused)
+
+        val hasSurfaceField = glThreadClass.getDeclaredField("hasSurface")
+        hasSurfaceField.isAccessible = true
+        val hasSurface = hasSurfaceField.getBoolean(glThread)
+        assertFalse(hasSurface)
+
+        val surfaceIsBadField = glThreadClass.getDeclaredField("surfaceIsBad")
+        surfaceIsBadField.isAccessible = true
+        val surfaceIsBad = surfaceIsBadField.getBoolean(glThread)
+        assertFalse(surfaceIsBad)
+
+        val widthField = glThreadClass.getDeclaredField("width")
+        widthField.isAccessible = true
+        val width = widthField.getInt(glThread)
+        assertEquals(0, width)
+
+        val heightField = glThreadClass.getDeclaredField("height")
+        heightField.isAccessible = true
+        val height = heightField.getInt(glThread)
+        assertEquals(0, height)
+
+        val requestRenderField = glThreadClass.getDeclaredField("requestRender")
+        requestRenderField.isAccessible = true
+        val requestRender = requestRenderField.getBoolean(glThread)
+        assertTrue(requestRender)
+
+        val renderModeField = glThreadClass.getDeclaredField("_renderMode")
+        renderModeField.isAccessible = true
+        val renderMode = renderModeField.getInt(glThread)
+        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+
+        // invoke ableToDraw
+        val ableToDrawMethod = glThread.javaClass.getMethod("ableToDraw")
+        val result = ableToDrawMethod.invoke(glThread) as Boolean
+        assertFalse(result)
+    }
+
+    @Test
+    fun glThread_whenAbleToDrawHasContextAndSurfaceAndNotReadyToDraw_returnsTrue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val haveEglContextField = glThreadClass.getDeclaredField("haveEglContext")
+        haveEglContextField.isAccessible = true
+        val haveEglContext1 = haveEglContextField.getBoolean(glThread)
+        assertFalse(haveEglContext1)
+
+        // set haveEglContext
+        haveEglContextField.set(glThread, true)
+
+        val haveEglContext2 = haveEglContextField.getBoolean(glThread)
+        assertTrue(haveEglContext2)
+
+        val haveEglSurfaceField = glThreadClass.getDeclaredField("haveEglSurface")
+        haveEglSurfaceField.isAccessible = true
+        val haveEglSurface1 = haveEglSurfaceField.getBoolean(glThread)
+        assertFalse(haveEglSurface1)
+
+        // set haveEglSurface
+        haveEglSurfaceField.set(glThread, true)
+
+        val haveEglSurface2 = haveEglSurfaceField.getBoolean(glThread)
+        assertTrue(haveEglSurface2)
+
+        val pausedField = glThreadClass.getDeclaredField("paused")
+        pausedField.isAccessible = true
+        val paused = pausedField.getBoolean(glThread)
+        assertFalse(paused)
+
+        val hasSurfaceField = glThreadClass.getDeclaredField("hasSurface")
+        hasSurfaceField.isAccessible = true
+        val hasSurface1 = hasSurfaceField.getBoolean(glThread)
+        assertFalse(hasSurface1)
+
+        // set hasSurface
+        hasSurfaceField.set(glThread, true)
+
+        val hasSurface2 = hasSurfaceField.getBoolean(glThread)
+        assertTrue(hasSurface2)
+
+        val surfaceIsBadField = glThreadClass.getDeclaredField("surfaceIsBad")
+        surfaceIsBadField.isAccessible = true
+        val surfaceIsBad = surfaceIsBadField.getBoolean(glThread)
+        assertFalse(surfaceIsBad)
+
+        val widthField = glThreadClass.getDeclaredField("width")
+        widthField.isAccessible = true
+        val width1 = widthField.getInt(glThread)
+        assertEquals(0, width1)
+
+        // set width
+        widthField.set(glThread, WIDTH)
+
+        val width2 = widthField.getInt(glThread)
+        assertEquals(WIDTH, width2)
+
+        val heightField = glThreadClass.getDeclaredField("height")
+        heightField.isAccessible = true
+        val height1 = heightField.getInt(glThread)
+        assertEquals(0, height1)
+
+        // set height
+        heightField.set(glThread, HEIGHT)
+
+        val height2 = heightField.getInt(glThread)
+        assertEquals(HEIGHT, height2)
+
+        val requestRenderField = glThreadClass.getDeclaredField("requestRender")
+        requestRenderField.isAccessible = true
+        val requestRender = requestRenderField.getBoolean(glThread)
+        assertTrue(requestRender)
+
+        val renderModeField = glThreadClass.getDeclaredField("_renderMode")
+        renderModeField.isAccessible = true
+        val renderMode = renderModeField.getInt(glThread)
+        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+
+        // invoke ableToDraw
+        val ableToDrawMethod = glThread.javaClass.getMethod("ableToDraw")
+        val result = ableToDrawMethod.invoke(glThread) as Boolean
+        assertTrue(result)
+    }
+
+    @Test
+    fun glThread_whenReadyToDraw_returnsFalse() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val pausedField = glThreadClass.getDeclaredField("paused")
+        pausedField.isAccessible = true
+        val paused = pausedField.getBoolean(glThread)
+        assertFalse(paused)
+
+        val hasSurfaceField = glThreadClass.getDeclaredField("hasSurface")
+        hasSurfaceField.isAccessible = true
+        val hasSurface = hasSurfaceField.getBoolean(glThread)
+        assertFalse(hasSurface)
+
+        val surfaceIsBadField = glThreadClass.getDeclaredField("surfaceIsBad")
+        surfaceIsBadField.isAccessible = true
+        val surfaceIsBad = surfaceIsBadField.getBoolean(glThread)
+        assertFalse(surfaceIsBad)
+
+        val widthField = glThreadClass.getDeclaredField("width")
+        widthField.isAccessible = true
+        val width = widthField.getInt(glThread)
+        assertEquals(0, width)
+
+        val heightField = glThreadClass.getDeclaredField("height")
+        heightField.isAccessible = true
+        val height = heightField.getInt(glThread)
+        assertEquals(0, height)
+
+        val requestRenderField = glThreadClass.getDeclaredField("requestRender")
+        requestRenderField.isAccessible = true
+        val requestRender = requestRenderField.getBoolean(glThread)
+        assertTrue(requestRender)
+
+        val renderModeField = glThreadClass.getDeclaredField("_renderMode")
+        renderModeField.isAccessible = true
+        val renderMode = renderModeField.getInt(glThread)
+        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+
+        // invoke readyToDraw
+        val readyToDrawMethod = glThread.javaClass.getMethod("readyToDraw")
+        val result = readyToDrawMethod.invoke(glThread) as Boolean
+        assertFalse(result)
+    }
+
+    @Test
+    fun glThread_whenReadyToDraw_returnsTrue() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val pausedField = glThreadClass.getDeclaredField("paused")
+        pausedField.isAccessible = true
+        val paused = pausedField.getBoolean(glThread)
+        assertFalse(paused)
+
+        val hasSurfaceField = glThreadClass.getDeclaredField("hasSurface")
+        hasSurfaceField.isAccessible = true
+        val hasSurface1 = hasSurfaceField.getBoolean(glThread)
+        assertFalse(hasSurface1)
+
+        // set hasSurface
+        hasSurfaceField.set(glThread, true)
+
+        val hasSurface2 = hasSurfaceField.getBoolean(glThread)
+        assertTrue(hasSurface2)
+
+        val surfaceIsBadField = glThreadClass.getDeclaredField("surfaceIsBad")
+        surfaceIsBadField.isAccessible = true
+        val surfaceIsBad = surfaceIsBadField.getBoolean(glThread)
+        assertFalse(surfaceIsBad)
+
+        val widthField = glThreadClass.getDeclaredField("width")
+        widthField.isAccessible = true
+        val width1 = widthField.getInt(glThread)
+        assertEquals(0, width1)
+
+        // set width
+        widthField.set(glThread, WIDTH)
+
+        val width2 = widthField.getInt(glThread)
+        assertEquals(WIDTH, width2)
+
+        val heightField = glThreadClass.getDeclaredField("height")
+        heightField.isAccessible = true
+        val height1 = heightField.getInt(glThread)
+        assertEquals(0, height1)
+
+        // set height
+        heightField.set(glThread, HEIGHT)
+
+        val height2 = heightField.getInt(glThread)
+        assertEquals(HEIGHT, height2)
+
+        val requestRenderField = glThreadClass.getDeclaredField("requestRender")
+        requestRenderField.isAccessible = true
+        val requestRender = requestRenderField.getBoolean(glThread)
+        assertTrue(requestRender)
+
+        val renderModeField = glThreadClass.getDeclaredField("_renderMode")
+        renderModeField.isAccessible = true
+        val renderMode = renderModeField.getInt(glThread)
+        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+
+        // invoke readyToDraw
+        val readyToDrawMethod = glThread.javaClass.getMethod("readyToDraw")
+        val result = readyToDrawMethod.invoke(glThread) as Boolean
+        assertTrue(result)
+    }
+
+    // TODO: glThread onWindowResize
+
+    // TODO: glThread requestReleaseEglContextLocked
+
+    // TODO: glThread guardedRun when shouldReleaseEglContext
+
+    // TODO: glThread guardedRun when lostEglContext
+
+    // TODO: glThread guardedRun when pausing
+
+    // TODO: glThread guardedRun when pausing and haveEglSurface
+
+    // TODO: glThread guardedRun when pausing and haveEglContext
+
+    // TODO: glThread guardedRun when doRenderNotification
+
+    // TODO: glThread guardedRun when readyToDraw
+
+    // TODO: glThread guardedRun when readyToDraw but no haveEglContext
+
+    // TODO: glThread guardedRun when readyToDraw and haveEglContext but no surface
+
+    // TODO: glThread guardedRun when readyToDraw and haveEglSurface
+
+    // TODO: glThread guardedRun when shouldExit and createEglSurface
+
+    // TODO: glThread guardedRun when shouldExit and createGlInterface
+
+    // TODO: glThread guardedRun when shouldExit and createEglContext
+
+    // TODO: glThread guardedRun when shouldExit and sizeChanged
+
+    // TODO: logWriter
+
+    // TODO: GLThreadManager
 
     private companion object {
         const val SLEEP = 1000L
