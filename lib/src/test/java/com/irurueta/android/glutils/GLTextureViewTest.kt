@@ -3371,7 +3371,246 @@ class GLTextureViewTest {
         assertTrue(result)
     }
 
-    // TODO: glThread onWindowResize
+    @Test
+    fun glThread_whenOnWindowResizeAndNotAbleToDraw_marksSizeAsChanged() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val widthField = glThreadClass.getDeclaredField("width")
+        widthField.isAccessible = true
+        val width1 = widthField.getInt(glThread)
+        assertEquals(0, width1)
+
+        val heightField = glThreadClass.getDeclaredField("height")
+        heightField.isAccessible = true
+        val height1 = heightField.getInt(glThread)
+        assertEquals(0, height1)
+
+        val sizeChangedField = glThreadClass.getDeclaredField("sizeChanged")
+        sizeChangedField.isAccessible = true
+        val sizeChanged1 = sizeChangedField.getBoolean(glThread)
+        assertTrue(sizeChanged1)
+
+        val exitedField = glThreadClass.getDeclaredField("exited")
+        exitedField.isAccessible = true
+        val exitedField1 = exitedField.getBoolean(glThread)
+        assertFalse(exitedField1)
+
+        val pausedField = glThreadClass.getDeclaredField("paused")
+        pausedField.isAccessible = true
+        val paused1 = pausedField.getBoolean(glThread)
+        assertFalse(paused1)
+
+        val renderCompleteField = glThreadClass.getDeclaredField("renderComplete")
+        renderCompleteField.isAccessible = true
+        val renderComplete1 = renderCompleteField.getBoolean(glThread)
+        assertFalse(renderComplete1)
+
+        // execute onWindowResize
+        val onWindowResizeMethod =
+            glThreadClass.getDeclaredMethod("onWindowResize", Int::class.java, Int::class.java)
+        onWindowResizeMethod.invoke(glThread, WIDTH, HEIGHT)
+
+        // check
+        val width2 = widthField.getInt(glThread)
+        assertEquals(WIDTH, width2)
+
+        val height2 = heightField.getInt(glThread)
+        assertEquals(HEIGHT, height2)
+
+        val sizeChanged2 = sizeChangedField.getBoolean(glThread)
+        assertTrue(sizeChanged2)
+    }
+
+    @Test
+    fun glThread_whenOnWindowResizeAndAbleToDraw_marksSizeAsChanged() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        justRun { renderer.onSurfaceChanged(any(), any(), any()) }
+        justRun { renderer.onDrawFrame(any()) }
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        Thread.sleep(SLEEP)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val widthField = glThreadClass.getDeclaredField("width")
+        widthField.isAccessible = true
+        val width1 = widthField.getInt(glThread)
+        assertEquals(0, width1)
+
+        val heightField = glThreadClass.getDeclaredField("height")
+        heightField.isAccessible = true
+        val height1 = heightField.getInt(glThread)
+        assertEquals(0, height1)
+
+        val sizeChangedField = glThreadClass.getDeclaredField("sizeChanged")
+        sizeChangedField.isAccessible = true
+        val sizeChanged1 = sizeChangedField.getBoolean(glThread)
+        assertTrue(sizeChanged1)
+
+        val exitedField = glThreadClass.getDeclaredField("exited")
+        exitedField.isAccessible = true
+        val exitedField1 = exitedField.getBoolean(glThread)
+        assertFalse(exitedField1)
+
+        val pausedField = glThreadClass.getDeclaredField("paused")
+        pausedField.isAccessible = true
+        val paused1 = pausedField.getBoolean(glThread)
+        assertFalse(paused1)
+
+        val renderCompleteField = glThreadClass.getDeclaredField("renderComplete")
+        renderCompleteField.isAccessible = true
+        val renderComplete1 = renderCompleteField.getBoolean(glThread)
+        assertFalse(renderComplete1)
+
+        val ableToDrawMethod = glThread.javaClass.getMethod("ableToDraw")
+        val ableToDraw1 = ableToDrawMethod.invoke(glThread) as Boolean
+        assertFalse(ableToDraw1)
+
+        // set haveEglContext
+        val haveEglContextField = glThreadClass.getDeclaredField("haveEglContext")
+        haveEglContextField.isAccessible = true
+        haveEglContextField.set(glThread, true)
+
+        // set haveEglSurface
+        val haveEglSurfaceField = glThreadClass.getDeclaredField("haveEglSurface")
+        haveEglSurfaceField.isAccessible = true
+        haveEglSurfaceField.set(glThread, true)
+
+        // set hasSurface
+        val hasSurfaceField = glThreadClass.getDeclaredField("hasSurface")
+        hasSurfaceField.isAccessible = true
+        hasSurfaceField.set(glThread, true)
+
+        // set width
+        widthField.set(glThread, 1)
+
+        // set height
+        heightField.set(glThread, 1)
+
+        // check able to draw
+        val ableToDraw2 = ableToDrawMethod.invoke(glThread) as Boolean
+        assertTrue(ableToDraw2)
+
+        // setup eglHelper
+        val eglHelperField = glThreadClass.getDeclaredField("eglHelper")
+        eglHelperField.isAccessible = true
+        val eglHelper = eglHelperField.get(glThread)
+        requireNotNull(eglHelper)
+
+        val eglField = eglHelper.javaClass.getDeclaredField("egl")
+        eglField.isAccessible = true
+
+        assertNull(eglField.get(eglHelper))
+
+        // set egl
+        val egl = mockk<EGL10>()
+        every { egl.eglGetError() }.returns(EGL10.EGL_BAD_NATIVE_WINDOW)
+        eglField.set(eglHelper, egl)
+
+        assertSame(egl, eglField.get(eglHelper))
+
+        val eglDisplayField = eglHelper.javaClass.getDeclaredField("eglDisplay")
+        eglDisplayField.isAccessible = true
+
+        assertNull(eglDisplayField.get(eglHelper))
+
+        // set eglDisplay
+        val eglDisplay = mockk<EGLDisplay>()
+        eglDisplayField.set(eglHelper, eglDisplay)
+
+        assertSame(eglDisplay, eglDisplayField.get(eglHelper))
+
+        val eglConfigField = eglHelper.javaClass.getDeclaredField("eglConfig")
+        eglConfigField.isAccessible = true
+
+        assertNull(eglConfigField.get(eglHelper))
+
+        // set eglConfig
+        val eglConfig = mockk<EGLConfig>()
+        eglConfigField.set(eglHelper, eglConfig)
+
+        assertSame(eglConfig, eglConfigField.get(eglHelper))
+
+        // set eglContext
+        val eglContextField = eglHelper.javaClass.getDeclaredField("eglContext")
+        eglContextField.isAccessible = true
+
+        assertNull(eglContextField.get(eglHelper))
+
+        val eglContext = mockk<EGLContext>()
+        eglContextField.set(eglHelper, eglContext)
+
+        every {
+            egl.eglMakeCurrent(
+                eglDisplay,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_SURFACE,
+                EGL10.EGL_NO_CONTEXT
+            )
+        }.returns(true)
+
+        val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
+        glSurfaceViewWeakRefField.isAccessible = true
+        assertNotNull(glSurfaceViewWeakRefField.get(eglHelper))
+
+        val eglWindowSurfaceFactory: GLTextureView.EGLWindowSurfaceFactory? =
+            view.getPrivateProperty("eglWindowSurfaceFactory")
+        assertNotNull(eglWindowSurfaceFactory)
+
+        val eglSurface = mockk<EGLSurface>()
+        every {
+            egl.eglCreateWindowSurface(
+                eglDisplay,
+                eglConfig,
+                any(),
+                null
+            )
+        }.returns(eglSurface)
+
+        every { egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext) }.returns(true)
+        every { egl.eglDestroySurface(any(), eglSurface) }.returns(true)
+        every { egl.eglDestroyContext(any(), any()) }.returns(true)
+        every { egl.eglTerminate(any()) }.returns(true)
+        every { egl.eglSwapBuffers(eglDisplay, eglSurface) }.returns(true)
+
+        // execute onWindowResize
+        val onWindowResizeMethod =
+            glThreadClass.getDeclaredMethod("onWindowResize", Int::class.java, Int::class.java)
+        onWindowResizeMethod.invoke(glThread, WIDTH, HEIGHT)
+
+        // check
+        val width2 = widthField.getInt(glThread)
+        assertEquals(WIDTH, width2)
+
+        val height2 = heightField.getInt(glThread)
+        assertEquals(HEIGHT, height2)
+
+        val sizeChanged2 = sizeChangedField.getBoolean(glThread)
+        assertFalse(sizeChanged2)
+
+        verify(exactly = 1) { renderer.onSurfaceChanged(any(), WIDTH, HEIGHT) }
+    }
 
     // TODO: glThread requestReleaseEglContextLocked
 
