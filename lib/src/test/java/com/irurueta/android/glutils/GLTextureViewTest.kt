@@ -9,6 +9,7 @@ import androidx.test.core.app.ApplicationProvider
 import io.mockk.*
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -3644,7 +3645,8 @@ class GLTextureViewTest {
         val glThreadManager = glThreadManagerField.get(glThread)
         requireNotNull(glThreadManager)
 
-        val glThreadManagerClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThreadManager") }
+        val glThreadManagerClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("GLThreadManager") }
         requireNotNull(glThreadManagerClass)
 
         val lockField = glThreadManagerClass.getDeclaredField("lock")
@@ -3694,7 +3696,8 @@ class GLTextureViewTest {
         val glThreadManager = glThreadManagerField.get(glThread)
         requireNotNull(glThreadManager)
 
-        val glThreadManagerClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThreadManager") }
+        val glThreadManagerClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("GLThreadManager") }
         requireNotNull(glThreadManagerClass)
 
         val lockField = glThreadManagerClass.getDeclaredField("lock")
@@ -3708,9 +3711,9 @@ class GLTextureViewTest {
         val requestExitMethod = glThread.javaClass.getDeclaredMethod("requestExitAndWait")
         requestExitMethod.isAccessible = true
 
-        // since gl thread will lock waiting for next render, we need to signal next
-        // render from another thread, and then we need to request thread to exit
-        val t1 = Thread {
+        // since gl thread will lock waiting for next render, we need to signal to awake
+        // it from another thread, and then we need to request thread to exit
+        val thread = Thread {
             try {
                 glThread.run()
             } catch (e: Throwable) {
@@ -3718,32 +3721,66 @@ class GLTextureViewTest {
                 fail()
             }
         }
-        t1.uncaughtExceptionHandler
-        val t2 = Thread {
-            lock.withLock {
-                condition.signalAll()
-            }
 
-            // request exit
-            requestExitMethod.invoke(glThread)
+        thread.start()
+
+        lock.withLock {
+            condition.signalAll()
         }
 
-        t1.start()
-        t2.start()
+        // request exit
+        requestExitMethod.invoke(glThread)
 
-        t1.join()
-        t2.join()
+        thread.join()
 
         assertEquals(0, threadFailures)
     }
-    // TODO: glThread guardedRun when shouldReleaseEglContext
 
-    // TODO: glThread guardedRun when lostEglContext
+    @Test
+    fun glThread_whenGuardedRunPausingAndHaveEglSurface() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
 
-    // TODO: glThread guardedRun when pausing
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
 
-    // TODO: glThread guardedRun when pausing and haveEglSurface
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
 
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val pausedField = glThreadClass.getDeclaredField("paused")
+        pausedField.isAccessible = true
+        val paused = pausedField.getBoolean(glThread)
+        assertFalse(paused)
+
+        val haveEglSurfaceField = glThreadClass.getDeclaredField("haveEglSurface")
+        haveEglSurfaceField.isAccessible = true
+        val haveEglSurface1 = haveEglSurfaceField.getBoolean(glThread)
+        assertFalse(haveEglSurface1)
+
+        // set haveEglSurface
+        haveEglSurfaceField.set(glThread, true)
+
+        val haveEglSurface2 = haveEglSurfaceField.getBoolean(glThread)
+        assertTrue(haveEglSurface2)
+
+        val requestPausedField = glThreadClass.getDeclaredField("requestPaused")
+        requestPausedField.isAccessible = true
+        val requestPaused1 = requestPausedField.getBoolean(glThread)
+        assertFalse(requestPaused1)
+
+        view.onPause()
+
+        Thread.sleep(SLEEP)
+
+        val requestPaused2 = requestPausedField.getBoolean(glThread)
+        assertTrue(requestPaused2)
+    }
+    
     // TODO: glThread guardedRun when pausing and haveEglContext
 
     // TODO: glThread guardedRun when doRenderNotification
