@@ -9,10 +9,10 @@ import androidx.test.core.app.ApplicationProvider
 import io.mockk.*
 import org.junit.Assert.*
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.io.Writer
 import java.lang.ref.WeakReference
 import java.lang.reflect.InvocationTargetException
 import java.util.concurrent.locks.Condition
@@ -3780,28 +3780,110 @@ class GLTextureViewTest {
         val requestPaused2 = requestPausedField.getBoolean(glThread)
         assertTrue(requestPaused2)
     }
-    
-    // TODO: glThread guardedRun when pausing and haveEglContext
 
-    // TODO: glThread guardedRun when doRenderNotification
+    @Test
+    fun glThread_whenGuardedRunPausingAndHaveEglContext() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
 
-    // TODO: glThread guardedRun when readyToDraw
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        view.setRenderer(renderer)
 
-    // TODO: glThread guardedRun when readyToDraw but no haveEglContext
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
 
-    // TODO: glThread guardedRun when readyToDraw and haveEglContext but no surface
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
 
-    // TODO: glThread guardedRun when readyToDraw and haveEglSurface
+        val pausedField = glThreadClass.getDeclaredField("paused")
+        pausedField.isAccessible = true
+        val paused = pausedField.getBoolean(glThread)
+        assertFalse(paused)
 
-    // TODO: glThread guardedRun when shouldExit and createEglSurface
+        val haveEglContextField = glThreadClass.getDeclaredField("haveEglContext")
+        haveEglContextField.isAccessible = true
+        val haveEglContext1 = haveEglContextField.getBoolean(glThread)
+        assertFalse(haveEglContext1)
 
-    // TODO: glThread guardedRun when shouldExit and createGlInterface
+        // set haveEglContext
+        haveEglContextField.set(glThread, true)
 
-    // TODO: glThread guardedRun when shouldExit and createEglContext
+        val haveEglContext2 = haveEglContextField.getBoolean(glThread)
+        assertTrue(haveEglContext2)
 
-    // TODO: glThread guardedRun when shouldExit and sizeChanged
+        val requestPausedField = glThreadClass.getDeclaredField("requestPaused")
+        requestPausedField.isAccessible = true
+        val requestPaused1 = requestPausedField.getBoolean(glThread)
+        assertFalse(requestPaused1)
 
-    // TODO: logWriter
+        view.onPause()
+
+        Thread.sleep(SLEEP)
+
+        val requestPaused2 = requestPausedField.getBoolean(glThread)
+        assertTrue(requestPaused2)
+    }
+
+    @Test
+    fun logWriter_close() {
+        val classes = GLTextureView::class.java.declaredClasses
+
+        @Suppress("UNCHECKED_CAST")
+        val logWriterClass: Class<Writer>? =
+            classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
+        val logWriter = logWriterClass?.newInstance()
+        requireNotNull(logWriter)
+
+        logWriter.close()
+    }
+
+    @Test
+    fun logWriter_flush() {
+        val classes = GLTextureView::class.java.declaredClasses
+
+        @Suppress("UNCHECKED_CAST")
+        val logWriterClass: Class<Writer>? =
+            classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
+        val logWriter = logWriterClass?.newInstance()
+        requireNotNull(logWriter)
+
+        logWriter.use {
+            logWriter.flush()
+        }
+    }
+
+    @Test
+    fun logWriter_write() {
+        val classes = GLTextureView::class.java.declaredClasses
+
+        @Suppress("UNCHECKED_CAST")
+        val logWriterClass: Class<Writer>? =
+            classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
+        val logWriter = logWriterClass?.newInstance()
+        requireNotNull(logWriter)
+
+        logWriter.use {
+            logWriter.write("message", 0, 1)
+        }
+    }
+
+    @Test
+    fun logWriter_writeWhenLineBreak() {
+        val classes = GLTextureView::class.java.declaredClasses
+
+        @Suppress("UNCHECKED_CAST")
+        val logWriterClass: Class<Writer>? =
+            classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
+        val logWriter = logWriterClass?.newInstance()
+        requireNotNull(logWriter)
+
+        val msg = "message with \nline break"
+        logWriter.use {
+            logWriter.write(msg, 0, msg.length)
+        }
+    }
 
     // TODO: GLThreadManager
 
