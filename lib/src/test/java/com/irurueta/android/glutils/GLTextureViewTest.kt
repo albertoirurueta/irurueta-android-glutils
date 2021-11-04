@@ -19,6 +19,7 @@ import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.ReentrantLock
 import javax.microedition.khronos.egl.*
 import javax.microedition.khronos.opengles.GL
+import javax.microedition.khronos.opengles.GL10
 import kotlin.concurrent.withLock
 
 @RunWith(RobolectricTestRunner::class)
@@ -3831,9 +3832,9 @@ class GLTextureViewTest {
         val classes = GLTextureView::class.java.declaredClasses
 
         @Suppress("UNCHECKED_CAST")
-        val logWriterClass: Class<Writer>? =
+        val logWriterClass: Class<Writer> =
             classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
-        val logWriter = logWriterClass?.newInstance()
+        val logWriter = logWriterClass.newInstance()
         requireNotNull(logWriter)
 
         logWriter.close()
@@ -3844,9 +3845,9 @@ class GLTextureViewTest {
         val classes = GLTextureView::class.java.declaredClasses
 
         @Suppress("UNCHECKED_CAST")
-        val logWriterClass: Class<Writer>? =
+        val logWriterClass: Class<Writer> =
             classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
-        val logWriter = logWriterClass?.newInstance()
+        val logWriter = logWriterClass.newInstance()
         requireNotNull(logWriter)
 
         logWriter.use {
@@ -3859,9 +3860,9 @@ class GLTextureViewTest {
         val classes = GLTextureView::class.java.declaredClasses
 
         @Suppress("UNCHECKED_CAST")
-        val logWriterClass: Class<Writer>? =
+        val logWriterClass: Class<Writer> =
             classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
-        val logWriter = logWriterClass?.newInstance()
+        val logWriter = logWriterClass.newInstance()
         requireNotNull(logWriter)
 
         logWriter.use {
@@ -3874,9 +3875,9 @@ class GLTextureViewTest {
         val classes = GLTextureView::class.java.declaredClasses
 
         @Suppress("UNCHECKED_CAST")
-        val logWriterClass: Class<Writer>? =
+        val logWriterClass: Class<Writer> =
             classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
-        val logWriter = logWriterClass?.newInstance()
+        val logWriter = logWriterClass.newInstance()
         requireNotNull(logWriter)
 
         val msg = "message with \nline break"
@@ -3885,7 +3886,285 @@ class GLTextureViewTest {
         }
     }
 
-    // TODO: GLThreadManager
+    @Test
+    fun logWriter_writeWhenNullMessage() {
+        val classes = GLTextureView::class.java.declaredClasses
+
+        @Suppress("UNCHECKED_CAST")
+        val logWriterClass: Class<Writer> =
+            classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
+        val logWriter = logWriterClass.newInstance()
+        requireNotNull(logWriter)
+
+        logWriter.use {
+            logWriter.write(null as CharArray?, 0, 1)
+        }
+    }
+
+    @Test
+    fun glThreadManager_whenThreadExiting() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        justRun { renderer.onSurfaceChanged(any(), any(), any()) }
+        justRun { renderer.onDrawFrame(any()) }
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val glThreadManagerField = glThreadClass.getDeclaredField("glThreadManager")
+        glThreadManagerField.isAccessible = true
+        val glThreadManager = glThreadManagerField.get(glThread)
+        requireNotNull(glThreadManager)
+
+        val glThreadManagerClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("GLThreadManager") }
+        requireNotNull(glThreadManagerClass)
+
+        val eglOwnerField = glThreadManagerClass.getDeclaredField("eglOwner")
+        eglOwnerField.isAccessible = true
+        val eglOwner1 = eglOwnerField.get(glThreadManager)
+        assertNull(eglOwner1)
+
+        // set eglOwner
+        eglOwnerField.set(glThreadManager, glThread)
+
+        val eglOwner2 = eglOwnerField.get(glThreadManager)
+        assertSame(glThread, eglOwner2)
+
+        val threadExitingMethod =
+            glThreadManagerClass.getDeclaredMethod("threadExiting", glThreadClass)
+        threadExitingMethod.invoke(glThreadManager, glThread)
+
+        val eglOwner3 = eglOwnerField.get(glThreadManager)
+        assertNull(eglOwner3)
+    }
+
+    @Test
+    fun glThreadManager_whenTryAcquireEglContextLockedAndMultipleGLESContextsAllowed() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+        val view2 = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        justRun { renderer.onSurfaceChanged(any(), any(), any()) }
+        justRun { renderer.onDrawFrame(any()) }
+        view.setRenderer(renderer)
+        view2.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val glThread2: Thread? = view2.getPrivateProperty("glThread")
+        requireNotNull(glThread2)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val glThreadManagerField = glThreadClass.getDeclaredField("glThreadManager")
+        glThreadManagerField.isAccessible = true
+        val glThreadManager = glThreadManagerField.get(glThread)
+        requireNotNull(glThreadManager)
+
+        val glThreadManagerClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("GLThreadManager") }
+        requireNotNull(glThreadManagerClass)
+
+        val eglOwnerField = glThreadManagerClass.getDeclaredField("eglOwner")
+        eglOwnerField.isAccessible = true
+        val eglOwner1 = eglOwnerField.get(glThreadManager)
+        assertNull(eglOwner1)
+
+        // set eglOwner
+        eglOwnerField.set(glThreadManager, glThread2)
+
+        val multipleGLESContextsAllowedField =
+            glThreadManagerClass.getDeclaredField("multipleGLESContextsAllowed")
+        multipleGLESContextsAllowedField.isAccessible = true
+        val multipleGLESContextsAllowed1 =
+            multipleGLESContextsAllowedField.getBoolean(glThreadManager)
+        assertFalse(multipleGLESContextsAllowed1)
+
+        // set multipleGLESContextsAllowed
+        multipleGLESContextsAllowedField.setBoolean(glThreadManager, true)
+
+        val multipleGLESContextsAllowed2 =
+            multipleGLESContextsAllowedField.getBoolean(glThreadManager)
+        assertTrue(multipleGLESContextsAllowed2)
+
+        // invoke tryAcquireEglContextLocked
+        val tryAcquireEglContextLockedMethod =
+            glThreadManagerClass.getDeclaredMethod("tryAcquireEglContextLocked", glThreadClass)
+        val result = tryAcquireEglContextLockedMethod.invoke(glThreadManager, glThread) as Boolean
+        assertTrue(result)
+    }
+
+    @Test
+    fun glThreadManager_whenTryAcquireEglContextLockedAndSingleGLESContextsAllowed() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+        val view2 = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        justRun { renderer.onSurfaceChanged(any(), any(), any()) }
+        justRun { renderer.onDrawFrame(any()) }
+        view.setRenderer(renderer)
+        view2.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val glThread2: Thread? = view2.getPrivateProperty("glThread")
+        requireNotNull(glThread2)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val glThreadManagerField = glThreadClass.getDeclaredField("glThreadManager")
+        glThreadManagerField.isAccessible = true
+        val glThreadManager1 = glThreadManagerField.get(glThread)
+        requireNotNull(glThreadManager1)
+        val glThreadManager2 = glThreadManagerField.get(glThread2)
+        requireNotNull(glThreadManager2)
+
+        val glThreadManagerClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("GLThreadManager") }
+        requireNotNull(glThreadManagerClass)
+
+        val eglOwnerField = glThreadManagerClass.getDeclaredField("eglOwner")
+        eglOwnerField.isAccessible = true
+        val eglOwner1 = eglOwnerField.get(glThreadManager1)
+        assertNull(eglOwner1)
+
+        // set eglOwner
+        eglOwnerField.set(glThreadManager1, glThread2)
+
+        val multipleGLESContextsAllowedField =
+            glThreadManagerClass.getDeclaredField("multipleGLESContextsAllowed")
+        multipleGLESContextsAllowedField.isAccessible = true
+        val multipleGLESContextsAllowed =
+            multipleGLESContextsAllowedField.getBoolean(glThreadManager1)
+        assertFalse(multipleGLESContextsAllowed)
+
+        val lockField = glThreadManagerClass.getDeclaredField("lock")
+        lockField.isAccessible = true
+        val lock = lockField.get(glThreadManager2) as ReentrantLock
+
+        // invoke tryAcquireEglContextLocked
+        val tryAcquireEglContextLockedMethod =
+            glThreadManagerClass.getDeclaredMethod("tryAcquireEglContextLocked", glThreadClass)
+        lock.withLock {
+            val result =
+                tryAcquireEglContextLockedMethod.invoke(glThreadManager1, glThread) as Boolean
+            assertFalse(result)
+        }
+    }
+
+    @Test
+    fun glThreadManager_shouldReleaseEGLContextWhenPausing() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        justRun { renderer.onSurfaceChanged(any(), any(), any()) }
+        justRun { renderer.onDrawFrame(any()) }
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val glThreadManagerField = glThreadClass.getDeclaredField("glThreadManager")
+        glThreadManagerField.isAccessible = true
+        val glThreadManager = glThreadManagerField.get(glThread)
+        requireNotNull(glThreadManager)
+
+        val glThreadManagerClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("GLThreadManager") }
+        requireNotNull(glThreadManagerClass)
+
+        val limitedGLESContextsField = glThreadManagerClass.getDeclaredField("limitedGLESContexts")
+        limitedGLESContextsField.isAccessible = true
+        val limitedGLESContexts = limitedGLESContextsField.getBoolean(glThreadManager)
+        assertFalse(limitedGLESContexts)
+
+        // set limitedGLESContexts
+        limitedGLESContextsField.setBoolean(glThreadManager, true)
+
+        val shouldReleaseEGLContextWhenPausingMethod =
+            glThreadManagerClass.getDeclaredMethod("shouldReleaseEGLContextWhenPausing")
+        val result = shouldReleaseEGLContextWhenPausingMethod.invoke(glThreadManager) as Boolean
+        assertTrue(result)
+    }
+
+    @Test
+    fun glThreadManager_whenCheckGLDriver() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        justRun { renderer.onSurfaceChanged(any(), any(), any()) }
+        justRun { renderer.onDrawFrame(any()) }
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val glThreadManagerField = glThreadClass.getDeclaredField("glThreadManager")
+        glThreadManagerField.isAccessible = true
+        val glThreadManager = glThreadManagerField.get(glThread)
+        requireNotNull(glThreadManager)
+
+        val glThreadManagerClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("GLThreadManager") }
+        requireNotNull(glThreadManagerClass)
+
+        val checkGLDriverMethod =
+            glThreadManagerClass.getDeclaredMethod("checkGLDriver", GL10::class.java)
+        val gl = mockk<GL10>()
+        every { gl.glGetString(GL10.GL_RENDERER) }.returns("renderer")
+        checkGLDriverMethod.invoke(glThreadManager, gl)
+
+        // check
+        val multipleGLESContextsAllowedField =
+            glThreadManagerClass.getDeclaredField("multipleGLESContextsAllowed")
+        multipleGLESContextsAllowedField.isAccessible = true
+        val multipleGLESContextsAllowed =
+            multipleGLESContextsAllowedField.getBoolean(glThreadManager)
+        assertTrue(multipleGLESContextsAllowed)
+
+        val limitedGLESContextsField =
+            glThreadManagerClass.getDeclaredField("limitedGLESContexts")
+        limitedGLESContextsField.isAccessible = true
+        val limitedGLESContexts = limitedGLESContextsField.getBoolean(glThreadManager)
+        assertFalse(limitedGLESContexts)
+
+        val glESDriverCheckCompleteField =
+            glThreadManagerClass.getDeclaredField("glESDriverCheckComplete")
+        glESDriverCheckCompleteField.isAccessible = true
+        val glESDriverCheckComplete = glESDriverCheckCompleteField.getBoolean(glThreadManager)
+        assertTrue(glESDriverCheckComplete)
+    }
 
     private companion object {
         const val SLEEP = 1000L
