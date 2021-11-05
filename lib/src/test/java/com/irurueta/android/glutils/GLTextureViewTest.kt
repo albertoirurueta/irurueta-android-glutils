@@ -379,6 +379,8 @@ class GLTextureViewTest {
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -423,6 +425,8 @@ class GLTextureViewTest {
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -459,6 +463,8 @@ class GLTextureViewTest {
 
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -502,6 +508,8 @@ class GLTextureViewTest {
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -544,6 +552,8 @@ class GLTextureViewTest {
 
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -592,6 +602,8 @@ class GLTextureViewTest {
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -633,6 +645,8 @@ class GLTextureViewTest {
 
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -682,6 +696,8 @@ class GLTextureViewTest {
 
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -760,6 +776,8 @@ class GLTextureViewTest {
 
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -869,6 +887,8 @@ class GLTextureViewTest {
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
         assertTrue(glThread.isAlive)
@@ -933,6 +953,8 @@ class GLTextureViewTest {
 
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -2945,6 +2967,8 @@ class GLTextureViewTest {
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -3011,6 +3035,8 @@ class GLTextureViewTest {
         // set renderer
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -3084,6 +3110,8 @@ class GLTextureViewTest {
         // set renderer
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -3163,6 +3191,8 @@ class GLTextureViewTest {
         // set renderer
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -3261,6 +3291,8 @@ class GLTextureViewTest {
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -3317,6 +3349,8 @@ class GLTextureViewTest {
         // set renderer
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -3392,6 +3426,8 @@ class GLTextureViewTest {
         // set renderer
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -3634,6 +3670,8 @@ class GLTextureViewTest {
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -3680,6 +3718,8 @@ class GLTextureViewTest {
         // set renderer
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -3746,6 +3786,8 @@ class GLTextureViewTest {
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -3790,6 +3832,8 @@ class GLTextureViewTest {
         // set renderer
         val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -3912,6 +3956,8 @@ class GLTextureViewTest {
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -3957,6 +4003,8 @@ class GLTextureViewTest {
         justRun { renderer.onSurfaceChanged(any(), any(), any()) }
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -4009,6 +4057,8 @@ class GLTextureViewTest {
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -4055,6 +4105,8 @@ class GLTextureViewTest {
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
         view2.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -4117,6 +4169,8 @@ class GLTextureViewTest {
         view.setRenderer(renderer)
         view2.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -4178,6 +4232,8 @@ class GLTextureViewTest {
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
 
+        Thread.sleep(SLEEP)
+
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
 
@@ -4218,6 +4274,8 @@ class GLTextureViewTest {
         justRun { renderer.onSurfaceChanged(any(), any(), any()) }
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
+
+        Thread.sleep(SLEEP)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
