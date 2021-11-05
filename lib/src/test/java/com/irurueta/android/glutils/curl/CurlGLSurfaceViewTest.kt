@@ -11,9 +11,7 @@ import android.view.View
 import androidx.test.core.app.ApplicationProvider
 import com.irurueta.android.glutils.getPrivateProperty
 import com.irurueta.android.glutils.setPrivateProperty
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -91,6 +89,632 @@ class CurlGLSurfaceViewTest {
         val scrollP: Float? = view.getPrivateProperty("scrollP")
         assertEquals(0.0f, scrollP)
         assertNotNull(view.getPrivateProperty("observer"))
+    }
+
+    @Test
+    fun observer_onDrawFrameWhenNoCurlRenderer_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer1: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer1)
+
+        // set null curl renderer
+        view.setPrivateProperty("curlRenderer", null)
+
+        val curlRenderer2: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        assertNull(curlRenderer2)
+
+        val notifySmoothChange1: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange1)
+        assertTrue(notifySmoothChange1)
+
+        observer.onDrawFrame()
+
+        // check
+        val notifySmoothChange2: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange2)
+        assertTrue(notifySmoothChange2)
+    }
+
+    @Test
+    fun observer_onDrawFrameWhenNotAnimateAndNotifySmoothChange() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val currentIndexChangedListener = mockk<CurlGLSurfaceView.CurrentIndexChangedListener>()
+        view.currentIndexChangedListener = currentIndexChangedListener
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val animate: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate)
+        assertFalse(animate)
+
+        val notifySmoothChange: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange)
+        assertTrue(notifySmoothChange)
+
+        observer.onDrawFrame()
+
+        verify { currentIndexChangedListener wasNot Called }
+    }
+
+    @LooperMode(LooperMode.Mode.LEGACY)
+    @Test
+    fun observer_onDrawFrameWhenNotAnimateAndNotNotifySmoothChange() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val currentIndexChangedListener =
+            mockk<CurlGLSurfaceView.CurrentIndexChangedListener>(relaxUnitFun = true)
+        view.currentIndexChangedListener = currentIndexChangedListener
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val animate: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate)
+        assertFalse(animate)
+
+        val notifySmoothChange1: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange1)
+        assertTrue(notifySmoothChange1)
+
+        view.setPrivateProperty("notifySmoothChange", false)
+
+        val notifySmoothChange2: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange2)
+        assertFalse(notifySmoothChange2)
+
+        observer.onDrawFrame()
+
+        verify { currentIndexChangedListener.onCurrentIndexChanged(view, 0) }
+
+        val notifySmoothChange3: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange3)
+        assertTrue(notifySmoothChange3)
+    }
+
+    @Test
+    fun observer_onDrawFrameWhenAnimatedAnimationFinishedButNoCurl() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val currentIndexChangedListener = mockk<CurlGLSurfaceView.CurrentIndexChangedListener>()
+        view.currentIndexChangedListener = currentIndexChangedListener
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val animate1: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate1)
+        assertFalse(animate1)
+
+        // set animate
+        view.setPrivateProperty("animate", true)
+
+        val animate2: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate2)
+        assertTrue(animate2)
+
+        observer.onDrawFrame()
+
+        verify { currentIndexChangedListener wasNot Called }
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        val animate3: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate3)
+        assertFalse(animate3)
+
+        val notifySmoothChange: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange)
+        assertFalse(notifySmoothChange)
+    }
+
+    @Test
+    fun observer_onDrawFrameWhenAnimatedAnimationFinishedCurlRightAndNoPreviousCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val currentIndexChangedListener = mockk<CurlGLSurfaceView.CurrentIndexChangedListener>()
+        view.currentIndexChangedListener = currentIndexChangedListener
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val animate1: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate1)
+        assertFalse(animate1)
+
+        // set animate
+        view.setPrivateProperty("animate", true)
+
+        val animate2: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate2)
+        assertTrue(animate2)
+
+        val animationTargetEvent1: Int? = view.getPrivateProperty("animationTargetEvent")
+        requireNotNull(animationTargetEvent1)
+        assertEquals(0, animationTargetEvent1)
+
+        // set animation target event
+        view.setPrivateProperty("animationTargetEvent", CurlTextureView.SET_CURL_TO_RIGHT)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+        assertEquals(0, view.currentIndex)
+
+        observer.onDrawFrame()
+
+        verify { currentIndexChangedListener wasNot Called }
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        val animate3: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate3)
+        assertFalse(animate3)
+
+        val notifySmoothChange: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange)
+        assertFalse(notifySmoothChange)
+
+        assertEquals(0, view.currentIndex)
+    }
+
+    @Test
+    fun observer_onDrawFrameWhenAnimatedAnimationFinishedCurlRightPreviousLeftCurlStateAndNoTargetIndex() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val currentIndexChangedListener = mockk<CurlGLSurfaceView.CurrentIndexChangedListener>()
+        view.currentIndexChangedListener = currentIndexChangedListener
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val animate1: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate1)
+        assertFalse(animate1)
+
+        // set animate
+        view.setPrivateProperty("animate", true)
+
+        val animate2: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate2)
+        assertTrue(animate2)
+
+        val animationTargetEvent1: Int? = view.getPrivateProperty("animationTargetEvent")
+        requireNotNull(animationTargetEvent1)
+        assertEquals(0, animationTargetEvent1)
+
+        // set animation target event
+        view.setPrivateProperty("animationTargetEvent", CurlTextureView.SET_CURL_TO_RIGHT)
+
+        // set previous curl state
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_LEFT)
+        assertEquals(0, view.currentIndex)
+
+        observer.onDrawFrame()
+
+        verify { currentIndexChangedListener wasNot Called }
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        val animate3: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate3)
+        assertFalse(animate3)
+
+        val notifySmoothChange: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange)
+        assertFalse(notifySmoothChange)
+
+        assertEquals(-1, view.currentIndex)
+    }
+
+    @Test
+    fun observer_onDrawFrameWhenAnimatedAnimationFinishedCurlRightPreviousLeftCurlStateAndTargetIndex() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val currentIndexChangedListener = mockk<CurlGLSurfaceView.CurrentIndexChangedListener>()
+        view.currentIndexChangedListener = currentIndexChangedListener
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val animate1: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate1)
+        assertFalse(animate1)
+
+        // set animate
+        view.setPrivateProperty("animate", true)
+
+        val animate2: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate2)
+        assertTrue(animate2)
+
+        val animationTargetEvent1: Int? = view.getPrivateProperty("animationTargetEvent")
+        requireNotNull(animationTargetEvent1)
+        assertEquals(0, animationTargetEvent1)
+
+        // set animation target event
+        view.setPrivateProperty("animationTargetEvent", CurlTextureView.SET_CURL_TO_RIGHT)
+
+        // set previous curl state
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_LEFT)
+        assertEquals(0, view.currentIndex)
+
+        // set targetIndex
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        view.setPrivateProperty("targetIndex", 1)
+
+        observer.onDrawFrame()
+
+        verify { currentIndexChangedListener wasNot Called }
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        val animate3: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate3)
+        assertFalse(animate3)
+
+        val notifySmoothChange: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange)
+        assertFalse(notifySmoothChange)
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @Test
+    fun observer_onDrawFrameWhenAnimatedAnimationFinishedCurlLeftAndNoPreviousCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val currentIndexChangedListener = mockk<CurlGLSurfaceView.CurrentIndexChangedListener>()
+        view.currentIndexChangedListener = currentIndexChangedListener
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val animate1: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate1)
+        assertFalse(animate1)
+
+        // set animate
+        view.setPrivateProperty("animate", true)
+
+        val animate2: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate2)
+        assertTrue(animate2)
+
+        val animationTargetEvent1: Int? = view.getPrivateProperty("animationTargetEvent")
+        requireNotNull(animationTargetEvent1)
+        assertEquals(0, animationTargetEvent1)
+
+        // set animation target event
+        view.setPrivateProperty("animationTargetEvent", CurlTextureView.SET_CURL_TO_LEFT)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+        assertEquals(0, view.currentIndex)
+
+        observer.onDrawFrame()
+
+        verify { currentIndexChangedListener wasNot Called }
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        val animate3: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate3)
+        assertFalse(animate3)
+
+        val notifySmoothChange: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange)
+        assertFalse(notifySmoothChange)
+
+        assertEquals(0, view.currentIndex)
+    }
+
+    @Test
+    fun observer_onDrawFrameWhenAnimatedAnimationFinishedCurlLeftNoPreviousCurlStateAndNotRenderLeftPage() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val currentIndexChangedListener = mockk<CurlGLSurfaceView.CurrentIndexChangedListener>()
+        view.currentIndexChangedListener = currentIndexChangedListener
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val animate1: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate1)
+        assertFalse(animate1)
+
+        // set animate
+        view.setPrivateProperty("animate", true)
+
+        val animate2: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate2)
+        assertTrue(animate2)
+
+        val animationTargetEvent1: Int? = view.getPrivateProperty("animationTargetEvent")
+        requireNotNull(animationTargetEvent1)
+        assertEquals(0, animationTargetEvent1)
+
+        // set animation target event
+        view.setPrivateProperty("animationTargetEvent", CurlTextureView.SET_CURL_TO_LEFT)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+        assertEquals(0, view.currentIndex)
+
+        // set not renderLeftPage
+        val renderLeftPage1: Boolean? = view.getPrivateProperty("renderLeftPage")
+        requireNotNull(renderLeftPage1)
+        assertTrue(renderLeftPage1)
+
+        view.setPrivateProperty("renderLeftPage", false)
+
+        val renderLeftPage2: Boolean? = view.getPrivateProperty("renderLeftPage")
+        requireNotNull(renderLeftPage2)
+        assertFalse(renderLeftPage2)
+
+        observer.onDrawFrame()
+
+        verify { currentIndexChangedListener wasNot Called }
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        val animate3: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate3)
+        assertFalse(animate3)
+
+        val notifySmoothChange: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange)
+        assertFalse(notifySmoothChange)
+
+        assertEquals(0, view.currentIndex)
+    }
+
+    @Test
+    fun observer_onDrawFrameWhenAnimatedAnimationFinishedCurlLeftPreviousLeftCurlStateAndNoTargetIndex() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val currentIndexChangedListener = mockk<CurlGLSurfaceView.CurrentIndexChangedListener>()
+        view.currentIndexChangedListener = currentIndexChangedListener
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val animate1: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate1)
+        assertFalse(animate1)
+
+        // set animate
+        view.setPrivateProperty("animate", true)
+
+        val animate2: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate2)
+        assertTrue(animate2)
+
+        val animationTargetEvent1: Int? = view.getPrivateProperty("animationTargetEvent")
+        requireNotNull(animationTargetEvent1)
+        assertEquals(0, animationTargetEvent1)
+
+        // set animation target event
+        view.setPrivateProperty("animationTargetEvent", CurlTextureView.SET_CURL_TO_LEFT)
+
+        // set previous curl state
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_RIGHT)
+        assertEquals(0, view.currentIndex)
+
+        observer.onDrawFrame()
+
+        verify { currentIndexChangedListener wasNot Called }
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        val animate3: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate3)
+        assertFalse(animate3)
+
+        val notifySmoothChange: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange)
+        assertFalse(notifySmoothChange)
+
+        assertEquals(1, view.currentIndex)
+    }
+
+    @Test
+    fun observer_onDrawFrameWhenAnimatedAnimationFinishedCurlLeftPreviousLeftCurlStateAndTargetIndex() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val currentIndexChangedListener = mockk<CurlGLSurfaceView.CurrentIndexChangedListener>()
+        view.currentIndexChangedListener = currentIndexChangedListener
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val animate1: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate1)
+        assertFalse(animate1)
+
+        // set animate
+        view.setPrivateProperty("animate", true)
+
+        val animate2: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate2)
+        assertTrue(animate2)
+
+        val animationTargetEvent1: Int? = view.getPrivateProperty("animationTargetEvent")
+        requireNotNull(animationTargetEvent1)
+        assertEquals(0, animationTargetEvent1)
+
+        // set animation target event
+        view.setPrivateProperty("animationTargetEvent", CurlTextureView.SET_CURL_TO_LEFT)
+
+        // set previous curl state
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_RIGHT)
+        assertEquals(0, view.currentIndex)
+
+        // set targetIndex
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        view.setPrivateProperty("targetIndex", 2)
+
+        observer.onDrawFrame()
+
+        verify { currentIndexChangedListener wasNot Called }
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+
+        val animate3: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate3)
+        assertFalse(animate3)
+
+        val notifySmoothChange: Boolean? = view.getPrivateProperty("notifySmoothChange")
+        requireNotNull(notifySmoothChange)
+        assertFalse(notifySmoothChange)
+
+        assertEquals(2, view.currentIndex)
+    }
+
+    @Test
+    fun observer_onDrawFrameWhenAnimatedAndAnimationFinished() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val currentIndexChangedListener = mockk<CurlGLSurfaceView.CurrentIndexChangedListener>()
+        view.currentIndexChangedListener = currentIndexChangedListener
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val animate1: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate1)
+        assertFalse(animate1)
+
+        // set animate
+        view.setPrivateProperty("animate", true)
+
+        val animate2: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate2)
+        assertTrue(animate2)
+
+        // set animation start time
+        view.setPrivateProperty("animationStartTime", System.nanoTime())
+        view.animationDurationTime = ANIMATION_DURATION_MILLIS
+
+        observer.onDrawFrame()
+
+        verify { currentIndexChangedListener wasNot Called }
+    }
+
+    @Test
+    fun observer_onPageSizeChanged() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        // check default values
+        val pageBitmapWidth1: Int? = view.getPrivateProperty("pageBitmapWidth")
+        requireNotNull(pageBitmapWidth1)
+        assertEquals(-1, pageBitmapWidth1)
+
+        val pageBitmapHeight1: Int? = view.getPrivateProperty("pageBitmapHeight")
+        requireNotNull(pageBitmapHeight1)
+        assertEquals(-1, pageBitmapHeight1)
+
+        observer.onPageSizeChanged(WIDTH, HEIGHT)
+
+        // check
+        val pageBitmapWidth2: Int? = view.getPrivateProperty("pageBitmapWidth")
+        requireNotNull(pageBitmapWidth2)
+        assertEquals(WIDTH, pageBitmapWidth2)
+
+        val pageBitmapHeight2: Int? = view.getPrivateProperty("pageBitmapHeight")
+        requireNotNull(pageBitmapHeight2)
+        assertEquals(HEIGHT, pageBitmapHeight2)
+    }
+
+    @Test
+    fun observer_onSurfaceCreated() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val observer: CurlRenderer.Observer? = view.getPrivateProperty("observer")
+        requireNotNull(observer)
+
+        // set spies
+        val pageLeft: CurlMesh? = view.getPrivateProperty("pageLeft")
+        requireNotNull(pageLeft)
+        val pageRight: CurlMesh? = view.getPrivateProperty("pageRight")
+        requireNotNull(pageRight)
+        val pageCurl: CurlMesh? = view.getPrivateProperty("pageCurl")
+        requireNotNull(pageCurl)
+
+        val pageLeftSpy = spyk(pageLeft)
+        view.setPrivateProperty("pageLeft", pageLeftSpy)
+        val pageRightSpy = spyk(pageRight)
+        view.setPrivateProperty("pageRight", pageRightSpy)
+        val pageCurlSpy = spyk(pageCurl)
+        view.setPrivateProperty("pageCurl", pageCurlSpy)
+
+        observer.onSurfaceCreated()
+
+        // check
+        verify(exactly = 1) { pageLeftSpy.resetTexture() }
+        verify(exactly = 1) { pageRightSpy.resetTexture() }
+        verify(exactly = 1) { pageCurlSpy.resetTexture() }
     }
 
     @Test
@@ -955,8 +1579,23 @@ class CurlGLSurfaceViewTest {
         assertEquals(Color.RED, renderer.backgroundColor)
     }
 
+    // TODO: updateLastCurlPos
+    // TODO: handleFirstScrollEvent
+    // TODO: updateFirstCurlPos
+    // TODO: handleScrollEvent
+    // TODO: gestureDetector_onSingleTapUp
+    // TODO: gestureDetector_onScroll
+    // TODO: gestureDetector_onDown
+    // TODO: setCurlPos
+    // TODO: startCurl
+    // TODO: updateCurlPos
+    // TODO: updatePage
+    // TODO: updatePages
+
     private companion object {
         const val WIDTH = 1080
         const val HEIGHT = 1920
+
+        const val ANIMATION_DURATION_MILLIS = 10000
     }
 }

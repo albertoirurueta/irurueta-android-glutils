@@ -3948,6 +3948,102 @@ class GLTextureViewTest {
     }
 
     @Test
+    fun glThreadManager_whenTryAcquireEglContextLockedAndExistingEglOwner() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        justRun { renderer.onSurfaceChanged(any(), any(), any()) }
+        justRun { renderer.onDrawFrame(any()) }
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val glThreadManagerField = glThreadClass.getDeclaredField("glThreadManager")
+        glThreadManagerField.isAccessible = true
+        val glThreadManager = glThreadManagerField.get(glThread)
+        requireNotNull(glThreadManager)
+
+        val glThreadManagerClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("GLThreadManager") }
+        requireNotNull(glThreadManagerClass)
+
+        val eglOwnerField = glThreadManagerClass.getDeclaredField("eglOwner")
+        eglOwnerField.isAccessible = true
+        val eglOwner1 = eglOwnerField.get(glThreadManager)
+        assertNull(eglOwner1)
+
+        // set eglOwner
+        eglOwnerField.set(glThreadManager, glThread)
+
+        val eglOwner2 = eglOwnerField.get(glThreadManager)
+        assertSame(glThread, eglOwner2)
+
+        val lockField = glThreadManagerClass.getDeclaredField("lock")
+        lockField.isAccessible = true
+        val lock = lockField.get(glThreadManager) as ReentrantLock
+
+        // invoke tryAcquireEglContextLocked
+        val tryAcquireEglContextLockedMethod =
+            glThreadManagerClass.getDeclaredMethod("tryAcquireEglContextLocked", glThreadClass)
+        lock.withLock {
+            val result = tryAcquireEglContextLockedMethod.invoke(glThreadManager, glThread) as Boolean
+            assertTrue(result)
+        }
+    }
+
+    @Test
+    fun glThreadManager_whenTryAcquireEglContextLockedAndNonExistingEglOwner() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = GLTextureView(context)
+
+        // set renderer
+        val renderer = mockk<GLSurfaceView.Renderer>()
+        justRun { renderer.onSurfaceChanged(any(), any(), any()) }
+        justRun { renderer.onDrawFrame(any()) }
+        view.setRenderer(renderer)
+
+        val glThread: Thread? = view.getPrivateProperty("glThread")
+        requireNotNull(glThread)
+
+        val classes = view.javaClass.declaredClasses
+        val glThreadClass: Class<*>? = classes.firstOrNull { it.name.endsWith("GLThread") }
+        requireNotNull(glThreadClass)
+
+        val glThreadManagerField = glThreadClass.getDeclaredField("glThreadManager")
+        glThreadManagerField.isAccessible = true
+        val glThreadManager = glThreadManagerField.get(glThread)
+        requireNotNull(glThreadManager)
+
+        val glThreadManagerClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("GLThreadManager") }
+        requireNotNull(glThreadManagerClass)
+
+        val eglOwnerField = glThreadManagerClass.getDeclaredField("eglOwner")
+        eglOwnerField.isAccessible = true
+        val eglOwner1 = eglOwnerField.get(glThreadManager)
+        assertNull(eglOwner1)
+
+        val lockField = glThreadManagerClass.getDeclaredField("lock")
+        lockField.isAccessible = true
+        val lock = lockField.get(glThreadManager) as ReentrantLock
+
+        // invoke tryAcquireEglContextLocked
+        val tryAcquireEglContextLockedMethod =
+            glThreadManagerClass.getDeclaredMethod("tryAcquireEglContextLocked", glThreadClass)
+        lock.withLock {
+            val result = tryAcquireEglContextLockedMethod.invoke(glThreadManager, glThread) as Boolean
+            assertTrue(result)
+        }
+    }
+
+    @Test
     fun glThreadManager_whenTryAcquireEglContextLockedAndMultipleGLESContextsAllowed() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
