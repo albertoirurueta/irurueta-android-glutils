@@ -1604,6 +1604,36 @@ class CurlGLSurfaceViewTest {
     }
 
     @Test
+    fun viewMode_whenNotSupportedValue_setsExpectedValueButMakesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        // setup spies
+        val pageLeft : CurlMesh? = view.getPrivateProperty("pageLeft")
+        requireNotNull(pageLeft)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val pageLeftSpy = spyk(pageLeft)
+        view.setPrivateProperty("pageLeft", pageLeftSpy)
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        // check default value
+        assertEquals(CurlGLSurfaceView.SHOW_ONE_PAGE, view.viewMode)
+
+        // set not supported value
+        view.viewMode = 0
+
+        // check
+        assertEquals(CurlGLSurfaceView.SHOW_ONE_PAGE, view.viewMode)
+
+        verify { pageLeftSpy wasNot Called }
+        verify { curlRendererSpy wasNot Called }
+    }
+
+    @Test
     fun pageClickListener_setsExpectedValue() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlGLSurfaceView(context)
@@ -2072,6 +2102,27 @@ class CurlGLSurfaceViewTest {
     }
 
     @Test
+    fun onSizeChange_whenHasSizeChangeObserver() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val sizeChangedObserver = mockk<CurlGLSurfaceView.SizeChangedObserver>(relaxUnitFun = true)
+        view.sizeChangedObserver = sizeChangedObserver
+
+        val onSizeChangedMethod = view::class.java.getDeclaredMethod(
+            "onSizeChanged",
+            Int::class.java,
+            Int::class.java,
+            Int::class.java,
+            Int::class.java
+        )
+        onSizeChangedMethod.isAccessible = true
+        onSizeChangedMethod.invoke(view, WIDTH, HEIGHT, WIDTH, HEIGHT)
+
+        verify(exactly = 1) { sizeChangedObserver.onSizeChanged(WIDTH, HEIGHT) }
+    }
+
+    @Test
     fun onSizeChange_whenNoSizeChangeObserver() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlGLSurfaceView(context)
@@ -2309,7 +2360,7 @@ class CurlGLSurfaceViewTest {
     }
 
     @Test
-    fun updateLastCurlPost_whenRendererWithPagesEnabledTouchPresureAndNoCurlState_updatesPointerPos() {
+    fun updateLastCurlPost_whenRendererWithPagesEnabledTouchPressureAndNoCurlState_updatesPointerPos() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlGLSurfaceView(context)
         view.enableTouchPressure = true
@@ -2378,7 +2429,292 @@ class CurlGLSurfaceViewTest {
         assertEquals(3.0f, pressure2)
     }
 
-    // TODO: updateLastCurlPos
+    @Test
+    fun updateLastCurlPos_whenRendererWithPagesLeftCurlStateAndOnePageViewMode_setsAnimationTarget() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        posField?.isAccessible = true
+        val pos1: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val pressureField = pointerPositionClass?.getDeclaredField("pressure")
+        pressureField?.isAccessible = true
+        val pressure1: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.0f, pressure1)
+
+        // set curlState
+        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_LEFT)
+
+        val curlState: Int? = view.getPrivateProperty("curlState")
+        requireNotNull(curlState)
+        assertEquals(CurlGLSurfaceView.CURL_LEFT, curlState)
+
+        // initially no animation start time is set
+        val animationStartTime1: Long? = view.getPrivateProperty("animationStartTime")
+        requireNotNull(animationStartTime1)
+        assertEquals(0L, animationStartTime1)
+
+        val updateLastCurlPosMethod = CurlGLSurfaceView::class.java.getDeclaredMethod(
+            "updateLastCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateLastCurlPosMethod.isAccessible = true
+
+        updateLastCurlPosMethod.invoke(view, 1.0f, 2.0f, 3.0f, 1)
+
+        // check
+        val targetIndex: Int? = view.getPrivateProperty("targetIndex")
+        requireNotNull(targetIndex)
+        assertEquals(1, targetIndex)
+
+        val pos2: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(-0.56145835f, pos2.x)
+        assertEquals(0.99791664f, pos2.y)
+
+        val pressure2: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.8f, pressure2)
+
+        val animationStartTime2: Long? = view.getPrivateProperty("animationStartTime")
+        requireNotNull(animationStartTime2)
+        assertTrue(animationStartTime2 > 0)
+
+        val animationTargetEvent: Int? = view.getPrivateProperty("animationTargetEvent")
+        requireNotNull(animationTargetEvent)
+        assertEquals(CurlGLSurfaceView.SET_CURL_TO_LEFT, animationTargetEvent)
+
+        val animate: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate)
+        assertTrue(animate)
+    }
+
+    @Test
+    fun updateLastCurlPos_whenRendererWithPagesRightCurlStateAndOnePageViewMode_setsAnimationTarget() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        posField?.isAccessible = true
+        val pos1: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val pressureField = pointerPositionClass?.getDeclaredField("pressure")
+        pressureField?.isAccessible = true
+        val pressure1: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.0f, pressure1)
+
+        // set curlState
+        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_RIGHT)
+
+        val curlState: Int? = view.getPrivateProperty("curlState")
+        requireNotNull(curlState)
+        assertEquals(CurlGLSurfaceView.CURL_RIGHT, curlState)
+
+        // initially no animation start time is set
+        val animationStartTime1: Long? = view.getPrivateProperty("animationStartTime")
+        requireNotNull(animationStartTime1)
+        assertEquals(0L, animationStartTime1)
+
+        val updateLastCurlPosMethod = CurlGLSurfaceView::class.java.getDeclaredMethod(
+            "updateLastCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateLastCurlPosMethod.isAccessible = true
+
+        updateLastCurlPosMethod.invoke(view, 1.0f, 2.0f, 3.0f, 1)
+
+        // check
+        val targetIndex: Int? = view.getPrivateProperty("targetIndex")
+        requireNotNull(targetIndex)
+        assertEquals(1, targetIndex)
+
+        val pos2: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(-0.56145835f, pos2.x)
+        assertEquals(0.99791664f, pos2.y)
+
+        val pressure2: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.8f, pressure2)
+
+        val animationStartTime2: Long? = view.getPrivateProperty("animationStartTime")
+        requireNotNull(animationStartTime2)
+        assertTrue(animationStartTime2 > 0)
+
+        val animationTargetEvent: Int? = view.getPrivateProperty("animationTargetEvent")
+        requireNotNull(animationTargetEvent)
+        assertEquals(CurlGLSurfaceView.SET_CURL_TO_LEFT, animationTargetEvent)
+
+        val animate: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate)
+        assertTrue(animate)
+    }
+
+    @Test
+    fun updateLastCurlPos_whenRendererWithPagesAndTwoPageViewMode_setsAnimationTarget() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+        view.viewMode = CurlGLSurfaceView.SHOW_TWO_PAGES
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        posField?.isAccessible = true
+        val pos1: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val pressureField = pointerPositionClass?.getDeclaredField("pressure")
+        pressureField?.isAccessible = true
+        val pressure1: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.0f, pressure1)
+
+        // set curlState
+        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_RIGHT)
+
+        val curlState: Int? = view.getPrivateProperty("curlState")
+        requireNotNull(curlState)
+        assertEquals(CurlGLSurfaceView.CURL_RIGHT, curlState)
+
+        // initially no animation start time is set
+        val animationStartTime1: Long? = view.getPrivateProperty("animationStartTime")
+        requireNotNull(animationStartTime1)
+        assertEquals(0L, animationStartTime1)
+
+        val updateLastCurlPosMethod = CurlGLSurfaceView::class.java.getDeclaredMethod(
+            "updateLastCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateLastCurlPosMethod.isAccessible = true
+
+        updateLastCurlPosMethod.invoke(view, 2.0f * WIDTH.toFloat(), 2.0f, 3.0f, 1)
+
+        // check
+        val targetIndex: Int? = view.getPrivateProperty("targetIndex")
+        requireNotNull(targetIndex)
+        assertEquals(1, targetIndex)
+
+        val pos2: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(1.6875f, pos2.x)
+        assertEquals(0.99791664f, pos2.y)
+
+        val pressure2: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.8f, pressure2)
+
+        val animationStartTime2: Long? = view.getPrivateProperty("animationStartTime")
+        requireNotNull(animationStartTime2)
+        assertTrue(animationStartTime2 > 0)
+
+        val animationTargetEvent: Int? = view.getPrivateProperty("animationTargetEvent")
+        requireNotNull(animationTargetEvent)
+        assertEquals(CurlGLSurfaceView.SET_CURL_TO_RIGHT, animationTargetEvent)
+
+        val animate: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate)
+        assertTrue(animate)
+    }
+
     // TODO: handleFirstScrollEvent
     // TODO: updateFirstCurlPos
     // TODO: handleScrollEvent

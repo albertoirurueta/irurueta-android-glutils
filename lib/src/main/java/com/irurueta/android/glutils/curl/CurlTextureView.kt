@@ -360,11 +360,12 @@ class CurlTextureView @JvmOverloads constructor(
      */
     var viewMode: Int = SHOW_ONE_PAGE
         set(value) {
-            field = value
             if (value == SHOW_ONE_PAGE) {
+                field = value
                 pageLeft?.setFlipTexture(true)
                 curlRenderer?.setViewMode(CurlRenderer.SHOW_ONE_PAGE)
             } else if (value == SHOW_TWO_PAGES) {
+                field = value
                 pageLeft?.setFlipTexture(false)
                 curlRenderer?.setViewMode(CurlRenderer.SHOW_TWO_PAGES)
             }
