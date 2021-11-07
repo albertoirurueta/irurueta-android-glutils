@@ -652,9 +652,10 @@ class CurlGLSurfaceView @JvmOverloads constructor(
      * index we want to go. This is used for non-consecutive page jumps.
      */
     private fun updateLastCurlPos(x: Float, y: Float, pressure: Float = 0.0f, newIndex: Int?) {
-        val rightRect = curlRenderer?.getPageRect(CurlRenderer.PAGE_RIGHT)
+        val curlRenderer = this.curlRenderer ?: return
+        val rightRect = curlRenderer.getPageRect(CurlRenderer.PAGE_RIGHT)
             ?: return
-        val leftRect = curlRenderer?.getPageRect(CurlRenderer.PAGE_LEFT)
+        val leftRect = curlRenderer.getPageRect(CurlRenderer.PAGE_LEFT)
             ?: return
 
         // Store pointer position.
@@ -779,9 +780,10 @@ class CurlGLSurfaceView @JvmOverloads constructor(
         pressure: Float = 0.0f,
         newIndex: Int? = null
     ) {
-        val rightRect = curlRenderer?.getPageRect(CurlRenderer.PAGE_RIGHT)
+        val curlRenderer = this.curlRenderer ?: return
+        val rightRect = curlRenderer.getPageRect(CurlRenderer.PAGE_RIGHT)
             ?: return
-        val leftRect = curlRenderer?.getPageRect(CurlRenderer.PAGE_LEFT)
+        val leftRect = curlRenderer.getPageRect(CurlRenderer.PAGE_LEFT)
             ?: return
         val pageProvider = pageProvider ?: return
 

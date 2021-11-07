@@ -10,6 +10,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
+import com.irurueta.android.glutils.callPrivateFunc
 import com.irurueta.android.glutils.getPrivateProperty
 import com.irurueta.android.glutils.setPrivateProperty
 import io.mockk.*
@@ -1609,7 +1610,7 @@ class CurlGLSurfaceViewTest {
         val view = CurlGLSurfaceView(context)
 
         // setup spies
-        val pageLeft : CurlMesh? = view.getPrivateProperty("pageLeft")
+        val pageLeft: CurlMesh? = view.getPrivateProperty("pageLeft")
         requireNotNull(pageLeft)
 
         val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
@@ -2193,7 +2194,7 @@ class CurlGLSurfaceViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlGLSurfaceView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         renderer.setPrivateProperty("pageRectRight", null)
@@ -2244,7 +2245,7 @@ class CurlGLSurfaceViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlGLSurfaceView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         renderer.setPrivateProperty("pageRectLeft", null)
@@ -2301,7 +2302,7 @@ class CurlGLSurfaceViewTest {
         )
         view.layout(0, 0, WIDTH, HEIGHT)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         val gl = mockk<GL10>(relaxUnitFun = true)
@@ -2371,7 +2372,7 @@ class CurlGLSurfaceViewTest {
         )
         view.layout(0, 0, WIDTH, HEIGHT)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         val gl = mockk<GL10>(relaxUnitFun = true)
@@ -2440,7 +2441,7 @@ class CurlGLSurfaceViewTest {
         )
         view.layout(0, 0, WIDTH, HEIGHT)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         val gl = mockk<GL10>(relaxUnitFun = true)
@@ -2535,7 +2536,7 @@ class CurlGLSurfaceViewTest {
         )
         view.layout(0, 0, WIDTH, HEIGHT)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         val gl = mockk<GL10>(relaxUnitFun = true)
@@ -2631,7 +2632,7 @@ class CurlGLSurfaceViewTest {
         )
         view.layout(0, 0, WIDTH, HEIGHT)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         val gl = mockk<GL10>(relaxUnitFun = true)
@@ -2713,6 +2714,140 @@ class CurlGLSurfaceViewTest {
         val animate: Boolean? = view.getPrivateProperty("animate")
         requireNotNull(animate)
         assertTrue(animate)
+    }
+
+    @Test
+    fun handleFirstScrollEvent_whenNoRenderer_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("curlRenderer", null)
+        assertNull(view.getPrivateProperty("curlRenderer"))
+
+        assertNull(view.getPrivateProperty("curlAnimator"))
+
+        val motionEvent = mockk<MotionEvent>()
+        view.callPrivateFunc("handleFirstScrollEvent", motionEvent)
+
+        // check that curl animator has not been initialized
+        assertNull(view.getPrivateProperty("curlAnimator"))
+    }
+
+    @Test
+    fun handleFirstScrollEvent_whenNoRightPage_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        renderer.setPrivateProperty("pageRectRight", null)
+        assertNull(renderer.getPrivateProperty("pageRectRight"))
+
+        assertNull(view.getPrivateProperty("curlAnimator"))
+
+        val motionEvent = mockk<MotionEvent>()
+        view.callPrivateFunc("handleFirstScrollEvent", motionEvent)
+
+        // check that curl animator has not been initialized
+        assertNull(view.getPrivateProperty("curlAnimator"))
+    }
+
+    @Test
+    fun handleFirstScrollEvent_whenNoLeftPage_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        renderer.setPrivateProperty("pageRectLeft", null)
+        assertNull(renderer.getPrivateProperty("pageRectLeft"))
+
+        assertNull(view.getPrivateProperty("curlAnimator"))
+
+        val motionEvent = mockk<MotionEvent>()
+        view.callPrivateFunc("handleFirstScrollEvent", motionEvent)
+
+        // check that curl animator has not been initialized
+        assertNull(view.getPrivateProperty("curlAnimator"))
+    }
+
+    @Test
+    fun handleFirstScrollEvent_whenRightCurlState_initializesAnimator() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+
+        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_RIGHT)
+
+        assertNull(view.getPrivateProperty("curlAnimator"))
+
+        val motionEvent = mockk<MotionEvent>()
+        every { motionEvent.x }.returns(1.0f)
+        every { motionEvent.y }.returns(2.0f)
+        every { motionEvent.pressure }.returns(0.0f)
+        view.callPrivateFunc("handleFirstScrollEvent", motionEvent)
+
+        // check that curl animator has not been initialized
+        assertNotNull(view.getPrivateProperty("curlAnimator"))
+    }
+
+    @Test
+    fun handleFirstScrollEvent_whenLeftCurlStateAndOnePageViewMode_initializesAnimator() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+        view.viewMode = CurlGLSurfaceView.SHOW_ONE_PAGE
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+
+        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_LEFT)
+
+        assertNull(view.getPrivateProperty("curlAnimator"))
+
+        val motionEvent = mockk<MotionEvent>()
+        every { motionEvent.x }.returns(1.0f)
+        every { motionEvent.y }.returns(2.0f)
+        every { motionEvent.pressure }.returns(0.0f)
+        view.callPrivateFunc("handleFirstScrollEvent", motionEvent)
+
+        // check that curl animator has not been initialized
+        assertNotNull(view.getPrivateProperty("curlAnimator"))
+    }
+
+    @Test
+    fun handleFirstScrollEvent_whenLeftCurlStateAndTwoPageViewMode_initializesAnimator() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+        view.viewMode = CurlGLSurfaceView.SHOW_TWO_PAGES
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+
+        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_LEFT)
+
+        assertNull(view.getPrivateProperty("curlAnimator"))
+
+        val motionEvent = mockk<MotionEvent>()
+        every { motionEvent.x }.returns(1.0f)
+        every { motionEvent.y }.returns(2.0f)
+        every { motionEvent.pressure }.returns(0.0f)
+        view.callPrivateFunc("handleFirstScrollEvent", motionEvent)
+
+        // check that curl animator has not been initialized
+        assertNotNull(view.getPrivateProperty("curlAnimator"))
     }
 
     // TODO: handleFirstScrollEvent
