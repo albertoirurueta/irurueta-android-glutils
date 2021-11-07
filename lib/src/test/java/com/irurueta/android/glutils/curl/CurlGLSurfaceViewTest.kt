@@ -2738,7 +2738,7 @@ class CurlGLSurfaceViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlGLSurfaceView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         renderer.setPrivateProperty("pageRectRight", null)
@@ -2758,7 +2758,7 @@ class CurlGLSurfaceViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlGLSurfaceView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         renderer.setPrivateProperty("pageRectLeft", null)
@@ -2778,7 +2778,7 @@ class CurlGLSurfaceViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlGLSurfaceView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         assertNotNull(renderer.getPrivateProperty("pageRectRight"))
@@ -2804,7 +2804,7 @@ class CurlGLSurfaceViewTest {
         val view = CurlGLSurfaceView(context)
         view.viewMode = CurlGLSurfaceView.SHOW_ONE_PAGE
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         assertNotNull(renderer.getPrivateProperty("pageRectRight"))
@@ -2830,7 +2830,7 @@ class CurlGLSurfaceViewTest {
         val view = CurlGLSurfaceView(context)
         view.viewMode = CurlGLSurfaceView.SHOW_TWO_PAGES
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         assertNotNull(renderer.getPrivateProperty("pageRectRight"))
@@ -2850,7 +2850,204 @@ class CurlGLSurfaceViewTest {
         assertNotNull(view.getPrivateProperty("curlAnimator"))
     }
 
-    // TODO: handleFirstScrollEvent
+    @Test
+    fun updateFirstCurlPage_whenNoRenderer_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("curlRenderer", null)
+        assertNull(view.getPrivateProperty("curlRenderer"))
+
+        // check default value
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        requireNotNull(posField)
+        posField.isAccessible = true
+        val pos1: PointF? = posField.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val updateFirstCurlPosMethod = CurlGLSurfaceView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, 2.0f, 0.0f, 1)
+
+        val pos2: PointF? = posField.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(0.0f, pos2.x)
+        assertEquals(0.0f, pos2.y)
+    }
+
+    @Test
+    fun updateFirstCurlPage_whenNoRightPage_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        renderer.setPrivateProperty("pageRectRight", null)
+        assertNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // check default value
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        requireNotNull(posField)
+        posField.isAccessible = true
+        val pos1: PointF? = posField.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val updateFirstCurlPosMethod = CurlGLSurfaceView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, 2.0f, 0.0f, 1)
+
+        val pos2: PointF? = posField.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(0.0f, pos2.x)
+        assertEquals(0.0f, pos2.y)
+    }
+
+    @Test
+    fun updateFirstCurlPage_whenNoLeftPage_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        renderer.setPrivateProperty("pageRectLeft", null)
+        assertNull(renderer.getPrivateProperty("pageRectLeft"))
+
+        // check default value
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        requireNotNull(posField)
+        posField.isAccessible = true
+        val pos1: PointF? = posField.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val updateFirstCurlPosMethod = CurlGLSurfaceView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, 2.0f, 0.0f, 1)
+
+        val pos2: PointF? = posField.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(0.0f, pos2.x)
+        assertEquals(0.0f, pos2.y)
+    }
+
+    @Test
+    fun updateFirstCurlPage_whenNoPageProvider_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        view.pageProvider = null
+
+        // check default value
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        requireNotNull(posField)
+        posField.isAccessible = true
+        val pos1: PointF? = posField.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val updateFirstCurlPosMethod = CurlGLSurfaceView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, 2.0f, 0.0f, 1)
+
+        val pos2: PointF? = posField.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(0.0f, pos2.x)
+        assertEquals(0.0f, pos2.y)
+    }
+
+    // TODO: updateFirstCurlPos_whenPageProvider
     // TODO: updateFirstCurlPos
     // TODO: handleScrollEvent
     // TODO: gestureDetector_onSingleTapUp

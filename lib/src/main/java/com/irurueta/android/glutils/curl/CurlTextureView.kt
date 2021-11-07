@@ -670,7 +670,7 @@ class CurlTextureView @JvmOverloads constructor(
 
         // Store pointer position.
         pointerPos.pos.set(x, y)
-        curlRenderer?.translate(pointerPos.pos)
+        curlRenderer.translate(pointerPos.pos)
         pointerPos.pressure = if (enableTouchPressure) pressure else 0.8f
 
         if (curlState == CURL_LEFT || curlState == CURL_RIGHT) {
@@ -799,7 +799,7 @@ class CurlTextureView @JvmOverloads constructor(
 
         // Store pointer position.
         pointerPos.pos.set(x, y)
-        curlRenderer?.translate(pointerPos.pos)
+        curlRenderer.translate(pointerPos.pos)
         pointerPos.pressure = if (enableTouchPressure) pressure else 0.8f
 
         // Once we receive pointer down event its position is mapped to
