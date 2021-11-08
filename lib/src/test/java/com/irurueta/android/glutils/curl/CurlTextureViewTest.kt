@@ -2479,11 +2479,11 @@ class CurlTextureViewTest {
         assertEquals(0.0f, pressure1)
 
         // set curlState
-        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_LEFT)
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_LEFT)
 
         val curlState: Int? = view.getPrivateProperty("curlState")
         requireNotNull(curlState)
-        assertEquals(CurlGLSurfaceView.CURL_LEFT, curlState)
+        assertEquals(CurlTextureView.CURL_LEFT, curlState)
 
         // initially no animation start time is set
         val animationStartTime1: Long? = view.getPrivateProperty("animationStartTime")
@@ -2521,7 +2521,103 @@ class CurlTextureViewTest {
 
         val animationTargetEvent: Int? = view.getPrivateProperty("animationTargetEvent")
         requireNotNull(animationTargetEvent)
-        assertEquals(CurlGLSurfaceView.SET_CURL_TO_LEFT, animationTargetEvent)
+        assertEquals(CurlTextureView.SET_CURL_TO_LEFT, animationTargetEvent)
+
+        val animate: Boolean? = view.getPrivateProperty("animate")
+        requireNotNull(animate)
+        assertTrue(animate)
+    }
+
+    @Test
+    fun updateLastCurlPos_whenRendererWithPagesLeftCurlStateAndTwoPageViewMode_setsAnimationTarget() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        posField?.isAccessible = true
+        val pos1: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val pressureField = pointerPositionClass?.getDeclaredField("pressure")
+        pressureField?.isAccessible = true
+        val pressure1: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.0f, pressure1)
+
+        // set curlState
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_LEFT)
+
+        val curlState: Int? = view.getPrivateProperty("curlState")
+        requireNotNull(curlState)
+        assertEquals(CurlTextureView.CURL_LEFT, curlState)
+
+        // initially no animation start time is set
+        val animationStartTime1: Long? = view.getPrivateProperty("animationStartTime")
+        requireNotNull(animationStartTime1)
+        assertEquals(0L, animationStartTime1)
+
+        val updateLastCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateLastCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateLastCurlPosMethod.isAccessible = true
+
+        updateLastCurlPosMethod.invoke(view, 1.0f, 2.0f, 3.0f, 1)
+
+        // check
+        val targetIndex: Int? = view.getPrivateProperty("targetIndex")
+        requireNotNull(targetIndex)
+        assertEquals(1, targetIndex)
+
+        val pos2: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(-0.56145835f, pos2.x)
+        assertEquals(0.99791664f, pos2.y)
+
+        val pressure2: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.8f, pressure2)
+
+        val animationStartTime2: Long? = view.getPrivateProperty("animationStartTime")
+        requireNotNull(animationStartTime2)
+        assertTrue(animationStartTime2 > 0)
+
+        val animationTargetEvent: Int? = view.getPrivateProperty("animationTargetEvent")
+        requireNotNull(animationTargetEvent)
+        assertEquals(CurlTextureView.SET_CURL_TO_LEFT, animationTargetEvent)
 
         val animate: Boolean? = view.getPrivateProperty("animate")
         requireNotNull(animate)
@@ -2575,11 +2671,11 @@ class CurlTextureViewTest {
         assertEquals(0.0f, pressure1)
 
         // set curlState
-        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_RIGHT)
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_RIGHT)
 
         val curlState: Int? = view.getPrivateProperty("curlState")
         requireNotNull(curlState)
-        assertEquals(CurlGLSurfaceView.CURL_RIGHT, curlState)
+        assertEquals(CurlTextureView.CURL_RIGHT, curlState)
 
         // initially no animation start time is set
         val animationStartTime1: Long? = view.getPrivateProperty("animationStartTime")
@@ -2617,7 +2713,7 @@ class CurlTextureViewTest {
 
         val animationTargetEvent: Int? = view.getPrivateProperty("animationTargetEvent")
         requireNotNull(animationTargetEvent)
-        assertEquals(CurlGLSurfaceView.SET_CURL_TO_RIGHT, animationTargetEvent)
+        assertEquals(CurlTextureView.SET_CURL_TO_RIGHT, animationTargetEvent)
 
         val animate: Boolean? = view.getPrivateProperty("animate")
         requireNotNull(animate)
@@ -2759,7 +2855,7 @@ class CurlTextureViewTest {
     }
 
     @Test
-    fun updateFirstCurlPage_whenNoRenderer_makesNoAction() {
+    fun updateFirstCurlPos_whenNoRenderer_makesNoAction() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
 
@@ -2802,7 +2898,7 @@ class CurlTextureViewTest {
     }
 
     @Test
-    fun updateFirstCurlPage_whenNoRightPage_makesNoAction() {
+    fun updateFirstCurlPos_whenNoRightPage_makesNoAction() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
 
@@ -2848,7 +2944,7 @@ class CurlTextureViewTest {
     }
 
     @Test
-    fun updateFirstCurlPage_whenNoLeftPage_makesNoAction() {
+    fun updateFirstCurlPos_whenNoLeftPage_makesNoAction() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
 
@@ -2894,7 +2990,7 @@ class CurlTextureViewTest {
     }
 
     @Test
-    fun updateFirstCurlPage_whenNoPageProvider_makesNoAction() {
+    fun updateFirstCurlPos_whenNoPageProvider_makesNoAction() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
 
@@ -2955,7 +3051,304 @@ class CurlTextureViewTest {
         assertEquals(0.0f, pos2.y)
     }
 
-    // TODO: updateFirstCurlPos_whenPageProvider
+    @Test
+    fun updateFirstCurlPos_whenNoTouchPressure_updatesPointerPos() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.enableTouchPressure = false
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        posField?.isAccessible = true
+        val pos1: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val pressureField = pointerPositionClass?.getDeclaredField("pressure")
+        pressureField?.isAccessible = true
+        val pressure1: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.0f, pressure1)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, 2.0f, 3.0f, 1)
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        val pos2: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(-0.56145835f, pos2.x)
+        assertEquals(0.99791664f, pos2.y)
+
+        val pressure2: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.8f, pressure2)
+    }
+
+    @Test
+    fun updateFirstCurlPos_whenEnableTouchPressure_updatesPointerPos() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.enableTouchPressure = true
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        posField?.isAccessible = true
+        val pos1: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val pressureField = pointerPositionClass?.getDeclaredField("pressure")
+        pressureField?.isAccessible = true
+        val pressure1: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.0f, pressure1)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, 2.0f, 3.0f, 1)
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        val pos2: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(-0.56145835f, pos2.x)
+        assertEquals(0.99791664f, pos2.y)
+
+        val pressure2: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(3.0f, pressure2)
+    }
+
+    @Test
+    fun updateFirstCurlPos_whenStartDragPosIsGreaterThanTop_updatesPointerPos() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        posField?.isAccessible = true
+        val pos1: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val pressureField = pointerPositionClass?.getDeclaredField("pressure")
+        pressureField?.isAccessible = true
+        val pressure1: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.0f, pressure1)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, -2.0f * HEIGHT.toFloat(), 3.0f, 1)
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        val pos2: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(-0.56145835f, pos2.x)
+        assertEquals(5.0f, pos2.y)
+
+        val pressure2: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.8f, pressure2)
+    }
+
+    @Test
+    fun updateFirstCurlPos_whenStartDragPosIsLessThanBottom_updatesPointerPos() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        posField?.isAccessible = true
+        val pos1: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val pressureField = pointerPositionClass?.getDeclaredField("pressure")
+        pressureField?.isAccessible = true
+        val pressure1: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.0f, pressure1)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, 2.0f * HEIGHT.toFloat(), 3.0f, 1)
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        val pos2: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(-0.56145835f, pos2.x)
+        assertEquals(-3.0f, pos2.y)
+
+        val pressure2: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.8f, pressure2)
+    }
+
     // TODO: updateFirstCurlPos
     // TODO: handleScrollEvent
     // TODO: gestureDetector_onSingleTapUp
