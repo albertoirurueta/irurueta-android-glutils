@@ -826,11 +826,10 @@ class CurlTextureView @JvmOverloads constructor(
             if (dragStartPos.x < rightRect.left && currentIndex > 0) {
                 dragStartPos.x = leftRect.left
                 startCurl(CURL_LEFT, newIndex)
-            }
-            // Otherwise check pointer is on right page's side.
-            else if (dragStartPos.x >= rightRect.left
+            } else if (dragStartPos.x >= rightRect.left
                 && currentIndex < pageProvider.pageCount
             ) {
+                // Otherwise check pointer is on right page's side.
                 dragStartPos.x = rightRect.right
                 if (!allowLastPageCurl
                     && currentIndex >= pageProvider.pageCount - 1

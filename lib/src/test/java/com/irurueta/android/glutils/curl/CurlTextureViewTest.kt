@@ -1608,7 +1608,7 @@ class CurlTextureViewTest {
         val view = CurlTextureView(context)
 
         // setup spies
-        val pageLeft : CurlMesh? = view.getPrivateProperty("pageLeft")
+        val pageLeft: CurlMesh? = view.getPrivateProperty("pageLeft")
         requireNotNull(pageLeft)
 
         val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
@@ -2136,7 +2136,8 @@ class CurlTextureViewTest {
             Int::class.java
         )
         onSizeChangedMethod.isAccessible = true
-        onSizeChangedMethod.invoke(view,
+        onSizeChangedMethod.invoke(
+            view,
             WIDTH,
             HEIGHT,
             WIDTH,
@@ -2197,7 +2198,7 @@ class CurlTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         renderer.setPrivateProperty("pageRectRight", null)
@@ -2248,7 +2249,7 @@ class CurlTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         renderer.setPrivateProperty("pageRectLeft", null)
@@ -2305,7 +2306,7 @@ class CurlTextureViewTest {
         )
         view.layout(0, 0, WIDTH, HEIGHT)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         val gl = mockk<GL10>(relaxUnitFun = true)
@@ -2375,7 +2376,7 @@ class CurlTextureViewTest {
         )
         view.layout(0, 0, WIDTH, HEIGHT)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         val gl = mockk<GL10>(relaxUnitFun = true)
@@ -2444,7 +2445,7 @@ class CurlTextureViewTest {
         )
         view.layout(0, 0, WIDTH, HEIGHT)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         val gl = mockk<GL10>(relaxUnitFun = true)
@@ -2540,7 +2541,7 @@ class CurlTextureViewTest {
         )
         view.layout(0, 0, WIDTH, HEIGHT)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         val gl = mockk<GL10>(relaxUnitFun = true)
@@ -2636,7 +2637,7 @@ class CurlTextureViewTest {
         )
         view.layout(0, 0, WIDTH, HEIGHT)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         val gl = mockk<GL10>(relaxUnitFun = true)
@@ -2742,7 +2743,7 @@ class CurlTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         renderer.setPrivateProperty("pageRectRight", null)
@@ -2762,7 +2763,7 @@ class CurlTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         renderer.setPrivateProperty("pageRectLeft", null)
@@ -2782,7 +2783,7 @@ class CurlTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         assertNotNull(renderer.getPrivateProperty("pageRectRight"))
@@ -2808,7 +2809,7 @@ class CurlTextureViewTest {
         val view = CurlTextureView(context)
         view.viewMode = CurlTextureView.SHOW_ONE_PAGE
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         assertNotNull(renderer.getPrivateProperty("pageRectRight"))
@@ -2834,7 +2835,7 @@ class CurlTextureViewTest {
         val view = CurlTextureView(context)
         view.viewMode = CurlTextureView.SHOW_TWO_PAGES
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         assertNotNull(renderer.getPrivateProperty("pageRectRight"))
@@ -2902,7 +2903,7 @@ class CurlTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         renderer.setPrivateProperty("pageRectRight", null)
@@ -2948,7 +2949,7 @@ class CurlTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         renderer.setPrivateProperty("pageRectLeft", null)
@@ -3000,7 +3001,7 @@ class CurlTextureViewTest {
         )
         view.layout(0, 0, WIDTH, HEIGHT)
 
-        val renderer : CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
         requireNotNull(renderer)
 
         val gl = mockk<GL10>(relaxUnitFun = true)
@@ -3124,6 +3125,8 @@ class CurlTextureViewTest {
 
         val pressure2: Float? = pressureField?.getFloat(pointerPos)
         assertEquals(0.8f, pressure2)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
     }
 
     @Test
@@ -3199,6 +3202,8 @@ class CurlTextureViewTest {
 
         val pressure2: Float? = pressureField?.getFloat(pointerPos)
         assertEquals(3.0f, pressure2)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
     }
 
     @Test
@@ -3273,6 +3278,8 @@ class CurlTextureViewTest {
 
         val pressure2: Float? = pressureField?.getFloat(pointerPos)
         assertEquals(0.8f, pressure2)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
     }
 
     @Test
@@ -3347,9 +3354,504 @@ class CurlTextureViewTest {
 
         val pressure2: Float? = pressureField?.getFloat(pointerPos)
         assertEquals(0.8f, pressure2)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
     }
 
-    // TODO: updateFirstCurlPos
+    @Test
+    fun updateFirstCurlPos_whenTwoPageViewModeLeftCurlAndZeroCurrentIndex_updatesPointerPos() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        posField?.isAccessible = true
+        val pos1: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val pressureField = pointerPositionClass?.getDeclaredField("pressure")
+        pressureField?.isAccessible = true
+        val pressure1: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.0f, pressure1)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, 2.0f * HEIGHT.toFloat(), 3.0f, 1)
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        val pos2: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(-0.56145835f, pos2.x)
+        assertEquals(-3.0f, pos2.y)
+
+        val pressure2: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.8f, pressure2)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+    }
+
+    @Test
+    fun updateFirstCurlPos_whenTwoPageViewModeLeftCurlAndNonZeroCurrentIndex_setsLeftCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        view.setCurrentIndex(1)
+
+        assertEquals(1, view.currentIndex)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, 2.0f * HEIGHT.toFloat(), 3.0f, 1)
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        assertEquals(CurlTextureView.CURL_LEFT, view.curlState)
+    }
+
+    @Test
+    fun updateFirstCurlPos_whenTwoPageViewModeRightCurlAndNotAllowLastPageCurl_keepsNoneCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+        view.allowLastPageCurl = false
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        view.setCurrentIndex(1)
+
+        assertEquals(1, view.currentIndex)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(
+            view,
+            2.0f * WIDTH.toFloat(),
+            2.0f * HEIGHT.toFloat(),
+            3.0f,
+            1
+        )
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+    }
+
+    @Test
+    fun updateFirstCurlPos_whenTwoPageViewModeRightCurlAndAllowLastPageCurl_setsRightCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+        view.allowLastPageCurl = true
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        view.setCurrentIndex(1)
+
+        assertEquals(1, view.currentIndex)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(
+            view,
+            2.0f * WIDTH.toFloat(),
+            2.0f * HEIGHT.toFloat(),
+            3.0f,
+            1
+        )
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        assertEquals(CurlTextureView.CURL_RIGHT, view.curlState)
+    }
+
+    @Test
+    fun updateFirstCurlPos_whenOnePageViewModeLeftCurlAndZeroCurrentIndex_updatesPointerPos() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_ONE_PAGE
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        val pointerPos: Any? = view.getPrivateProperty("pointerPos")
+        requireNotNull(pointerPos)
+
+        val classes = view.javaClass.declaredClasses
+        val pointerPositionClass: Class<*>? =
+            classes.firstOrNull { it.name.endsWith("PointerPosition") }
+
+        val posField = pointerPositionClass?.getDeclaredField("pos")
+        posField?.isAccessible = true
+        val pos1: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos1)
+
+        assertEquals(0.0f, pos1.x)
+        assertEquals(0.0f, pos1.y)
+
+        val pressureField = pointerPositionClass?.getDeclaredField("pressure")
+        pressureField?.isAccessible = true
+        val pressure1: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.0f, pressure1)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, 2.0f * HEIGHT.toFloat(), 3.0f, 1)
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        val pos2: PointF? = posField?.get(pointerPos) as PointF?
+        requireNotNull(pos2)
+
+        assertEquals(-0.56145835f, pos2.x)
+        assertEquals(-3.0f, pos2.y)
+
+        val pressure2: Float? = pressureField?.getFloat(pointerPos)
+        assertEquals(0.8f, pressure2)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+    }
+
+    @Test
+    fun updateFirstCurlPos_whenOnePageViewModeLeftCurlAndNonZeroCurrentIndex_setsLeftCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_ONE_PAGE
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        view.setCurrentIndex(1)
+
+        assertEquals(1, view.currentIndex)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(view, 1.0f, 2.0f * HEIGHT.toFloat(), 3.0f, 1)
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        assertEquals(CurlTextureView.CURL_LEFT, view.curlState)
+    }
+
+    @Test
+    fun updateFirstCurlPos_whenOnePageViewModeRightCurlAndNotAllowLastPageCurl_keepsNoneCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_ONE_PAGE
+        view.allowLastPageCurl = false
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        view.setCurrentIndex(1)
+
+        assertEquals(1, view.currentIndex)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(
+            view,
+            2.0f * WIDTH.toFloat(),
+            2.0f * HEIGHT.toFloat(),
+            3.0f,
+            1
+        )
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+    }
+
+    @Test
+    fun updateFirstCurlPos_whenOnePageViewModeRightCurlAndAllowLastPageCurl_setsRightCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_ONE_PAGE
+        view.allowLastPageCurl = true
+
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, WIDTH, HEIGHT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val gl = mockk<GL10>(relaxUnitFun = true)
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val viewportWidth: Int? = renderer.getPrivateProperty("viewportWidth")
+        assertEquals(WIDTH, viewportWidth)
+        val viewportHeight: Int? = renderer.getPrivateProperty("viewportHeight")
+        assertEquals(HEIGHT, viewportHeight)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // set page provider
+        val pageProvider = mockk<CurlTextureView.PageProvider>(relaxUnitFun = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        view.setCurrentIndex(1)
+
+        assertEquals(1, view.currentIndex)
+
+        val updateFirstCurlPosMethod = CurlTextureView::class.java.getDeclaredMethod(
+            "updateFirstCurlPos",
+            Float::class.java,
+            Float::class.java,
+            Float::class.java,
+            Integer::class.java
+        )
+        updateFirstCurlPosMethod.isAccessible = true
+
+        updateFirstCurlPosMethod.invoke(
+            view,
+            2.0f * WIDTH.toFloat(),
+            2.0f * HEIGHT.toFloat(),
+            3.0f,
+            1
+        )
+
+        // check
+        assertNull(view.getPrivateProperty("targetIndex"))
+
+        assertEquals(CurlTextureView.CURL_RIGHT, view.curlState)
+    }
+
     // TODO: handleScrollEvent
     // TODO: gestureDetector_onSingleTapUp
     // TODO: gestureDetector_onScroll
