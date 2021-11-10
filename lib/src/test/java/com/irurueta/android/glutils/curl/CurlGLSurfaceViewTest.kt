@@ -1,5 +1,6 @@
 package com.irurueta.android.glutils.curl
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -3943,10 +3944,280 @@ class CurlGLSurfaceViewTest {
         assertEquals(CurlGLSurfaceView.CURL_RIGHT, view.curlState)
     }
 
-    // TODO: handleScrollEvent
-    // TODO: gestureDetector_onSingleTapUp
-    // TODO: gestureDetector_onScroll
-    // TODO: gestureDetector_onDown
+    @Test
+    fun handleScrollEvent_setsScrollCoordinatesAndPressure() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val event = mockk<MotionEvent>()
+        every { event.x }.returns(1.0f)
+        every { event.y }.returns(2.0f)
+        every { event.pressure }.returns(0.5f)
+        view.callPrivateFunc("handleScrollEvent", event)
+
+        val scrollX: Float? = view.getPrivateProperty("scrollX")
+        val scrollY: Float? = view.getPrivateProperty("scrollY")
+        val scrollP: Float? = view.getPrivateProperty("scrollP")
+
+        assertEquals(1.0f, scrollX)
+        assertEquals(2.0f, scrollY)
+        assertEquals(0.5f, scrollP)
+    }
+
+    @Test
+    fun rebuildPages_removesAndAddsCurlMeshes() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        every { curlRendererSpy.removeCurlMesh(any()) }.returns(true)
+        justRun { curlRendererSpy.addCurlMesh(any()) }
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        // execute rebuildPages
+        view.callPrivateFunc("rebuildPages")
+
+        // check
+        verify(exactly = 3) { curlRendererSpy.addCurlMesh(any()) }
+    }
+
+    @Test
+    fun gestureDetector_onSingleTapUpAndNoClickListener_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val gestureDetector: GestureDetector? = view.getPrivateProperty("gestureDetector")
+        requireNotNull(gestureDetector)
+
+        val gestureDetectorListenerField = GestureDetector::class.java.getDeclaredField("mListener")
+        gestureDetectorListenerField.isAccessible = true
+        val gestureDetectorListener =
+            gestureDetectorListenerField.get(gestureDetector) as GestureDetector.SimpleOnGestureListener
+
+        val motionEvent = mockk<MotionEvent>()
+        assertFalse(gestureDetectorListener.onSingleTapUp(motionEvent))
+    }
+
+    @Test
+    fun gestureDetector_onSingleTapUpAndClickListener_callsClickListener() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val pageClickListener = mockk<CurlGLSurfaceView.PageClickListener>()
+        every { pageClickListener.onPageClick(view, any()) }.returns(true)
+        view.pageClickListener = pageClickListener
+
+        val gestureDetector: GestureDetector? = view.getPrivateProperty("gestureDetector")
+        requireNotNull(gestureDetector)
+
+        val gestureDetectorListenerField = GestureDetector::class.java.getDeclaredField("mListener")
+        gestureDetectorListenerField.isAccessible = true
+        val gestureDetectorListener =
+            gestureDetectorListenerField.get(gestureDetector) as GestureDetector.SimpleOnGestureListener
+
+        val motionEvent = mockk<MotionEvent>()
+        assertTrue(gestureDetectorListener.onSingleTapUp(motionEvent))
+    }
+
+    @Test
+    fun gestureDetector_onScrollWhenNoMotionEvents_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val gestureDetector: GestureDetector? = view.getPrivateProperty("gestureDetector")
+        requireNotNull(gestureDetector)
+
+        val gestureDetectorListenerField = GestureDetector::class.java.getDeclaredField("mListener")
+        gestureDetectorListenerField.isAccessible = true
+        val gestureDetectorListener =
+            gestureDetectorListenerField.get(gestureDetector) as GestureDetector.SimpleOnGestureListener
+
+        val scrollingField = gestureDetectorListener::class.java.getDeclaredField("scrolling")
+        scrollingField.isAccessible = true
+        val scrolling1 = scrollingField.getBoolean(gestureDetectorListener)
+        assertFalse(scrolling1)
+
+        assertFalse(gestureDetectorListener.onScroll(null, null, 1.0f, 2.0f))
+
+        val scrolling2 = scrollingField.getBoolean(gestureDetectorListener)
+        assertFalse(scrolling2)
+    }
+
+    @Test
+    fun gestureDetector_onScrollWhenNotScrolling_startsScrolling() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val gestureDetector: GestureDetector? = view.getPrivateProperty("gestureDetector")
+        requireNotNull(gestureDetector)
+
+        val gestureDetectorListenerField = GestureDetector::class.java.getDeclaredField("mListener")
+        gestureDetectorListenerField.isAccessible = true
+        val gestureDetectorListener =
+            gestureDetectorListenerField.get(gestureDetector) as GestureDetector.SimpleOnGestureListener
+
+        val scrollingField = gestureDetectorListener::class.java.getDeclaredField("scrolling")
+        scrollingField.isAccessible = true
+        val scrolling1 = scrollingField.getBoolean(gestureDetectorListener)
+        assertFalse(scrolling1)
+
+        val e1 = mockk<MotionEvent>(relaxed = true)
+        val e2 = mockk<MotionEvent>(relaxed = true)
+        assertTrue(gestureDetectorListener.onScroll(e1, e2, 1.0f, 2.0f))
+
+        val scrolling2 = scrollingField.getBoolean(gestureDetectorListener)
+        assertTrue(scrolling2)
+
+        verify { e2 wasNot Called }
+    }
+
+    @Test
+    fun gestureDetector_onScrollWhenAlreadyScrolling_keepsScrolling() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val gestureDetector: GestureDetector? = view.getPrivateProperty("gestureDetector")
+        requireNotNull(gestureDetector)
+
+        val gestureDetectorListenerField = GestureDetector::class.java.getDeclaredField("mListener")
+        gestureDetectorListenerField.isAccessible = true
+        val gestureDetectorListener =
+            gestureDetectorListenerField.get(gestureDetector) as GestureDetector.SimpleOnGestureListener
+
+        val scrollingField = gestureDetectorListener::class.java.getDeclaredField("scrolling")
+        scrollingField.isAccessible = true
+        scrollingField.setBoolean(gestureDetectorListener, true)
+
+        val e1 = mockk<MotionEvent>(relaxed = true)
+        val e2 = mockk<MotionEvent>(relaxed = true)
+        assertTrue(gestureDetectorListener.onScroll(e1, e2, 1.0f, 2.0f))
+
+        val scrolling = scrollingField.getBoolean(gestureDetectorListener)
+        assertTrue(scrolling)
+
+        verify { e1 wasNot Called }
+    }
+
+    @Test
+    fun gestureDetector_onFlingWhenNoMotionEvents_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val curlAnimator = mockk<ValueAnimator>()
+        every { curlAnimator.isRunning }.returns(true)
+        justRun { curlAnimator.cancel() }
+        view.setPrivateProperty("curlAnimator", curlAnimator)
+
+        val gestureDetector: GestureDetector? = view.getPrivateProperty("gestureDetector")
+        requireNotNull(gestureDetector)
+
+        val gestureDetectorListenerField = GestureDetector::class.java.getDeclaredField("mListener")
+        gestureDetectorListenerField.isAccessible = true
+        val gestureDetectorListener =
+            gestureDetectorListenerField.get(gestureDetector) as GestureDetector.SimpleOnGestureListener
+
+        val scrollingField = gestureDetectorListener::class.java.getDeclaredField("scrolling")
+        scrollingField.isAccessible = true
+        val scrolling1 = scrollingField.getBoolean(gestureDetectorListener)
+        assertFalse(scrolling1)
+
+        assertFalse(gestureDetectorListener.onFling(null, null, 1.0f, 2.0f))
+
+        val scrolling2 = scrollingField.getBoolean(gestureDetectorListener)
+        assertFalse(scrolling2)
+    }
+
+    @Test
+    fun gestureDetector_onFlingWhenNotScrolling_startsScrolling() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val curlAnimator = mockk<ValueAnimator>()
+        every { curlAnimator.isRunning }.returns(true)
+        justRun { curlAnimator.cancel() }
+        view.setPrivateProperty("curlAnimator", curlAnimator)
+
+        val gestureDetector: GestureDetector? = view.getPrivateProperty("gestureDetector")
+        requireNotNull(gestureDetector)
+
+        val gestureDetectorListenerField = GestureDetector::class.java.getDeclaredField("mListener")
+        gestureDetectorListenerField.isAccessible = true
+        val gestureDetectorListener =
+            gestureDetectorListenerField.get(gestureDetector) as GestureDetector.SimpleOnGestureListener
+
+        val scrollingField = gestureDetectorListener::class.java.getDeclaredField("scrolling")
+        scrollingField.isAccessible = true
+        val scrolling1 = scrollingField.getBoolean(gestureDetectorListener)
+        assertFalse(scrolling1)
+
+        val e1 = mockk<MotionEvent>(relaxed = true)
+        val e2 = mockk<MotionEvent>(relaxed = true)
+        assertTrue(gestureDetectorListener.onFling(e1, e2, 1.0f, 2.0f))
+
+        val scrolling2 = scrollingField.getBoolean(gestureDetectorListener)
+        assertTrue(scrolling2)
+
+        verify { e2 wasNot Called }
+    }
+
+    @Test
+    fun gestureDetector_onFlingWhenAlreadyScrolling_keepsScrolling() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val curlAnimator = mockk<ValueAnimator>()
+        every { curlAnimator.isRunning }.returns(true)
+        justRun { curlAnimator.cancel() }
+        view.setPrivateProperty("curlAnimator", curlAnimator)
+
+        val gestureDetector: GestureDetector? = view.getPrivateProperty("gestureDetector")
+        requireNotNull(gestureDetector)
+
+        val gestureDetectorListenerField = GestureDetector::class.java.getDeclaredField("mListener")
+        gestureDetectorListenerField.isAccessible = true
+        val gestureDetectorListener =
+            gestureDetectorListenerField.get(gestureDetector) as GestureDetector.SimpleOnGestureListener
+
+        val scrollingField = gestureDetectorListener::class.java.getDeclaredField("scrolling")
+        scrollingField.isAccessible = true
+        scrollingField.setBoolean(gestureDetectorListener, true)
+
+        val e1 = mockk<MotionEvent>(relaxed = true)
+        val e2 = mockk<MotionEvent>(relaxed = true)
+        assertTrue(gestureDetectorListener.onFling(e1, e2, 1.0f, 2.0f))
+
+        val scrolling = scrollingField.getBoolean(gestureDetectorListener)
+        assertTrue(scrolling)
+
+        verify { e1 wasNot Called }
+    }
+
+    @Test
+    fun gestureDetector_onDown() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        val gestureDetector: GestureDetector? = view.getPrivateProperty("gestureDetector")
+        requireNotNull(gestureDetector)
+
+        val gestureDetectorListenerField = GestureDetector::class.java.getDeclaredField("mListener")
+        gestureDetectorListenerField.isAccessible = true
+        val gestureDetectorListener =
+            gestureDetectorListenerField.get(gestureDetector) as GestureDetector.SimpleOnGestureListener
+
+        val scrollingField = gestureDetectorListener::class.java.getDeclaredField("scrolling")
+        scrollingField.isAccessible = true
+        scrollingField.setBoolean(gestureDetectorListener, true)
+
+        gestureDetectorListener.onDown(null)
+
+        val scrolling = scrollingField.getBoolean(gestureDetectorListener)
+        assertFalse(scrolling)
+    }
+
     // TODO: setCurlPos
     // TODO: startCurl
     // TODO: updateCurlPos
