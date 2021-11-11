@@ -4198,7 +4198,7 @@ class CurlGLSurfaceViewTest {
     @Test
     fun gestureDetector_onDown() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val view = CurlTextureView(context)
+        val view = CurlGLSurfaceView(context)
 
         val gestureDetector: GestureDetector? = view.getPrivateProperty("gestureDetector")
         requireNotNull(gestureDetector)
@@ -4216,6 +4216,217 @@ class CurlGLSurfaceViewTest {
 
         val scrolling = scrollingField.getBoolean(gestureDetectorListener)
         assertFalse(scrolling)
+    }
+
+    @Test
+    fun animateCurlRight_whenNoRenderer_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val curlRenderer1: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer1)
+
+        // set null curl renderer
+        view.setPrivateProperty("curlRenderer", null)
+
+        // invoke animateCurlRight
+        view.callPrivateFunc("animateCurlRight", 1)
+    }
+
+    @Test
+    fun animateCurlRight_whenRendererAndNoRightPage_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        renderer.setPrivateProperty("pageRectRight", null)
+        assertNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // invoke animateCurlRight
+        view.callPrivateFunc("animateCurlRight", 1)
+    }
+
+    @Test
+    fun animateCurlRight_whenRendererAndNoLeftPage_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        renderer.setPrivateProperty("pageRectLeft", null)
+        assertNull(renderer.getPrivateProperty("pageRectLeft"))
+
+        // invoke animateCurlRight
+        view.callPrivateFunc("animateCurlRight", 1)
+    }
+
+    @Test
+    fun animateCurlRight_whenRendererLeftAndRightPagesAndOnePageViewMode() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+        view.viewMode = CurlGLSurfaceView.SHOW_ONE_PAGE
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // invoke animateCurlRight
+        view.callPrivateFunc("animateCurlRight", 1)
+    }
+
+    @Test
+    fun animateCurlRight_whenRendererLeftAndRightPagesAndTwoPageViewMode() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+        view.viewMode = CurlGLSurfaceView.SHOW_TWO_PAGES
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // invoke animateCurlRight
+        view.callPrivateFunc("animateCurlRight", 1)
+    }
+
+    @Test
+    fun animateCurlRight_whenRendererLeftAndRightPagesAndZeroNewIndex() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+        view.viewMode = CurlGLSurfaceView.SHOW_TWO_PAGES
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // invoke animateCurlRight
+        view.callPrivateFunc("animateCurlRight", 0)
+    }
+
+    @Test
+    fun animateCurlLeft_whenNoRenderer_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val curlRenderer1: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer1)
+
+        // set null curl renderer
+        view.setPrivateProperty("curlRenderer", null)
+
+        // invoke animateCurlRight
+        view.callPrivateFunc("animateCurlLeft", 1)
+    }
+
+    @Test
+    fun animateCurlLeft_whenRendererAndNoRightPage_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        renderer.setPrivateProperty("pageRectRight", null)
+        assertNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // invoke animateCurlRight
+        view.callPrivateFunc("animateCurlLeft", 1)
+    }
+
+    @Test
+    fun animateCurlLeft_whenRendererAndNoLeftPage_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        renderer.setPrivateProperty("pageRectLeft", null)
+        assertNull(renderer.getPrivateProperty("pageRectLeft"))
+
+        // invoke animateCurlRight
+        view.callPrivateFunc("animateCurlLeft", 1)
+    }
+
+    @Test
+    fun animateCurlLeft_whenRendererLeftAndRightPagesAndOnePageViewMode() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+        view.viewMode = CurlGLSurfaceView.SHOW_ONE_PAGE
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // invoke animateCurlRight
+        view.callPrivateFunc("animateCurlLeft", 1)
+    }
+
+    @Test
+    fun animateCurlLeft_whenRendererLeftAndRightPagesAndTwoPageViewMode() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+        view.viewMode = CurlGLSurfaceView.SHOW_TWO_PAGES
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        assertNotNull(renderer.getPrivateProperty("pageRectLeft"))
+        assertNotNull(renderer.getPrivateProperty("pageRectRight"))
+
+        // invoke animateCurlRight
+        view.callPrivateFunc("animateCurlLeft", 1)
+    }
+
+    @Test
+    fun cancelCurlAnimator_whenNoAnimator_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        assertNull(view.getPrivateProperty("curlAnimator"))
+
+        view.callPrivateFunc("cancelCurlAnimator")
+    }
+
+    @Test
+    fun cancelCurlAnimator_whenAnimatorNotRunning_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val animator = mockk<ValueAnimator>()
+        every { animator.isRunning }.returns(false)
+        view.setPrivateProperty("curlAnimator", animator)
+
+        view.callPrivateFunc("cancelCurlAnimator")
+
+        verify(exactly = 1) { animator.isRunning }
+        verify(exactly = 0) { animator.cancel() }
+    }
+
+    @Test
+    fun cancelCurlAnimator_whenAnimatorRunning_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val animator = mockk<ValueAnimator>()
+        every { animator.isRunning }.returns(true)
+        justRun { animator.cancel() }
+        view.setPrivateProperty("curlAnimator", animator)
+
+        view.callPrivateFunc("cancelCurlAnimator")
+
+        verify(exactly = 1) { animator.isRunning }
+        verify(exactly = 1) { animator.cancel() }
     }
 
     // TODO: setCurlPos

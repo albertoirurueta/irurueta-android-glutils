@@ -1126,17 +1126,18 @@ class CurlTextureView @JvmOverloads constructor(
         // set initial curl position
         updateFirstCurlPos(startX, y, 0.0f, newIndex)
 
-        curlAnimator = ValueAnimator.ofFloat(startX, endX)
+        val curlAnimator = ValueAnimator.ofFloat(startX, endX)
+        this.curlAnimator = curlAnimator
 
-        curlAnimator?.setTarget(this)
-        curlAnimator?.addUpdateListener { animator ->
+        curlAnimator.setTarget(this)
+        curlAnimator.addUpdateListener { animator ->
             val x = animator.animatedValue as Float
             updateCurlPos(x, y)
         }
-        curlAnimator?.duration = pageJumpDurationTime
-        curlAnimator?.interpolator = AccelerateInterpolator()
+        curlAnimator.duration = pageJumpDurationTime
+        curlAnimator.interpolator = AccelerateInterpolator()
 
-        curlAnimator?.addListener(object : Animator.AnimatorListener {
+        curlAnimator.addListener(object : Animator.AnimatorListener {
             override fun onAnimationEnd(animation: Animator?) {
                 // ensure last position is set so that curl is properly finished
                 updateLastCurlPos(endX, y, 0.0f, newIndex)
@@ -1155,7 +1156,7 @@ class CurlTextureView @JvmOverloads constructor(
             }
         })
 
-        curlAnimator?.start()
+        curlAnimator.start()
     }
 
     /**
