@@ -756,10 +756,11 @@ class CurlTextureView @JvmOverloads constructor(
         scrollY = startY
         scrollP = startPressure
 
-        curlAnimator = ValueAnimator.ofFloat(0.0f, 1.0f)
+        val curlAnimator = ValueAnimator.ofFloat(0.0f, 1.0f)
+        this.curlAnimator = curlAnimator
 
-        curlAnimator?.setTarget(this)
-        curlAnimator?.addUpdateListener { animator ->
+        curlAnimator.setTarget(this)
+        curlAnimator.addUpdateListener { animator ->
             val v = animator.animatedValue as Float
 
             val x = startX * (1.0f - v) + v * scrollX
@@ -768,10 +769,10 @@ class CurlTextureView @JvmOverloads constructor(
 
             updateCurlPos(x, y, pressure)
         }
-        curlAnimator?.duration = animationDurationTime.toLong()
-        curlAnimator?.interpolator = LinearInterpolator()
+        curlAnimator.duration = animationDurationTime.toLong()
+        curlAnimator.interpolator = LinearInterpolator()
 
-        curlAnimator?.start()
+        curlAnimator.start()
     }
 
     /**

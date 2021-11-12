@@ -4533,6 +4533,7 @@ class CurlTextureViewTest {
     fun setCurlPos_whenLeftCurlStateAndNoRenderer_makesNoAction() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
 
         // set right curl state
         view.setPrivateProperty("curlState", CurlTextureView.CURL_LEFT)
@@ -4551,7 +4552,158 @@ class CurlTextureViewTest {
         view.callPrivateFunc("setCurlPos", curlPos, curlDir, 1.0)
     }
 
-    // TODO: setCurlPos
+    @Test
+    fun setCurlPos_whenLeftCurlStateRendererAndNoLeftPage_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+
+        // set right curl state
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_LEFT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        renderer.setPrivateProperty("pageRectLeft", null)
+        assertNull(renderer.getPrivateProperty("pageRectLeft"))
+
+        // invoke setCurlPos
+        val curlPos = PointF()
+        val curlDir = PointF()
+        view.callPrivateFunc("setCurlPos", curlPos, curlDir, 1.0)
+    }
+
+    @Test
+    fun setCurlPos_whenRightCurlStateRendererLeftPageAndPosLessThanLeft_resetsPageCurl() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+
+        // set right curl state
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_LEFT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val pageRect: RectF? = renderer.getPrivateProperty("pageRectLeft")
+        requireNotNull(pageRect)
+
+        // set pgeCurl spy
+        val pageCurl: CurlMesh? = view.getPrivateProperty("pageCurl")
+        requireNotNull(pageCurl)
+
+        val pageCurlSpy = spyk(pageCurl)
+        view.setPrivateProperty("pageCurl", pageCurlSpy)
+
+        // invoke setCurlPos
+        val curlPos = PointF()
+        curlPos.x = -1.0f
+        val curlDir = PointF()
+        view.callPrivateFunc("setCurlPos", curlPos, curlDir, 1.0)
+
+        verify(exactly = 1) { pageCurlSpy.reset() }
+    }
+
+    @Test
+    fun setCurlPos_whenLeftCurlStateRendererLeftPageAndPosGreaterThanRight_setsPosAtRight() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+
+        // set right curl state
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_LEFT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val pageRect: RectF? = renderer.getPrivateProperty("pageRectLeft")
+        requireNotNull(pageRect)
+
+        // invoke setCurlPos
+        val curlPos = PointF()
+        curlPos.x = 1.0f
+        val curlDir = PointF()
+        view.callPrivateFunc("setCurlPos", curlPos, curlDir, 1.0)
+
+        assertEquals(0.0f, curlPos.x, 0.0f)
+    }
+
+    @Test
+    fun setCurlPos_whenLeftCurlStateRendererLeftPageAndNegativeCurlDir_setsCurlDir() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+
+        // set right curl state
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_LEFT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val pageRect: RectF? = renderer.getPrivateProperty("pageRectLeft")
+        requireNotNull(pageRect)
+
+        // set pgeCurl spy
+        val pageCurl: CurlMesh? = view.getPrivateProperty("pageCurl")
+        requireNotNull(pageCurl)
+
+        val pageCurlSpy = spyk(pageCurl)
+        view.setPrivateProperty("pageCurl", pageCurlSpy)
+
+        // invoke setCurlPos
+        val curlPos = PointF()
+        curlPos.x = 1.0f
+        curlPos.y = -1.0f
+        val curlDir = PointF()
+        curlDir.y = -1.0f
+        view.callPrivateFunc("setCurlPos", curlPos, curlDir, 1.0)
+
+        assertEquals(0.0f, curlPos.x, 0.0f)
+        assertEquals(-1.0f, curlPos.y, 0.0f)
+        assertEquals(1.0f, curlDir.x, 0.0f)
+        assertEquals(0.0f, curlDir.y, 0.0f)
+
+        verify(exactly = 1) { pageCurlSpy.curl(curlPos, curlDir, 1.0) }
+    }
+
+    @Test
+    fun setCurlPos_whenLeftCurlStateRendererLeftPageAndPositiveCurlDir_setsCurlDir() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+
+        // set right curl state
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_LEFT)
+
+        val renderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(renderer)
+
+        val pageRect: RectF? = renderer.getPrivateProperty("pageRectLeft")
+        requireNotNull(pageRect)
+
+        // set pgeCurl spy
+        val pageCurl: CurlMesh? = view.getPrivateProperty("pageCurl")
+        requireNotNull(pageCurl)
+
+        val pageCurlSpy = spyk(pageCurl)
+        view.setPrivateProperty("pageCurl", pageCurlSpy)
+
+        // invoke setCurlPos
+        val curlPos = PointF()
+        curlPos.x = 1.0f
+        curlPos.y = 1.0f
+        val curlDir = PointF()
+        curlDir.y = 1.0f
+        view.callPrivateFunc("setCurlPos", curlPos, curlDir, 1.0)
+
+        assertEquals(0.0f, curlPos.x, 0.0f)
+        assertEquals(1.0f, curlPos.y, 0.0f)
+        assertEquals(1.0f, curlDir.x, 0.0f)
+        assertEquals(0.0f, curlDir.y, 0.0f)
+
+        verify(exactly = 1) { pageCurlSpy.curl(curlPos, curlDir, 1.0) }
+    }
+
     // TODO: startCurl
     // TODO: updateCurlPos
     // TODO: updatePage
