@@ -4704,9 +4704,341 @@ class CurlTextureViewTest {
         verify(exactly = 1) { pageCurlSpy.curl(curlPos, curlDir, 1.0) }
     }
 
-    // TODO: startCurl
-    // TODO: updateCurlPos
-    // TODO: updatePage
+    @Test
+    fun startCurl_whenNoPageLeft_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        view.setPrivateProperty("pageLeft", null)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_RIGHT, 1)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+    }
+
+    @Test
+    fun startCurl_whenNoPageRight_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        view.setPrivateProperty("pageRight", null)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_RIGHT, 1)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+    }
+
+    @Test
+    fun startCurl_whenNoPageCurl_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        view.setPrivateProperty("pageCurl", null)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_RIGHT, 1)
+
+        assertEquals(CurlTextureView.CURL_NONE, view.curlState)
+    }
+
+    @Test
+    fun startCurl_whenNoRendererCurlLeft_setsCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        view.setPrivateProperty("curlRenderer", null)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_LEFT, 1)
+
+        assertEquals(CurlTextureView.CURL_LEFT, view.curlState)
+    }
+
+    @Test
+    fun startCurl_whenNoRendererCurlRight_setsCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        view.setPrivateProperty("curlRenderer", null)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_RIGHT, 1)
+
+        assertEquals(CurlTextureView.CURL_RIGHT, view.curlState)
+    }
+
+    @Test
+    fun startCurl_whenRendererCurlLeft_setsCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertNotNull(view.getPrivateProperty("curlRenderer"))
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_LEFT, 1)
+
+        assertEquals(CurlTextureView.CURL_LEFT, view.curlState)
+    }
+
+    @Test
+    fun startCurl_whenRendererCurlRight_setsCurlState() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+
+        assertNotNull(view.getPrivateProperty("curlRenderer"))
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_RIGHT, 1)
+
+        assertEquals(CurlTextureView.CURL_RIGHT, view.curlState)
+    }
+
+    @Test
+    fun startCurl_whenCurlRightCurrentIndexGreaterThanZeroAndRenderLeftPage_addsMeshes() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.renderLeftPage = true
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.setPrivateProperty("currentIndex", 1)
+
+        val pageLeft: CurlMesh? = view.getPrivateProperty("pageLeft")
+        requireNotNull(pageLeft)
+        val pageRight: CurlMesh? = view.getPrivateProperty("pageRight")
+        requireNotNull(pageRight)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_RIGHT, 1)
+
+        assertEquals(CurlTextureView.CURL_RIGHT, view.curlState)
+
+        verify(exactly = 1) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_LEFT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageLeft) }
+        verify(exactly = 1) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_RIGHT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageRight) }
+    }
+
+    @Test
+    fun startCurl_whenCurlRightCurrentIndexGreaterThanZeroAndNotRenderLeftPage_addsMeshes() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.renderLeftPage = false
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.setPrivateProperty("currentIndex", 1)
+
+        val pageLeft: CurlMesh? = view.getPrivateProperty("pageCurl")
+        requireNotNull(pageLeft)
+        val pageRight: CurlMesh? = view.getPrivateProperty("pageRight")
+        requireNotNull(pageRight)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_RIGHT, 1)
+
+        assertEquals(CurlTextureView.CURL_RIGHT, view.curlState)
+
+        verify(exactly = 1) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_LEFT) }
+        verify(exactly = 0) { curlRendererSpy.addCurlMesh(pageLeft) }
+        verify(exactly = 1) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_RIGHT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageRight) }
+    }
+
+    @Test
+    fun startCurl_whenCurlRightZeroCurrentIndexAndTargetLessThanPageCount_addsMeshes() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.renderLeftPage = true
+
+        val pageProvider = mockk<CurlTextureView.PageProvider>()
+        every { pageProvider.pageCount }.returns(2)
+        justRun { pageProvider.updatePage(any(), any(), any(), any(), any()) }
+        view.pageProvider = pageProvider
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.setPrivateProperty("currentIndex", 0)
+
+        val pageCurl: CurlMesh? = view.getPrivateProperty("pageCurl")
+        requireNotNull(pageCurl)
+        val pageRight: CurlMesh? = view.getPrivateProperty("pageRight")
+        requireNotNull(pageRight)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_RIGHT, 1)
+
+        assertEquals(CurlTextureView.CURL_RIGHT, view.curlState)
+
+        verify(exactly = 2) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_RIGHT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageCurl) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageRight) }
+    }
+
+    @Test
+    fun startCurl_whenCurlLeftTargetIndexGreaterThanZeroRenderLeftPageAndOnePageViewMode_addsMeshes() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.renderLeftPage = true
+        view.viewMode = CurlTextureView.SHOW_ONE_PAGE
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.setPrivateProperty("currentIndex", 1)
+
+        val pageCurl: CurlMesh? = view.getPrivateProperty("pageCurl")
+        requireNotNull(pageCurl)
+        val pageLeft: CurlMesh? = view.getPrivateProperty("pageLeft")
+        requireNotNull(pageLeft)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_LEFT, 1)
+
+        assertEquals(CurlTextureView.CURL_LEFT, view.curlState)
+
+        verify(exactly = 1) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_LEFT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageCurl) }
+        verify(exactly = 1) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_RIGHT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageLeft) }
+    }
+
+    @Test
+    fun startCurl_whenCurlLeftTargetIndexGreaterThanZeroRenderLeftPageAndTwoPageViewModeAndCurlLeftState_addsMeshes() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.renderLeftPage = true
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.setPrivateProperty("currentIndex", 1)
+
+        view.setPrivateProperty("curlState", CurlTextureView.CURL_LEFT)
+
+        val pageCurl: CurlMesh? = view.getPrivateProperty("pageCurl")
+        requireNotNull(pageCurl)
+        val pageLeft: CurlMesh? = view.getPrivateProperty("pageLeft")
+        requireNotNull(pageLeft)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_LEFT, 1)
+
+        assertEquals(CurlTextureView.CURL_LEFT, view.curlState)
+
+        verify(exactly = 1) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_LEFT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageCurl) }
+        verify(exactly = 1) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_RIGHT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageLeft) }
+    }
+
+    @Test
+    fun startCurl_whenCurlLeftTargetIndexGreaterThanZeroNoRenderLeftPage_addsMeshes() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.renderLeftPage = false
+        view.viewMode = CurlTextureView.SHOW_ONE_PAGE
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.setPrivateProperty("currentIndex", 1)
+
+        val pageCurl: CurlMesh? = view.getPrivateProperty("pageCurl")
+        requireNotNull(pageCurl)
+        val pageLeft: CurlMesh? = view.getPrivateProperty("pageLeft")
+        requireNotNull(pageLeft)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_LEFT, 1)
+
+        assertEquals(CurlTextureView.CURL_LEFT, view.curlState)
+
+        verify(exactly = 1) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_LEFT) }
+        verify(exactly = 0) { curlRendererSpy.addCurlMesh(pageCurl) }
+        verify(exactly = 1) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_RIGHT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageLeft) }
+    }
+
+    @Test
+    fun startCurl_whenCurlLeftTargetIndexGreaterThanZeroRenderLeftPageAndTwoPageViewMode_addsMeshes() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.renderLeftPage = true
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.setPrivateProperty("currentIndex", 1)
+
+        val pageCurl: CurlMesh? = view.getPrivateProperty("pageCurl")
+        requireNotNull(pageCurl)
+        val pageLeft: CurlMesh? = view.getPrivateProperty("pageLeft")
+        requireNotNull(pageLeft)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_LEFT, 1)
+
+        assertEquals(CurlTextureView.CURL_LEFT, view.curlState)
+
+        verify(exactly = 2) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_LEFT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageCurl) }
+        verify(exactly = 0) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_RIGHT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageLeft) }
+    }
+
+    @Test
+    fun startCurl_whenCurlLeftTargetIndexGreaterThanZeroRenderLeftPageCurrentIndexLessThanPageCountAndTwoPageViewMode_addsMeshes() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlTextureView(context)
+        view.renderLeftPage = true
+        view.viewMode = CurlTextureView.SHOW_TWO_PAGES
+
+        val pageProvider = mockk<CurlTextureView.PageProvider>()
+        every { pageProvider.pageCount }.returns(2)
+        justRun { pageProvider.updatePage(any(), any(), any(), any(), any()) }
+        view.pageProvider = pageProvider
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.setPrivateProperty("currentIndex", 1)
+
+        val pageCurl: CurlMesh? = view.getPrivateProperty("pageCurl")
+        requireNotNull(pageCurl)
+        val pageLeft: CurlMesh? = view.getPrivateProperty("pageLeft")
+        requireNotNull(pageLeft)
+        val pageRight: CurlMesh? = view.getPrivateProperty("pageRight")
+        requireNotNull(pageRight)
+
+        view.callPrivateFunc("startCurl", CurlTextureView.CURL_LEFT, 1)
+
+        assertEquals(CurlTextureView.CURL_LEFT, view.curlState)
+
+        verify(exactly = 2) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_LEFT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageCurl) }
+        verify(exactly = 1) { curlRendererSpy.getPageRect(CurlRenderer.PAGE_RIGHT) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageLeft) }
+        verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageRight) }
+    }
+
     // TODO: updatePages
 
     private companion object {
