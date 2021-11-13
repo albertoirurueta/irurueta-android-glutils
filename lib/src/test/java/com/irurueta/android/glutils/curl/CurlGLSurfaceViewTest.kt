@@ -5130,7 +5130,289 @@ class CurlGLSurfaceViewTest {
         verify(exactly = 1) { curlRendererSpy.addCurlMesh(pageRight) }
     }
 
-    // TODO: updatePages
+    @Test
+    fun updatePages_whenNegativePageBitmapWidth_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        val pageBitmapWidth: Int? = view.getPrivateProperty("pageBitmapWidth")
+        requireNotNull(pageBitmapWidth)
+        assertEquals(-1, pageBitmapWidth)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify { curlRendererSpy wasNot Called }
+    }
+
+    @Test
+    fun updatePages_whenNegativePageBitmapHeight_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("pageBitmapWidth", 1)
+
+        val pageBitmapHeight: Int? = view.getPrivateProperty("pageBitmapHeight")
+        requireNotNull(pageBitmapHeight)
+        assertEquals(-1, pageBitmapHeight)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify { curlRendererSpy wasNot Called }
+    }
+
+    @Test
+    fun updatePages_whenNoPageProvider_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("pageBitmapWidth", 1)
+        view.setPrivateProperty("pageBitmapHeight", 1)
+
+        assertNull(view.pageProvider)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify { curlRendererSpy wasNot Called }
+    }
+
+    @Test
+    fun updatePages_whenNoPageLeft_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("pageBitmapWidth", 1)
+        view.setPrivateProperty("pageBitmapHeight", 1)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>(relaxed = true)
+        view.pageProvider = pageProvider
+
+        view.setPrivateProperty("pageLeft", null)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify { curlRendererSpy wasNot Called }
+    }
+
+    @Test
+    fun updatePages_whenNoPageRight_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("pageBitmapWidth", 1)
+        view.setPrivateProperty("pageBitmapHeight", 1)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>(relaxed = true)
+        view.pageProvider = pageProvider
+
+        view.setPrivateProperty("pageRight", null)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify { curlRendererSpy wasNot Called }
+    }
+
+    @Test
+    fun updatePages_whenNoPageCurl_makesNoAction() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("pageBitmapWidth", 1)
+        view.setPrivateProperty("pageBitmapHeight", 1)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>(relaxed = true)
+        view.pageProvider = pageProvider
+
+        view.setPrivateProperty("pageCurl", null)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify { curlRendererSpy wasNot Called }
+    }
+
+    @Test
+    fun updatePages_whenNoCurlState_callsRenderer() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("pageBitmapWidth", 1)
+        view.setPrivateProperty("pageBitmapHeight", 1)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>(relaxed = true)
+        view.pageProvider = pageProvider
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify(exactly = 3) { curlRendererSpy.removeCurlMesh(any()) }
+    }
+
+    @Test
+    fun updatePages_whenLeftCurlState_callsRenderer() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("pageBitmapWidth", 1)
+        view.setPrivateProperty("pageBitmapHeight", 1)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>(relaxed = true)
+        view.pageProvider = pageProvider
+
+        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_LEFT)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify(exactly = 3) { curlRendererSpy.removeCurlMesh(any()) }
+    }
+
+    @Test
+    fun updatePages_whenRightCurlState_callsRenderer() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("pageBitmapWidth", 1)
+        view.setPrivateProperty("pageBitmapHeight", 1)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>(relaxed = true)
+        view.pageProvider = pageProvider
+
+        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_RIGHT)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify(exactly = 3) { curlRendererSpy.removeCurlMesh(any()) }
+    }
+
+    @Test
+    fun updatePages_whenRightIdxInRange_callsRenderer() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("pageBitmapWidth", 1)
+        view.setPrivateProperty("pageBitmapHeight", 1)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>(relaxed = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_RIGHT)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify(exactly = 2) { curlRendererSpy.addCurlMesh(any()) }
+    }
+
+    @Test
+    fun updatePages_whenLeftIdxInRange_callsRenderer() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("pageBitmapWidth", 1)
+        view.setPrivateProperty("pageBitmapHeight", 1)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>(relaxed = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        view.setPrivateProperty("currentIndex", 1)
+
+        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_RIGHT)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify(exactly = 2) { curlRendererSpy.addCurlMesh(any()) }
+    }
+
+    @Test
+    fun updatePages_whenCurlIdxInRange_callsRenderer() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = CurlGLSurfaceView(context)
+
+        view.setPrivateProperty("pageBitmapWidth", 1)
+        view.setPrivateProperty("pageBitmapHeight", 1)
+
+        val pageProvider = mockk<CurlGLSurfaceView.PageProvider>(relaxed = true)
+        every { pageProvider.pageCount }.returns(2)
+        view.pageProvider = pageProvider
+
+        view.setPrivateProperty("currentIndex", 1)
+
+        view.setPrivateProperty("curlState", CurlGLSurfaceView.CURL_LEFT)
+
+        val curlRenderer: CurlRenderer? = view.getPrivateProperty("curlRenderer")
+        requireNotNull(curlRenderer)
+
+        val curlRendererSpy = spyk(curlRenderer)
+        view.setPrivateProperty("curlRenderer", curlRendererSpy)
+
+        view.callPrivateFunc("updatePages", null, null)
+
+        verify(exactly = 2) { curlRendererSpy.addCurlMesh(any()) }
+    }
 
     private companion object {
         const val WIDTH = 1080

@@ -1436,9 +1436,11 @@ class CurlGLSurfaceView @JvmOverloads constructor(
         val pageCurl = pageCurl ?: return
 
         // Remove meshes from renderer.
-        curlRenderer?.removeCurlMesh(pageLeft)
-        curlRenderer?.removeCurlMesh(pageRight)
-        curlRenderer?.removeCurlMesh(pageCurl)
+        curlRenderer?.let {
+            it.removeCurlMesh(pageLeft)
+            it.removeCurlMesh(pageRight)
+            it.removeCurlMesh(pageCurl)
+        }
 
         var leftIdx = currentIndex - 1
         var rightIdx = currentIndex
