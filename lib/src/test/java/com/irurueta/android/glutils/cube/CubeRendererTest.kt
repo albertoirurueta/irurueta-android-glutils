@@ -1832,9 +1832,25 @@ class CubeRendererTest {
         verify(exactly = 2) { GLES20.glEnableVertexAttribArray(any()) }
         verify(exactly = 4) { GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, any()) }
         verify(exactly = 1) { GLES20.glVertexAttribPointer(any(), 3, GLES20.GL_FLOAT, false, 0, 0) }
-        verify(exactly = 1) { GLES20.glVertexAttribPointer(any(), 4, GLES20.GL_UNSIGNED_BYTE, true, 0, 0) }
+        verify(exactly = 1) {
+            GLES20.glVertexAttribPointer(
+                any(),
+                4,
+                GLES20.GL_UNSIGNED_BYTE,
+                true,
+                0,
+                0
+            )
+        }
         verify(exactly = 2) { GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, any()) }
-        verify(exactly = 1) { GLES20.glDrawElements(GLES20.GL_TRIANGLES, any(), GLES20.GL_UNSIGNED_SHORT, 0) }
+        verify(exactly = 1) {
+            GLES20.glDrawElements(
+                GLES20.GL_TRIANGLES,
+                any(),
+                GLES20.GL_UNSIGNED_SHORT,
+                0
+            )
+        }
     }
 
     @Test
@@ -1875,9 +1891,25 @@ class CubeRendererTest {
         verify(exactly = 3) { GLES20.glEnableVertexAttribArray(any()) }
         verify(exactly = 5) { GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, any()) }
         verify(exactly = 2) { GLES20.glVertexAttribPointer(any(), 3, GLES20.GL_FLOAT, false, 0, 0) }
-        verify(exactly = 1) { GLES20.glVertexAttribPointer(any(), 4, GLES20.GL_UNSIGNED_BYTE, true, 0, 0) }
+        verify(exactly = 1) {
+            GLES20.glVertexAttribPointer(
+                any(),
+                4,
+                GLES20.GL_UNSIGNED_BYTE,
+                true,
+                0,
+                0
+            )
+        }
         verify(exactly = 2) { GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, any()) }
-        verify(exactly = 1) { GLES20.glDrawElements(GLES20.GL_TRIANGLES, any(), GLES20.GL_UNSIGNED_SHORT, 0) }
+        verify(exactly = 1) {
+            GLES20.glDrawElements(
+                GLES20.GL_TRIANGLES,
+                any(),
+                GLES20.GL_UNSIGNED_SHORT,
+                0
+            )
+        }
     }
 
     @Test
@@ -1918,9 +1950,25 @@ class CubeRendererTest {
         verify(exactly = 2) { GLES20.glEnableVertexAttribArray(any()) }
         verify(exactly = 4) { GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, any()) }
         verify(exactly = 1) { GLES20.glVertexAttribPointer(any(), 3, GLES20.GL_FLOAT, false, 0, 0) }
-        verify(exactly = 1) { GLES20.glVertexAttribPointer(any(), 4, GLES20.GL_UNSIGNED_BYTE, true, 0, 0) }
+        verify(exactly = 1) {
+            GLES20.glVertexAttribPointer(
+                any(),
+                4,
+                GLES20.GL_UNSIGNED_BYTE,
+                true,
+                0,
+                0
+            )
+        }
         verify(exactly = 2) { GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, any()) }
-        verify(exactly = 1) { GLES20.glDrawElements(GLES20.GL_TRIANGLES, any(), GLES20.GL_UNSIGNED_SHORT, 0) }
+        verify(exactly = 1) {
+            GLES20.glDrawElements(
+                GLES20.GL_TRIANGLES,
+                any(),
+                GLES20.GL_UNSIGNED_SHORT,
+                0
+            )
+        }
     }
 
     @Test
@@ -1960,13 +2008,29 @@ class CubeRendererTest {
         verify(exactly = 1) { GLES20.glEnableVertexAttribArray(any()) }
         verify(exactly = 3) { GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, any()) }
         verify(exactly = 1) { GLES20.glVertexAttribPointer(any(), 3, GLES20.GL_FLOAT, false, 0, 0) }
-        verify(exactly = 0) { GLES20.glVertexAttribPointer(any(), 4, GLES20.GL_UNSIGNED_BYTE, true, 0, 0) }
+        verify(exactly = 0) {
+            GLES20.glVertexAttribPointer(
+                any(),
+                4,
+                GLES20.GL_UNSIGNED_BYTE,
+                true,
+                0,
+                0
+            )
+        }
         verify(exactly = 2) { GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, any()) }
-        verify(exactly = 1) { GLES20.glDrawElements(GLES20.GL_TRIANGLES, any(), GLES20.GL_UNSIGNED_SHORT, 0) }
+        verify(exactly = 1) {
+            GLES20.glDrawElements(
+                GLES20.GL_TRIANGLES,
+                any(),
+                GLES20.GL_UNSIGNED_SHORT,
+                0
+            )
+        }
     }
 
     @Test
-    fun setupGL_whenCompileShaderError_makesNoAction() {
+    fun setupGL_whenCompileShaderError_executesExpectedSteps() {
         mockkStatic(GLES20::class)
 
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -2083,6 +2147,209 @@ class CubeRendererTest {
         verify(exactly = 1) { GLES20.glGetAttribLocation(1, "aNormal") }
         verify(exactly = 1) { GLES20.glGetAttribLocation(1, "aColor3") }
         verify(exactly = 1) { GLES20.glGetAttribLocation(1, "aColor4") }
+    }
+
+    @Test
+    fun loadShaders_whenLinkProgramErrorAndNoShadersOrProgram_executesExpectedSteps() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        every { GLES20.glGetShaderiv(any(), GLES20.GL_COMPILE_STATUS, any()) }
+            .answers {
+                val buffer = invocation.args[2] as IntBuffer
+                val array = buffer.array()
+                array[0] = GLES20.GL_TRUE
+            }
+        every { GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER) }.returns(0)
+        every { GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER) }.returns(0)
+        every { GLES20.glCreateProgram() }.returns(0)
+
+        val result: Boolean? = renderer.callPrivateFuncWithResult("setupGL")
+        requireNotNull(result)
+        assertFalse(result)
+
+        verify(exactly = 1) { GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER) }
+        verify(exactly = 1) { GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER) }
+        verify(exactly = 2) { GLES20.glShaderSource(any(), any()) }
+        verify(exactly = 2) { GLES20.glCompileShader(any()) }
+        verify(exactly = 2) { GLES20.glGetShaderiv(any(), GLES20.GL_COMPILE_STATUS, any()) }
+        verify(exactly = 1) { GLES20.glCreateProgram() }
+        verify(exactly = 2) { GLES20.glAttachShader(0, 0) }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(0, 0, "aPosition") }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(0, 1, "aNormal") }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(0, 2, "aColor3") }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(0, 3, "aColor4") }
+        verify(exactly = 1) { GLES20.glLinkProgram(0) }
+        verify(exactly = 1) { GLES20.glGetProgramiv(0, GLES20.GL_LINK_STATUS, any()) }
+        verify(exactly = 0) { GLES20.glDeleteShader(any()) }
+        verify(exactly = 0) { GLES20.glDeleteShader(any()) }
+        verify(exactly = 0) { GLES20.glDeleteProgram(any()) }
+        verify(exactly = 0) { GLES20.glEnable(GLES20.GL_DEPTH_TEST) }
+        verify(exactly = 0) { GLES20.glUseProgram(any()) }
+    }
+
+    @Test
+    fun setupCube_whenHasColors_executesExpectedSteps() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        renderer.callPrivateFunc("setupCube")
+
+        verify(exactly = 3) { GLES20.glGenBuffers(1, any(), 0) }
+        verify(exactly = 2) { GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, any()) }
+        verify(exactly = 1) { GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, any()) }
+        verify(exactly = 2) {
+            GLES20.glBufferData(
+                GLES20.GL_ARRAY_BUFFER,
+                any(),
+                any(),
+                GLES20.GL_STATIC_DRAW
+            )
+        }
+        verify(exactly = 1) {
+            GLES20.glBufferData(
+                GLES20.GL_ELEMENT_ARRAY_BUFFER,
+                any(),
+                any(),
+                GLES20.GL_STATIC_DRAW
+            )
+        }
+    }
+
+    @Test
+    fun setupCube_whenHasNormals_executesExpectedSteps() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        val hasNormals1: Int? = renderer.getPrivateProperty("hasNormals")
+        requireNotNull(hasNormals1)
+        assertEquals(0, hasNormals1)
+
+        // set hasNormals
+        renderer.setPrivateProperty("hasNormals", 1)
+
+        val hasNormals2: Int? = renderer.getPrivateProperty("hasNormals")
+        requireNotNull(hasNormals2)
+        assertEquals(1, hasNormals2)
+
+        renderer.callPrivateFunc("setupCube")
+
+        verify(exactly = 4) { GLES20.glGenBuffers(1, any(), 0) }
+        verify(exactly = 3) { GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, any()) }
+        verify(exactly = 1) { GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, any()) }
+        verify(exactly = 3) {
+            GLES20.glBufferData(
+                GLES20.GL_ARRAY_BUFFER,
+                any(),
+                any(),
+                GLES20.GL_STATIC_DRAW
+            )
+        }
+        verify(exactly = 1) {
+            GLES20.glBufferData(
+                GLES20.GL_ELEMENT_ARRAY_BUFFER,
+                any(),
+                any(),
+                GLES20.GL_STATIC_DRAW
+            )
+        }
+    }
+
+    @Test
+    fun setupCube_whenHasNoColors_executesExpectedSteps() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        val hasColors1: Int? = renderer.getPrivateProperty("hasColors")
+        requireNotNull(hasColors1)
+        assertEquals(3, hasColors1)
+
+        // set hasColors
+        renderer.setPrivateProperty("hasColors", 0)
+
+        val hasColors2: Int? = renderer.getPrivateProperty("hasColors")
+        requireNotNull(hasColors2)
+        assertEquals(0, hasColors2)
+
+        renderer.callPrivateFunc("setupCube")
+
+        verify(exactly = 1) { GLES20.glGenBuffers(1, any(), 0) }
+        verify(exactly = 1) { GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, any()) }
+        verify(exactly = 0) { GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, any()) }
+        verify(exactly = 1) {
+            GLES20.glBufferData(
+                GLES20.GL_ARRAY_BUFFER,
+                any(),
+                any(),
+                GLES20.GL_STATIC_DRAW
+            )
+        }
+        verify(exactly = 0) {
+            GLES20.glBufferData(
+                GLES20.GL_ELEMENT_ARRAY_BUFFER,
+                any(),
+                any(),
+                GLES20.GL_STATIC_DRAW
+            )
+        }
+    }
+
+    @Test
+    fun tearDownGL_whenNoExistingProgram_makesNoAction() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        val program1: Int? = renderer.getPrivateProperty("program")
+        requireNotNull(program1)
+        assertEquals(0, program1)
+
+        // execute
+        renderer.callPrivateFunc("tearDownGL")
+
+        // check
+        verify(exactly = 0) { GLES20.glDeleteProgram(1) }
+
+        val program2: Int? = renderer.getPrivateProperty("program")
+        requireNotNull(program2)
+        assertEquals(0, program2)
+    }
+
+    @Test
+    fun tearDownGL_whenExistingProgram_deletesProgram() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        val program1: Int? = renderer.getPrivateProperty("program")
+        requireNotNull(program1)
+        assertEquals(0, program1)
+
+        renderer.setPrivateProperty("program", 1)
+
+        val program2: Int? = renderer.getPrivateProperty("program")
+        requireNotNull(program2)
+        assertEquals(1, program2)
+
+        // execute
+        renderer.callPrivateFunc("tearDownGL")
+
+        // check
+        verify(exactly = 1) { GLES20.glDeleteProgram(1) }
+
+        val program3: Int? = renderer.getPrivateProperty("program")
+        requireNotNull(program3)
+        assertEquals(0, program3)
     }
 
     private companion object {
