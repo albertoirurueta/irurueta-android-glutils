@@ -117,6 +117,10 @@ dependencies {
     implementation "androidx.core:core-ktx:$core_ktx_version"
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "com.google.android.material:material:$material_version"
+    implementation("com.irurueta:irurueta-geometry:$irurueta_geometry") {
+        changing true
+        transitive true
+    }
     testImplementation "org.khronos:opengl-api:$khronos_version"
     testImplementation "androidx.test:core-ktx:$test_core_ktx_version"
     testImplementation "junit:junit:$junit_version"

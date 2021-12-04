@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2021 Alberto Irurueta Carro (alberto@irurueta.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.irurueta.android.glutils
 
 import android.content.Context
@@ -453,7 +468,15 @@ open class GLTextureView @JvmOverloads constructor(
          */
         const val DEBUG_LOG_GL_CALLS = 2
 
+        /**
+         * Flag to set client version to GLES2.0.
+         */
         const val EGL_CONTEXT_CLIENT_VERSION = 0x3098
+
+        /**
+         * Version of GLES2.0.
+         */
+        private const val EGL_OPENGL_ES2_BIT = 4;
     }
 
     /**
@@ -634,7 +657,7 @@ open class GLTextureView @JvmOverloads constructor(
             val newConfigSpec = IntArray(len + 2)
             configSpec.copyInto(newConfigSpec, 0, 0, len - 1)
             newConfigSpec[len - 1] = EGL10.EGL_RENDERABLE_TYPE
-            newConfigSpec[len] = 4 // EGL_OPENGL_ES2_BIT
+            newConfigSpec[len] = EGL_OPENGL_ES2_BIT
             newConfigSpec[len + 1] = EGL10.EGL_NONE
             return newConfigSpec
         }

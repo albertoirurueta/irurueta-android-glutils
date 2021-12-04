@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2021 Alberto Irurueta Carro (alberto@irurueta.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.irurueta.android.glutils.curl
 
 import android.graphics.Color
@@ -13,9 +28,9 @@ import javax.microedition.khronos.opengles.GL10
  * Actual renderer class for the GLSurfaceView implementation of a curl view.
  * This class is based on https://github.com/harism/android-pagecurl
  *
- * @property observer observador encargado de recibir notificaciones de este renderer que pueden
- * ser de utilidad para conocer el estado o hacer animaciones.
- * @param usePerspectiveProjection determina si se debe utilizar proyección perspectiva o no.
+ * @property observer observer in charge of receiving notifications from this renderer that can be
+ * user to known the status or draw animations.
+ * @param usePerspectiveProjection determines whether perspective projection must be used or not.
  */
 class CurlRenderer(
     private var observer: Observer? = null,
