@@ -20,14 +20,14 @@ import android.graphics.Color
 import android.opengl.GLES20
 import androidx.test.core.app.ApplicationProvider
 import com.irurueta.algebra.Matrix
-import com.irurueta.android.glutils.CameraToDisplayOrientation
-import com.irurueta.android.glutils.getPrivateProperty
+import com.irurueta.android.glutils.*
 import com.irurueta.geometry.*
 import io.mockk.*
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.nio.IntBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -1835,6 +1835,254 @@ class CubeRendererTest {
         verify(exactly = 1) { GLES20.glVertexAttribPointer(any(), 4, GLES20.GL_UNSIGNED_BYTE, true, 0, 0) }
         verify(exactly = 2) { GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, any()) }
         verify(exactly = 1) { GLES20.glDrawElements(GLES20.GL_TRIANGLES, any(), GLES20.GL_UNSIGNED_SHORT, 0) }
+    }
+
+    @Test
+    fun onDrawFrame_whenHasNormals_executesExpectedSteps() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        val hasNormals1: Int? = renderer.getPrivateProperty("hasNormals")
+        requireNotNull(hasNormals1)
+        assertEquals(0, hasNormals1)
+
+        // initialize
+        val gl = mockk<GL10>()
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val camera = PinholeCamera()
+        renderer.camera = camera
+
+        // set hasNormals
+        renderer.setPrivateProperty("hasNormals", 1)
+
+        val hasNormals2: Int? = renderer.getPrivateProperty("hasNormals")
+        requireNotNull(hasNormals2)
+        assertEquals(1, hasNormals2)
+
+        renderer.onDrawFrame(gl)
+
+        verify(exactly = 1) { GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT) }
+        verify(exactly = 1) { GLES20.glUseProgram(any()) }
+        verify(exactly = 1) { GLES20.glUniformMatrix4fv(any(), 1, false, any(), 0) }
+        verify(exactly = 1) { GLES20.glUniformMatrix3fv(any(), 1, false, any(), 0) }
+        verify(exactly = 1) { GLES20.glUniform1i(any(), 1) }
+        verify(exactly = 1) { GLES20.glUniform1i(any(), 3) }
+        verify(exactly = 1) { GLES20.glUniform3f(any(), any(), any(), any()) }
+        verify(exactly = 1) { GLES20.glUniform1f(any(), 1.0f) }
+        verify(exactly = 3) { GLES20.glEnableVertexAttribArray(any()) }
+        verify(exactly = 5) { GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, any()) }
+        verify(exactly = 2) { GLES20.glVertexAttribPointer(any(), 3, GLES20.GL_FLOAT, false, 0, 0) }
+        verify(exactly = 1) { GLES20.glVertexAttribPointer(any(), 4, GLES20.GL_UNSIGNED_BYTE, true, 0, 0) }
+        verify(exactly = 2) { GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, any()) }
+        verify(exactly = 1) { GLES20.glDrawElements(GLES20.GL_TRIANGLES, any(), GLES20.GL_UNSIGNED_SHORT, 0) }
+    }
+
+    @Test
+    fun onDrawFrame_whenHasColors4_executesExpectedSteps() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        val hasColors1: Int? = renderer.getPrivateProperty("hasColors")
+        requireNotNull(hasColors1)
+        assertEquals(3, hasColors1)
+
+        // initialize
+        val gl = mockk<GL10>()
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val camera = PinholeCamera()
+        renderer.camera = camera
+
+        // set hasColors
+        renderer.setPrivateProperty("hasColors", 4)
+
+        val hasColors2: Int? = renderer.getPrivateProperty("hasColors")
+        requireNotNull(hasColors2)
+        assertEquals(4, hasColors2)
+
+        renderer.onDrawFrame(gl)
+
+        verify(exactly = 1) { GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT) }
+        verify(exactly = 1) { GLES20.glUseProgram(any()) }
+        verify(exactly = 1) { GLES20.glUniformMatrix4fv(any(), 1, false, any(), 0) }
+        verify(exactly = 1) { GLES20.glUniformMatrix3fv(any(), 1, false, any(), 0) }
+        verify(exactly = 1) { GLES20.glUniform1i(any(), 0) }
+        verify(exactly = 1) { GLES20.glUniform1i(any(), 4) }
+        verify(exactly = 1) { GLES20.glUniform3f(any(), any(), any(), any()) }
+        verify(exactly = 1) { GLES20.glUniform1f(any(), 1.0f) }
+        verify(exactly = 2) { GLES20.glEnableVertexAttribArray(any()) }
+        verify(exactly = 4) { GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, any()) }
+        verify(exactly = 1) { GLES20.glVertexAttribPointer(any(), 3, GLES20.GL_FLOAT, false, 0, 0) }
+        verify(exactly = 1) { GLES20.glVertexAttribPointer(any(), 4, GLES20.GL_UNSIGNED_BYTE, true, 0, 0) }
+        verify(exactly = 2) { GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, any()) }
+        verify(exactly = 1) { GLES20.glDrawElements(GLES20.GL_TRIANGLES, any(), GLES20.GL_UNSIGNED_SHORT, 0) }
+    }
+
+    @Test
+    fun onDrawFrame_whenHasColors0_executesExpectedSteps() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        val hasColors1: Int? = renderer.getPrivateProperty("hasColors")
+        requireNotNull(hasColors1)
+        assertEquals(3, hasColors1)
+
+        // initialize
+        val gl = mockk<GL10>()
+        renderer.onSurfaceChanged(gl, WIDTH, HEIGHT)
+
+        val camera = PinholeCamera()
+        renderer.camera = camera
+
+        // set hasColors
+        renderer.setPrivateProperty("hasColors", 0)
+
+        val hasColors2: Int? = renderer.getPrivateProperty("hasColors")
+        requireNotNull(hasColors2)
+        assertEquals(0, hasColors2)
+
+        renderer.onDrawFrame(gl)
+
+        verify(exactly = 1) { GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT) }
+        verify(exactly = 1) { GLES20.glUseProgram(any()) }
+        verify(exactly = 1) { GLES20.glUniformMatrix4fv(any(), 1, false, any(), 0) }
+        verify(exactly = 1) { GLES20.glUniformMatrix3fv(any(), 1, false, any(), 0) }
+        verify(exactly = 2) { GLES20.glUniform1i(any(), 0) }
+        verify(exactly = 1) { GLES20.glUniform3f(any(), any(), any(), any()) }
+        verify(exactly = 1) { GLES20.glUniform1f(any(), 1.0f) }
+        verify(exactly = 1) { GLES20.glEnableVertexAttribArray(any()) }
+        verify(exactly = 3) { GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, any()) }
+        verify(exactly = 1) { GLES20.glVertexAttribPointer(any(), 3, GLES20.GL_FLOAT, false, 0, 0) }
+        verify(exactly = 0) { GLES20.glVertexAttribPointer(any(), 4, GLES20.GL_UNSIGNED_BYTE, true, 0, 0) }
+        verify(exactly = 2) { GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, any()) }
+        verify(exactly = 1) { GLES20.glDrawElements(GLES20.GL_TRIANGLES, any(), GLES20.GL_UNSIGNED_SHORT, 0) }
+    }
+
+    @Test
+    fun setupGL_whenCompileShaderError_makesNoAction() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        val result: Boolean? = renderer.callPrivateFuncWithResult("setupGL")
+        requireNotNull(result)
+        assertFalse(result)
+
+        verify(exactly = 1) { GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER) }
+        verify(exactly = 1) { GLES20.glShaderSource(any(), any()) }
+        verify(exactly = 1) { GLES20.glCompileShader(any()) }
+        verify(exactly = 1) { GLES20.glGetShaderiv(any(), GLES20.GL_COMPILE_STATUS, any()) }
+        verify(exactly = 1) { GLES20.glDeleteShader(any()) }
+        verify(exactly = 0) { GLES20.glEnable(GLES20.GL_DEPTH_TEST) }
+        verify(exactly = 0) { GLES20.glUseProgram(any()) }
+    }
+
+    @Test
+    fun setupGL_whenLinkProgramError_executesExpectedSteps() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        every { GLES20.glGetShaderiv(any(), GLES20.GL_COMPILE_STATUS, any()) }
+            .answers {
+                val buffer = invocation.args[2] as IntBuffer
+                val array = buffer.array()
+                array[0] = GLES20.GL_TRUE
+            }
+        every { GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER) }.returns(2)
+        every { GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER) }.returns(3)
+        every { GLES20.glCreateProgram() }.returns(1)
+
+        val result: Boolean? = renderer.callPrivateFuncWithResult("setupGL")
+        requireNotNull(result)
+        assertFalse(result)
+
+        verify(exactly = 1) { GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER) }
+        verify(exactly = 1) { GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER) }
+        verify(exactly = 2) { GLES20.glShaderSource(any(), any()) }
+        verify(exactly = 2) { GLES20.glCompileShader(any()) }
+        verify(exactly = 2) { GLES20.glGetShaderiv(any(), GLES20.GL_COMPILE_STATUS, any()) }
+        verify(exactly = 1) { GLES20.glCreateProgram() }
+        verify(exactly = 1) { GLES20.glAttachShader(1, 2) }
+        verify(exactly = 1) { GLES20.glAttachShader(1, 3) }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(1, 0, "aPosition") }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(1, 1, "aNormal") }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(1, 2, "aColor3") }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(1, 3, "aColor4") }
+        verify(exactly = 1) { GLES20.glLinkProgram(1) }
+        verify(exactly = 1) { GLES20.glGetProgramiv(1, GLES20.GL_LINK_STATUS, any()) }
+        verify(exactly = 1) { GLES20.glDeleteShader(2) }
+        verify(exactly = 1) { GLES20.glDeleteShader(3) }
+        verify(exactly = 1) { GLES20.glDeleteProgram(1) }
+        verify(exactly = 0) { GLES20.glEnable(GLES20.GL_DEPTH_TEST) }
+        verify(exactly = 0) { GLES20.glUseProgram(any()) }
+    }
+
+    @Test
+    fun setupGL_whenNoError_executesExpectedSteps() {
+        mockkStatic(GLES20::class)
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        every { GLES20.glGetShaderiv(any(), GLES20.GL_COMPILE_STATUS, any()) }
+            .answers {
+                val buffer = invocation.args[2] as IntBuffer
+                val array = buffer.array()
+                array[0] = GLES20.GL_TRUE
+            }
+        every { GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER) }.returns(2)
+        every { GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER) }.returns(3)
+        every { GLES20.glCreateProgram() }.returns(1)
+        every { GLES20.glGetProgramiv(1, GLES20.GL_LINK_STATUS, any()) }
+            .answers {
+                val buffer = invocation.args[2] as IntBuffer
+                val array = buffer.array()
+                array[0] = GLES20.GL_TRUE
+            }
+
+        val result: Boolean? = renderer.callPrivateFuncWithResult("setupGL")
+        requireNotNull(result)
+        assertTrue(result)
+
+        verify(exactly = 1) { GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER) }
+        verify(exactly = 1) { GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER) }
+        verify(exactly = 2) { GLES20.glShaderSource(any(), any()) }
+        verify(exactly = 2) { GLES20.glCompileShader(any()) }
+        verify(exactly = 2) { GLES20.glGetShaderiv(any(), GLES20.GL_COMPILE_STATUS, any()) }
+        verify(exactly = 1) { GLES20.glCreateProgram() }
+        verify(exactly = 1) { GLES20.glAttachShader(1, 2) }
+        verify(exactly = 1) { GLES20.glAttachShader(1, 3) }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(1, 0, "aPosition") }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(1, 1, "aNormal") }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(1, 2, "aColor3") }
+        verify(exactly = 1) { GLES20.glBindAttribLocation(1, 3, "aColor4") }
+        verify(exactly = 1) { GLES20.glLinkProgram(1) }
+        verify(exactly = 1) { GLES20.glGetProgramiv(1, GLES20.GL_LINK_STATUS, any()) }
+        verify(exactly = 0) { GLES20.glDeleteShader(2) }
+        verify(exactly = 0) { GLES20.glDeleteShader(3) }
+        verify(exactly = 0) { GLES20.glDeleteProgram(1) }
+        verify(exactly = 1) { GLES20.glGetUniformLocation(1, "uModelViewProjectionMatrix") }
+        verify(exactly = 1) { GLES20.glGetUniformLocation(1, "uNormalMatrix") }
+        verify(exactly = 1) { GLES20.glGetUniformLocation(1, "uHasNormals") }
+        verify(exactly = 1) { GLES20.glGetUniformLocation(1, "uHasColors") }
+        verify(exactly = 1) { GLES20.glGetUniformLocation(1, "uDiffuseColor") }
+        verify(exactly = 1) { GLES20.glGetUniformLocation(1, "uOverallAlpha") }
+        verify(exactly = 1) { GLES20.glEnable(GLES20.GL_DEPTH_TEST) }
+        verify(exactly = 1) { GLES20.glUseProgram(1) }
+        verify(exactly = 1) { GLES20.glGetAttribLocation(1, "aPosition") }
+        verify(exactly = 1) { GLES20.glGetAttribLocation(1, "aNormal") }
+        verify(exactly = 1) { GLES20.glGetAttribLocation(1, "aColor3") }
+        verify(exactly = 1) { GLES20.glGetAttribLocation(1, "aColor4") }
     }
 
     private companion object {
