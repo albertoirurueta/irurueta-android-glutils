@@ -548,6 +548,43 @@ class CubeRendererTest {
         )
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun setCubeColors_whenInvalidSize_throwsIllegalArgumentException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        renderer.setCubeColors(*IntArray(1))
+    }
+
+    @Test
+    fun setCubeColors_setsExpectedValues() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val renderer = CubeRenderer(context)
+
+        // check default values
+        assertEquals(Color.rgb(0, 255, 0), renderer.color1)
+        assertEquals(Color.rgb(255, 127, 0), renderer.color2)
+        assertEquals(Color.rgb(255, 0, 0), renderer.color3)
+        assertEquals(Color.rgb(255, 127, 0), renderer.color4)
+        assertEquals(Color.rgb(255, 255, 0), renderer.color5)
+        assertEquals(Color.rgb(0, 0, 255), renderer.color6)
+        assertEquals(Color.rgb(0, 127, 255), renderer.color7)
+        assertEquals(Color.rgb(255, 0, 255), renderer.color8)
+
+        // set new values
+        renderer.setCubeColors(1, 2, 3, 4, 5, 6, 7, 8)
+
+        // check
+        assertEquals(1, renderer.color1)
+        assertEquals(2, renderer.color2)
+        assertEquals(3, renderer.color3)
+        assertEquals(4, renderer.color4)
+        assertEquals(5, renderer.color5)
+        assertEquals(6, renderer.color6)
+        assertEquals(7, renderer.color7)
+        assertEquals(8, renderer.color8)
+    }
+
     @Test(expected = IllegalStateException::class)
     fun orientation_whenNotInitialized_throwsIllegalStateException() {
         val context = ApplicationProvider.getApplicationContext<Context>()

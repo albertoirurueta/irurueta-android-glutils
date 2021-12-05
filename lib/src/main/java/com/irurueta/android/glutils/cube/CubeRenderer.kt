@@ -182,6 +182,52 @@ class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
         Matrix.identity(Rotation3D.INHOM_COORDS, Rotation3D.INHOM_COORDS)
 
     /**
+     * Color of 1st vertex.
+     */
+    private var _color1 = DEFAULT_COLOR_1
+
+    /**
+     * Color of 2nd vertex.
+     */
+    private var _color2 = DEFAULT_COLOR_2
+
+    /**
+     * Color of 3rd vertex.
+     */
+    private var _color3 = DEFAULT_COLOR_3
+
+    /**
+     * Color of 4th vertex.
+     */
+    private var _color4 = DEFAULT_COLOR_4
+
+    /**
+     * Color of 5th vertex.
+     */
+    private var _color5 = DEFAULT_COLOR_5
+
+    /**
+     * Color of 6th vertex.
+     */
+    private var _color6 = DEFAULT_COLOR_6
+
+    /**
+     * Color of 7th vertex.
+     */
+    private var _color7 = DEFAULT_COLOR_7
+
+    /**
+     * Color of 8th vertex.
+     */
+    private var _color8 = DEFAULT_COLOR_8
+
+    /**
+     * Colors of cube vertices.
+     */
+    private var cubeColors =
+        intArrayOf(_color1, _color2, _color3, _color4, _color5, _color6, _color7, _color8)
+
+    /**
      * Diffuse color to be used for lighting purposes.
      */
     var diffuseColor = DEFAULT_DIFFUSE_COLOR
@@ -189,80 +235,99 @@ class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
     /**
      * Color of 1st vertex.
      */
-    var color1 = DEFAULT_COLOR_1
+    var color1
+        get() = _color1
         set(value) {
-            field = value
+            _color1 = value
             updateCubeColors()
         }
 
     /**
      * Color of 2nd vertex.
      */
-    var color2 = DEFAULT_COLOR_2
+    var color2
+        get() = _color2
         set(value) {
-            field = value
+            _color2 = value
             updateCubeColors()
         }
 
     /**
      * Color of 3rd vertex.
      */
-    var color3 = DEFAULT_COLOR_3
+    var color3
+        get() = _color3
         set(value) {
-            field = value
+            _color3 = value
             updateCubeColors()
         }
 
     /**
      * Color of 4th vertex.
      */
-    var color4 = DEFAULT_COLOR_4
+    var color4
+        get() = _color4
         set(value) {
-            field = value
+            _color4 = value
             updateCubeColors()
         }
 
     /**
      * Color of 5th vertex.
      */
-    var color5 = DEFAULT_COLOR_5
+    var color5
+        get() = _color5
         set(value) {
-            field = value
+            _color5 = value
             updateCubeColors()
         }
 
     /**
      * Color of 6th vertex.
      */
-    var color6 = DEFAULT_COLOR_6
+    var color6
+        get() = _color6
         set(value) {
-            field = value
+            _color6 = value
             updateCubeColors()
         }
 
     /**
      * Color of 7th vertex.
      */
-    var color7 = DEFAULT_COLOR_7
+    var color7
+        get() = _color7
         set(value) {
-            field = value
+            _color7 = value
             updateCubeColors()
         }
 
     /**
      * Color of 8th vertex.
      */
-    var color8 = DEFAULT_COLOR_8
+    var color8
+        get() = _color8
         set(value) {
-            field = value
+            _color8 = value
             updateCubeColors()
         }
 
     /**
-     * Colors of cube vertices.
+     * Sets colors of cube vertices.
      */
-    private var cubeColors =
-        intArrayOf(color1, color2, color3, color4, color5, color6, color7, color8)
+    fun setCubeColors(vararg cubeColors: Int) {
+        require(cubeColors.size == this.cubeColors.size)
+
+        _color1 = cubeColors[0]
+        _color2 = cubeColors[1]
+        _color3 = cubeColors[2]
+        _color4 = cubeColors[3]
+        _color5 = cubeColors[4]
+        _color6 = cubeColors[5]
+        _color7 = cubeColors[6]
+        _color8 = cubeColors[7]
+        updateCubeColors()
+    }
 
     /**
      * Gets or sets orientation to compute a pinhole camera expressed in view coordinates.
@@ -603,7 +668,7 @@ class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
         //set rotation on model view matrix
         cubeRotation.asInhomogeneousMatrix(cubeRotationMatrix)
 
-        val rotationBuffer = cubeRotationMatrix.getBuffer()
+        val rotationBuffer = cubeRotationMatrix.buffer
         modelViewMatrix[0] = rotationBuffer[0].toFloat()
         modelViewMatrix[1] = rotationBuffer[1].toFloat()
         modelViewMatrix[2] = rotationBuffer[2].toFloat()
@@ -624,7 +689,7 @@ class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
         android.opengl.Matrix.multiplyMM(
             modelViewProjectionMatrix, 0,
             cameraModelViewProjectionMatrix, 0, modelViewMatrix, 0
-        );
+        )
 
         // sets identity for normal matrix
         normalMatrix[0] = 1.0f
