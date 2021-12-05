@@ -208,7 +208,7 @@ class CameraConverterTest {
         assertArrayEquals(
             modelViewMatrix,
             converter.modelViewMatrix,
-            SMALL_ABSOLUTE_ERROR.toFloat()
+            5.0f * SMALL_ABSOLUTE_ERROR.toFloat()
         )
 
         assertSame(camera.intrinsicParameters, converter.cameraIntrinsicParameters)
