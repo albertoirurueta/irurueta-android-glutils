@@ -39,6 +39,7 @@ class CubeTextureView @JvmOverloads constructor(
     /**
      * Diffuse color to be used for lighting purposes.
      * Setter requests to render a frame.
+     * This is only taken into account if normals are used.
      */
     var diffuseColor
         get() = cubeRenderer.diffuseColor
@@ -46,102 +47,6 @@ class CubeTextureView @JvmOverloads constructor(
             cubeRenderer.diffuseColor = value
             requestRender()
         }
-
-    /**
-     * Color of 1st vertex.
-     * Setter requests to render a frame.
-     */
-    var color1
-        get() = cubeRenderer.color1
-        set(value) {
-            cubeRenderer.color1 = value
-            requestRender()
-        }
-
-    /**
-     * Color of 2nd vertex.
-     * Setter requests to render a frame.
-     */
-    var color2
-        get() = cubeRenderer.color2
-        set(value) {
-            cubeRenderer.color2 = value
-            requestRender()
-        }
-
-    /**
-     * Color of 3rd vertex.
-     * Setter requests to render a frame.
-     */
-    var color3
-        get() = cubeRenderer.color3
-        set(value) {
-            cubeRenderer.color3 = value
-            requestRender()
-        }
-
-    /**
-     * Color of 4th vertex.
-     * Setter requests to render a frame.
-     */
-    var color4
-        get() = cubeRenderer.color4
-        set(value) {
-            cubeRenderer.color4 = value
-            requestRender()
-        }
-
-    /**
-     * Color of 5th vertex.
-     * Setter requests to render a frame.
-     */
-    var color5
-        get() = cubeRenderer.color5
-        set(value) {
-            cubeRenderer.color5 = value
-            requestRender()
-        }
-
-    /**
-     * Color of 6th vertex.
-     * Setter requests to render a frame.
-     */
-    var color6
-        get() = cubeRenderer.color6
-        set(value) {
-            cubeRenderer.color6 = value
-            requestRender()
-        }
-
-    /**
-     * Color of 7th vertex.
-     * Setter requests to render a frame.
-     */
-    var color7
-        get() = cubeRenderer.color7
-        set(value) {
-            cubeRenderer.color7 = value
-            requestRender()
-        }
-
-    /**
-     * Color of 8th vertex.
-     * Setter requests to render a frame.
-     */
-    var color8
-        get() = cubeRenderer.color8
-        set(value) {
-            cubeRenderer.color8 = value
-            requestRender()
-        }
-
-    /**
-     * Sets colors of cube vertices.
-     */
-    fun setCubeColors(vararg cubeColors: Int) {
-        cubeRenderer.setCubeColors(*cubeColors)
-        requestRender()
-    }
 
     /**
      * Gets or sets orientation to compute a pinhole camera expressed in view coordinates.

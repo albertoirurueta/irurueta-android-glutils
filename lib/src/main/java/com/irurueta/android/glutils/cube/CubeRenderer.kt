@@ -182,152 +182,16 @@ class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
         Matrix.identity(Rotation3D.INHOM_COORDS, Rotation3D.INHOM_COORDS)
 
     /**
-     * Color of 1st vertex.
-     */
-    private var _color1 = DEFAULT_COLOR_1
-
-    /**
-     * Color of 2nd vertex.
-     */
-    private var _color2 = DEFAULT_COLOR_2
-
-    /**
-     * Color of 3rd vertex.
-     */
-    private var _color3 = DEFAULT_COLOR_3
-
-    /**
-     * Color of 4th vertex.
-     */
-    private var _color4 = DEFAULT_COLOR_4
-
-    /**
-     * Color of 5th vertex.
-     */
-    private var _color5 = DEFAULT_COLOR_5
-
-    /**
-     * Color of 6th vertex.
-     */
-    private var _color6 = DEFAULT_COLOR_6
-
-    /**
-     * Color of 7th vertex.
-     */
-    private var _color7 = DEFAULT_COLOR_7
-
-    /**
-     * Color of 8th vertex.
-     */
-    private var _color8 = DEFAULT_COLOR_8
-
-    /**
      * Colors of cube vertices.
      */
     private var cubeColors =
-        intArrayOf(_color1, _color2, _color3, _color4, _color5, _color6, _color7, _color8)
+        intArrayOf(COLOR_1, COLOR_2, COLOR_3, COLOR_4, COLOR_5, COLOR_6, COLOR_7, COLOR_8)
 
     /**
      * Diffuse color to be used for lighting purposes.
+     * This is only taken into account if normals are used.
      */
     var diffuseColor = DEFAULT_DIFFUSE_COLOR
-
-    /**
-     * Color of 1st vertex.
-     */
-    var color1
-        get() = _color1
-        set(value) {
-            _color1 = value
-            updateCubeColors()
-        }
-
-    /**
-     * Color of 2nd vertex.
-     */
-    var color2
-        get() = _color2
-        set(value) {
-            _color2 = value
-            updateCubeColors()
-        }
-
-    /**
-     * Color of 3rd vertex.
-     */
-    var color3
-        get() = _color3
-        set(value) {
-            _color3 = value
-            updateCubeColors()
-        }
-
-    /**
-     * Color of 4th vertex.
-     */
-    var color4
-        get() = _color4
-        set(value) {
-            _color4 = value
-            updateCubeColors()
-        }
-
-    /**
-     * Color of 5th vertex.
-     */
-    var color5
-        get() = _color5
-        set(value) {
-            _color5 = value
-            updateCubeColors()
-        }
-
-    /**
-     * Color of 6th vertex.
-     */
-    var color6
-        get() = _color6
-        set(value) {
-            _color6 = value
-            updateCubeColors()
-        }
-
-    /**
-     * Color of 7th vertex.
-     */
-    var color7
-        get() = _color7
-        set(value) {
-            _color7 = value
-            updateCubeColors()
-        }
-
-    /**
-     * Color of 8th vertex.
-     */
-    var color8
-        get() = _color8
-        set(value) {
-            _color8 = value
-            updateCubeColors()
-        }
-
-    /**
-     * Sets colors of cube vertices.
-     */
-    fun setCubeColors(vararg cubeColors: Int) {
-        require(cubeColors.size == this.cubeColors.size)
-
-        _color1 = cubeColors[0]
-        _color2 = cubeColors[1]
-        _color3 = cubeColors[2]
-        _color4 = cubeColors[3]
-        _color5 = cubeColors[4]
-        _color6 = cubeColors[5]
-        _color7 = cubeColors[6]
-        _color8 = cubeColors[7]
-        updateCubeColors()
-    }
 
     /**
      * Gets or sets orientation to compute a pinhole camera expressed in view coordinates.
@@ -623,12 +487,7 @@ class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
             return
         }
 
-        val clearRed = colorComponentAsFloat(clearColor.red)
-        val clearGreen = colorComponentAsFloat(clearColor.green)
-        val clearBlue = colorComponentAsFloat(clearColor.blue)
-        val clearAlpha = colorComponentAsFloat(clearColor.alpha)
-        GLES20.glClearColor(clearRed, clearGreen, clearBlue, clearAlpha)
-
+        updateClearColor()
         setupGL()
     }
 
@@ -702,6 +561,9 @@ class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
         normalMatrix[6] = 0.0f
         normalMatrix[7] = 0.0f
 
+        // set clear color
+        updateClearColor()
+
         // clear
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
 
@@ -720,6 +582,7 @@ class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
         GLES20.glUniform1i(uniforms[UNIFORM_HAS_NORMALS], hasNormals)
         GLES20.glUniform1i(uniforms[UNIFORM_HAS_COLORS], hasColors)
 
+        // diffuse color is only taken into account if normals are being used
         val diffuseRed = colorComponentAsFloat(diffuseColor.red)
         val diffuseGreen = colorComponentAsFloat(diffuseColor.green)
         val diffuseBlue = colorComponentAsFloat(diffuseColor.blue)
@@ -783,6 +646,17 @@ class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
         GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, vertexIndicesBufferId)
 
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, cubeIndices.size, GLES20.GL_UNSIGNED_SHORT, 0)
+    }
+
+    /**
+     * Updates clear color.
+     */
+    private fun updateClearColor() {
+        val clearRed = colorComponentAsFloat(clearColor.red)
+        val clearGreen = colorComponentAsFloat(clearColor.green)
+        val clearBlue = colorComponentAsFloat(clearColor.blue)
+        val clearAlpha = colorComponentAsFloat(clearColor.alpha)
+        GLES20.glClearColor(clearRed, clearGreen, clearBlue, clearAlpha)
     }
 
     /**
@@ -1035,20 +909,6 @@ class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
         }
     }
 
-    /**
-     * Updates cube colors.
-     */
-    private fun updateCubeColors() {
-        cubeColors[0] = color1
-        cubeColors[1] = color2
-        cubeColors[2] = color3
-        cubeColors[3] = color4
-        cubeColors[4] = color5
-        cubeColors[5] = color6
-        cubeColors[6] = color7
-        cubeColors[7] = color8
-    }
-
     companion object {
         /**
          * Cube size.
@@ -1101,44 +961,44 @@ class CubeRenderer(val context: Context) : GLSurfaceView.Renderer {
         private val DEFAULT_DIFFUSE_COLOR = Color.rgb(127, 127, 127)
 
         /**
-         * Default color for 1st vertex of cube.
+         * Color for 1st vertex of cube.
          */
-        private val DEFAULT_COLOR_1 = Color.rgb(0, 255, 0)
+        private val COLOR_1 = Color.rgb(0, 255, 0)
 
         /**
-         * Default color for 2nd vertex of cube.
+         * Color for 2nd vertex of cube.
          */
-        private val DEFAULT_COLOR_2 = Color.rgb(255, 127, 0)
+        private val COLOR_2 = Color.rgb(255, 127, 0)
 
         /**
-         * Default color for 3rd vertex of cube.
+         * Color for 3rd vertex of cube.
          */
-        private val DEFAULT_COLOR_3 = Color.rgb(255, 0, 0)
+        private val COLOR_3 = Color.rgb(255, 0, 0)
 
         /**
-         * Default color for 4th vertex of cube.
+         * Color for 4th vertex of cube.
          */
-        private val DEFAULT_COLOR_4 = Color.rgb(255, 127, 0)
+        private val COLOR_4 = Color.rgb(255, 127, 0)
 
         /**
-         * Default color for 5th vertex of cube.
+         * Color for 5th vertex of cube.
          */
-        private val DEFAULT_COLOR_5 = Color.rgb(255, 255, 0)
+        private val COLOR_5 = Color.rgb(255, 255, 0)
 
         /**
-         * Default color for 6th vertex of cube.
+         * Color for 6th vertex of cube.
          */
-        private val DEFAULT_COLOR_6 = Color.rgb(0, 0, 255)
+        private val COLOR_6 = Color.rgb(0, 0, 255)
 
         /**
-         * Default color for 7th vertex of cube.
+         * Color for 7th vertex of cube.
          */
-        private val DEFAULT_COLOR_7 = Color.rgb(0, 127, 255)
+        private val COLOR_7 = Color.rgb(0, 127, 255)
 
         /**
-         * Default color for 8th vertex of cube.
+         * Color for 8th vertex of cube.
          */
-        private val DEFAULT_COLOR_8 = Color.rgb(255, 0, 255)
+        private val COLOR_8 = Color.rgb(255, 0, 255)
 
         /**
          * Position where model view projection matrix id is stored in the array of uniform

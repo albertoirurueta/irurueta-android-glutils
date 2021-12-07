@@ -12,5 +12,7 @@
             android:label="CurlTextureView" />
         <activity android:name="com.irurueta.android.glutils.test.CurlGLSurfaceViewActivity"
             android:label="CurlGLSurfaceView" />
+        <activity android:name="com.irurueta.android.glutils.test.CubeTextureViewActivity"
+            android:label="CubeTextureView" />
     </application>
 </manifest>

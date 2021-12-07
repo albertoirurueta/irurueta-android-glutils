@@ -122,27 +122,19 @@ class CubeRendererTest {
         assertEquals(cubeRotationMatrix, Matrix.identity(3, 3))
 
         assertEquals(Color.rgb(127, 127, 127), renderer.diffuseColor)
-        assertEquals(Color.rgb(0, 255, 0), renderer.color1)
-        assertEquals(Color.rgb(255, 127, 0), renderer.color2)
-        assertEquals(Color.rgb(255, 0, 0), renderer.color3)
-        assertEquals(Color.rgb(255, 127, 0), renderer.color4)
-        assertEquals(Color.rgb(255, 255, 0), renderer.color5)
-        assertEquals(Color.rgb(0, 0, 255), renderer.color6)
-        assertEquals(Color.rgb(0, 127, 255), renderer.color7)
-        assertEquals(Color.rgb(255, 0, 255), renderer.color8)
         val cubeColors: IntArray? = renderer.getPrivateProperty("cubeColors")
         requireNotNull(cubeColors)
         assertTrue(
             cubeColors.contentEquals(
                 intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
+                    Color.rgb(0, 255, 0),
+                    Color.rgb(255, 127, 0),
+                    Color.rgb(255, 0, 0),
+                    Color.rgb(255, 127, 0),
+                    Color.rgb(255, 255, 0),
+                    Color.rgb(0, 0, 255),
+                    Color.rgb(0, 127, 255),
+                    Color.rgb(255, 0, 255)
                 )
             )
         )
@@ -186,403 +178,6 @@ class CubeRendererTest {
 
         // check
         assertEquals(Color.RED, renderer.diffuseColor)
-    }
-
-    @Test
-    fun color1_getOrSetsExpectedValue() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val renderer = CubeRenderer(context)
-
-        // check default value
-        assertEquals(Color.rgb(0, 255, 0), renderer.color1)
-        val cubeColors: IntArray? = renderer.getPrivateProperty("cubeColors")
-        requireNotNull(cubeColors)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-
-        // set new value
-        renderer.color1 = Color.BLACK
-
-        // check
-        assertEquals(Color.BLACK, renderer.color1)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    Color.BLACK,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-    }
-
-    @Test
-    fun color2_getOrSetsExpectedValue() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val renderer = CubeRenderer(context)
-
-        // check default value
-        assertEquals(Color.rgb(255, 127, 0), renderer.color2)
-        val cubeColors: IntArray? = renderer.getPrivateProperty("cubeColors")
-        requireNotNull(cubeColors)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-
-        // set new value
-        renderer.color2 = Color.BLACK
-
-        // check
-        assertEquals(Color.BLACK, renderer.color2)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    Color.BLACK,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-    }
-
-    @Test
-    fun color3_getOrSetsExpectedValue() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val renderer = CubeRenderer(context)
-
-        // check default value
-        assertEquals(Color.rgb(255, 0, 0), renderer.color3)
-        val cubeColors: IntArray? = renderer.getPrivateProperty("cubeColors")
-        requireNotNull(cubeColors)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-
-        // set new value
-        renderer.color3 = Color.BLACK
-
-        // check
-        assertEquals(Color.BLACK, renderer.color3)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    Color.BLACK,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-    }
-
-    @Test
-    fun color4_getOrSetsExpectedValue() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val renderer = CubeRenderer(context)
-
-        // check default value
-        assertEquals(Color.rgb(255, 127, 0), renderer.color4)
-        val cubeColors: IntArray? = renderer.getPrivateProperty("cubeColors")
-        requireNotNull(cubeColors)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-
-        // set new value
-        renderer.color4 = Color.BLACK
-
-        // check
-        assertEquals(Color.BLACK, renderer.color4)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    Color.BLACK,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-    }
-
-    @Test
-    fun color5_getOrSetsExpectedValue() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val renderer = CubeRenderer(context)
-
-        // check default value
-        assertEquals(Color.rgb(255, 255, 0), renderer.color5)
-        val cubeColors: IntArray? = renderer.getPrivateProperty("cubeColors")
-        requireNotNull(cubeColors)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-
-        // set new value
-        renderer.color5 = Color.BLACK
-
-        // check
-        assertEquals(Color.BLACK, renderer.color5)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    Color.BLACK,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-    }
-
-    @Test
-    fun color6_getOrSetsExpectedValue() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val renderer = CubeRenderer(context)
-
-        // check default value
-        assertEquals(Color.rgb(0, 0, 255), renderer.color6)
-        val cubeColors: IntArray? = renderer.getPrivateProperty("cubeColors")
-        requireNotNull(cubeColors)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-
-        // set new value
-        renderer.color6 = Color.BLACK
-
-        // check
-        assertEquals(Color.BLACK, renderer.color6)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    Color.BLACK,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-    }
-
-    @Test
-    fun color7_getOrSetsExpectedValue() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val renderer = CubeRenderer(context)
-
-        // check default value
-        assertEquals(Color.rgb(0, 127, 255), renderer.color7)
-        val cubeColors: IntArray? = renderer.getPrivateProperty("cubeColors")
-        requireNotNull(cubeColors)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-
-        // set new value
-        renderer.color7 = Color.BLACK
-
-        // check
-        assertEquals(Color.BLACK, renderer.color7)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    Color.BLACK,
-                    renderer.color8
-                )
-            )
-        )
-    }
-
-    @Test
-    fun color8_getOrSetsExpectedValue() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val renderer = CubeRenderer(context)
-
-        // check default value
-        assertEquals(Color.rgb(255, 0, 255), renderer.color8)
-        val cubeColors: IntArray? = renderer.getPrivateProperty("cubeColors")
-        requireNotNull(cubeColors)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    renderer.color8
-                )
-            )
-        )
-
-        // set new value
-        renderer.color8 = Color.BLACK
-
-        // check
-        assertEquals(Color.BLACK, renderer.color8)
-        assertTrue(
-            cubeColors.contentEquals(
-                intArrayOf(
-                    renderer.color1,
-                    renderer.color2,
-                    renderer.color3,
-                    renderer.color4,
-                    renderer.color5,
-                    renderer.color6,
-                    renderer.color7,
-                    Color.BLACK
-                )
-            )
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun setCubeColors_whenInvalidSize_throwsIllegalArgumentException() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val renderer = CubeRenderer(context)
-
-        renderer.setCubeColors(*IntArray(1))
-    }
-
-    @Test
-    fun setCubeColors_setsExpectedValues() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val renderer = CubeRenderer(context)
-
-        // check default values
-        assertEquals(Color.rgb(0, 255, 0), renderer.color1)
-        assertEquals(Color.rgb(255, 127, 0), renderer.color2)
-        assertEquals(Color.rgb(255, 0, 0), renderer.color3)
-        assertEquals(Color.rgb(255, 127, 0), renderer.color4)
-        assertEquals(Color.rgb(255, 255, 0), renderer.color5)
-        assertEquals(Color.rgb(0, 0, 255), renderer.color6)
-        assertEquals(Color.rgb(0, 127, 255), renderer.color7)
-        assertEquals(Color.rgb(255, 0, 255), renderer.color8)
-
-        // set new values
-        renderer.setCubeColors(1, 2, 3, 4, 5, 6, 7, 8)
-
-        // check
-        assertEquals(1, renderer.color1)
-        assertEquals(2, renderer.color2)
-        assertEquals(3, renderer.color3)
-        assertEquals(4, renderer.color4)
-        assertEquals(5, renderer.color5)
-        assertEquals(6, renderer.color6)
-        assertEquals(7, renderer.color7)
-        assertEquals(8, renderer.color8)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -1788,7 +1383,7 @@ class CubeRendererTest {
         val config = mockk<EGLConfig>()
         renderer.onSurfaceCreated(gl, config)
 
-        verify { GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f) }
+        verify(exactly = 1) { GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f) }
     }
 
     @Test
@@ -1823,6 +1418,7 @@ class CubeRendererTest {
         val gl = mockk<GL10>()
         renderer.onDrawFrame(gl)
 
+        verify(exactly = 0) { GLES20.glClearColor(any(), any(), any(), any()) }
         verify(exactly = 0) { GLES20.glClear(any()) }
     }
 
@@ -1839,6 +1435,7 @@ class CubeRendererTest {
 
         renderer.onDrawFrame(gl)
 
+        verify(exactly = 0) { GLES20.glClearColor(any(), any(), any(), any()) }
         verify(exactly = 0) { GLES20.glClear(any()) }
     }
 
@@ -1858,6 +1455,7 @@ class CubeRendererTest {
 
         renderer.onDrawFrame(gl)
 
+        verify(exactly = 1) { GLES20.glClearColor(any(), any(), any(), any()) }
         verify(exactly = 1) { GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT) }
         verify(exactly = 1) { GLES20.glUseProgram(any()) }
         verify(exactly = 1) { GLES20.glUniformMatrix4fv(any(), 1, false, any(), 0) }
@@ -1917,6 +1515,7 @@ class CubeRendererTest {
 
         renderer.onDrawFrame(gl)
 
+        verify(exactly = 1) { GLES20.glClearColor(any(), any(), any(), any()) }
         verify(exactly = 1) { GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT) }
         verify(exactly = 1) { GLES20.glUseProgram(any()) }
         verify(exactly = 1) { GLES20.glUniformMatrix4fv(any(), 1, false, any(), 0) }
@@ -1976,6 +1575,7 @@ class CubeRendererTest {
 
         renderer.onDrawFrame(gl)
 
+        verify(exactly = 1) { GLES20.glClearColor(any(), any(), any(), any()) }
         verify(exactly = 1) { GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT) }
         verify(exactly = 1) { GLES20.glUseProgram(any()) }
         verify(exactly = 1) { GLES20.glUniformMatrix4fv(any(), 1, false, any(), 0) }
@@ -2035,6 +1635,7 @@ class CubeRendererTest {
 
         renderer.onDrawFrame(gl)
 
+        verify(exactly = 1) { GLES20.glClearColor(any(), any(), any(), any()) }
         verify(exactly = 1) { GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT) }
         verify(exactly = 1) { GLES20.glUseProgram(any()) }
         verify(exactly = 1) { GLES20.glUniformMatrix4fv(any(), 1, false, any(), 0) }
