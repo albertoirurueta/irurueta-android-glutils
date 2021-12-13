@@ -21,3 +21,22 @@ OpenGL utilities for Android
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.irurueta/irurueta-android-glutils/badge.svg)](https://search.maven.org/artifact/com.irurueta/irurueta-android-glutils/1.0.0/aar)
 
 [API Documentation](http://albertoirurueta.github.io/irurueta-android-glutils)
+
+## Overview
+
+This library contains:
+
+- GLTextureView: a view to to draw OpenGL scenes within a texture. Contrary to GLSurfaceView,
+    GLTextureView belongs to the normal view hierarchy, allowing the view to be subject to common 
+  view animations and effects such as background transparency for view composition.   
+  GLTextureView can be extender or composed into other views. Any renderer compatible with 
+  GLSurfaceView is also compatible with GLTextureView.
+- Pinhole camera and camera matrices utilities.
+
+## Usage
+
+Add the following dependency to your project:
+
+```
+implementation 'com.irurueta:irurueta-android-glutils:1.0.0'
+```
