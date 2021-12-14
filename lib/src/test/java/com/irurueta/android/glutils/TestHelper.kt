@@ -7,16 +7,6 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 
-@Suppress("UNCHECKED_CAST")
-inline fun <reified T : Any, R> T.callPrivateFuncWithResult(name: String, vararg args: Any?): R? =
-    callPrivateFunc(name, *args) as? R
-
-@Suppress("UNCHECKED_CAST")
-inline fun <reified T : Any, R> T.callPrivateStaticFuncWithResult(
-    name: String,
-    vararg args: Any?
-): R? = callPrivateStaticFunc(name, *args) as? R
-
 inline fun <reified T : Any> T.callPrivateFunc(name: String, vararg args: Any?): Any? =
     T::class.declaredMemberFunctions
         .firstOrNull { it.name == name }

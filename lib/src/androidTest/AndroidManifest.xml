@@ -7,12 +7,5 @@
         android:icon="@mipmap/ic_launcher_test"
         android:label="gesture bitmap test">
 
-        <activity
-            android:name="com.irurueta.android.glutils.test.CurlTextureViewActivity"
-            android:label="CurlTextureView" />
-        <activity android:name="com.irurueta.android.glutils.test.CurlGLSurfaceViewActivity"
-            android:label="CurlGLSurfaceView" />
-        <activity android:name="com.irurueta.android.glutils.test.CubeTextureViewActivity"
-            android:label="CubeTextureView" />
     </application>
 </manifest>
