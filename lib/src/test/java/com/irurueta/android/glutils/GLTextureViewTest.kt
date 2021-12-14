@@ -7,6 +7,7 @@ import android.view.TextureView
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
 import io.mockk.*
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -30,6 +31,11 @@ class GLTextureViewTest {
     @Before
     fun setUp() {
         threadFailures = 0
+    }
+
+    @After
+    fun afterTest() {
+        unmockkAll()
     }
 
     @Test
@@ -4041,7 +4047,8 @@ class GLTextureViewTest {
         val tryAcquireEglContextLockedMethod =
             glThreadManagerClass.getDeclaredMethod("tryAcquireEglContextLocked", glThreadClass)
         lock.withLock {
-            val result = tryAcquireEglContextLockedMethod.invoke(glThreadManager, glThread) as Boolean
+            val result =
+                tryAcquireEglContextLockedMethod.invoke(glThreadManager, glThread) as Boolean
             assertTrue(result)
         }
     }
@@ -4088,7 +4095,8 @@ class GLTextureViewTest {
         val tryAcquireEglContextLockedMethod =
             glThreadManagerClass.getDeclaredMethod("tryAcquireEglContextLocked", glThreadClass)
         lock.withLock {
-            val result = tryAcquireEglContextLockedMethod.invoke(glThreadManager, glThread) as Boolean
+            val result =
+                tryAcquireEglContextLockedMethod.invoke(glThreadManager, glThread) as Boolean
             assertTrue(result)
         }
     }
