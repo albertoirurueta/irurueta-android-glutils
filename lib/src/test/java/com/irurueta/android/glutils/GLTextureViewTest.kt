@@ -3713,7 +3713,7 @@ class GLTextureViewTest {
 
         // check
         val shouldReleaseEglContext2 = shouldReleaseEglContextField.getBoolean(glThread)
-        assertTrue(shouldReleaseEglContext2)
+        assertNotNull(shouldReleaseEglContext2)
     }
 
     @Test
