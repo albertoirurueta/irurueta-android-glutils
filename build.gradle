@@ -8,7 +8,7 @@ buildscript {
         core_ktx_version = '1.7.0'
         appcompat_version = '1.4.0'
         material_version = '1.4.0'
-        constraintlayout_version = '2.1.1'
+        constraintlayout_version = '2.1.2'
         khronos_version = 'gl1.1-android-2.1_r1'
         test_core_ktx_version = '1.4.0'
         junit_version = '4.13.2'
