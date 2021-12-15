@@ -5,7 +5,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_test"
-        android:label="gesture bitmap test">
+        android:label="GL utils test">
 
     </application>
 </manifest>

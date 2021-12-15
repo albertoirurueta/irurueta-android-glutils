@@ -30,7 +30,7 @@ android {
         def gitBranch = System.getenv("GIT_BRANCH") as String ?: ""
         buildConfigField("String", "GIT_BRANCH", '"' + gitBranch + '"')
 
-        def apkPrefixLabels = ['gesturebitmap', versionName, buildNumber]
+        def apkPrefixLabels = ['glutils', versionName, buildNumber]
         archivesBaseName = apkPrefixLabels.findAll { it != "" }.join('-')
     }
 

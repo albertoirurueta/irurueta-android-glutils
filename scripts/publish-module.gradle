@@ -44,7 +44,7 @@ afterEvaluate {
                 // Mostly self-explanatory metadata
                 pom {
                     name = PUBLISH_ARTIFACT_ID
-                    description = 'Gesture Bitmap View'
+                    description = 'GL utils'
                     url = 'https://github.com/albertoirurueta/irurueta-android-glutils'
                     licenses {
                         license {
