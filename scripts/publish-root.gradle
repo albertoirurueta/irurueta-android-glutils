@@ -33,6 +33,14 @@ nexusPublishing {
             // Add these lines if using new Sonatype infra
             //nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
             //snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+
+            clientTimeout.set(Duration.ofSeconds(1800))
+            connectTimeout.set(Duration.ofSeconds(1800))
+
+            transitionCheckOptions {
+                maxRetries.set(100)
+                delayBetween.set(Duration.ofSeconds(10))
+            }
         }
     }
 }
