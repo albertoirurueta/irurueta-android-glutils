@@ -12,7 +12,7 @@ android {
     defaultConfig {
         minSdk 21
         targetSdk 30
-        versionName "1.0.6"
+        versionName "1.0.7"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -105,7 +105,7 @@ sonarqube {
 ext {
     // Provide your own coordinates here
     PUBLISH_GROUP_ID = 'com.irurueta'
-    PUBLISH_VERSION = '1.0.6'
+    PUBLISH_VERSION = '1.0.7'
     PUBLISH_ARTIFACT_ID = 'irurueta-android-glutils'
 }
 
@@ -116,7 +116,7 @@ dependencies {
     implementation "androidx.core:core-ktx:$core_ktx_version"
     implementation "androidx.appcompat:appcompat:$appcompat_version"
     implementation "com.google.android.material:material:$material_version"
-    implementation("com.irurueta:irurueta-geometry:$irurueta_geometry")
+    api "com.irurueta:irurueta-geometry:$irurueta_geometry"
     testImplementation "org.khronos:opengl-api:$khronos_version"
     testImplementation "androidx.test:core-ktx:$test_core_ktx_version"
     testImplementation "junit:junit:$junit_version"
