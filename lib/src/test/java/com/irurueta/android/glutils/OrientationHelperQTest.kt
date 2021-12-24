@@ -7,13 +7,11 @@ import android.os.Build
 import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
-import com.irurueta.geometry.*
-import com.irurueta.statistics.UniformRandomizer
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -1413,73 +1411,5 @@ class OrientationHelperQTest {
 
     private companion object {
         const val CAMERA_ID = "1"
-
-        const val WIDTH = 480
-        const val HEIGHT = 640
-
-        const val MIN_ROTATION_ANGLE_DEGREES = -45.0
-        const val MAX_ROTATION_ANGLE_DEGREES = 45.0
-
-        const val MIN_POS = -50.0
-        const val MAX_POS = 50.0
-
-        const val SMALL_ABSOLUTE_ERROR = 1e-6
-
-        private fun createProjectionMatrix(): FloatArray {
-            // Pixel 2 device has the following projection matrix
-            // [2.8693345   0.0         -0.004545755        0.0         ]
-            // [0.0	        1.5806589   0.009158132         0.0         ]
-            // [0.0	        0.0         -1.002002           -0.2002002  ]
-            // [0.0         0.0         -1.0                0.0         ]
-
-            // android.opengl.Matrix defines values column-wise
-            return floatArrayOf(
-                2.8693345f, 0.0f, 0.0f, 0.0f,
-                0.0f, 1.5806589f, 0.0f, 0.0f,
-                -0.004545755f, 0.009158132f, -1.002002f, -1.0f,
-                0.0f, 0.0f, -0.2002002f, 0.0f
-            )
-        }
-
-        private fun createRotation(): Rotation3D {
-            val randomizer = UniformRandomizer()
-            val roll = Math.toRadians(
-                randomizer.nextDouble(
-                    MIN_ROTATION_ANGLE_DEGREES,
-                    MAX_ROTATION_ANGLE_DEGREES
-                )
-            )
-            val pitch = Math.toRadians(
-                randomizer.nextDouble(
-                    MIN_ROTATION_ANGLE_DEGREES,
-                    MAX_ROTATION_ANGLE_DEGREES
-                )
-            )
-            val yaw = Math.toRadians(
-                randomizer.nextDouble(
-                    MIN_ROTATION_ANGLE_DEGREES,
-                    MAX_ROTATION_ANGLE_DEGREES
-                )
-            )
-
-            return Quaternion(roll, pitch, yaw)
-        }
-
-        private fun createCenter(): Point3D {
-            val randomizer = UniformRandomizer()
-            val x = randomizer.nextDouble(
-                MIN_POS,
-                MAX_POS
-            )
-            val y = randomizer.nextDouble(
-                MIN_POS,
-                MAX_POS
-            )
-            val z = randomizer.nextDouble(
-                MIN_POS,
-                MAX_POS
-            )
-            return InhomogeneousPoint3D(x, y, z)
-        }
     }
 }
