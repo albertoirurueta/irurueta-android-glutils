@@ -1,0 +1,157 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>OpenGlToCameraHelper</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script><script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../../scripts/main.js" async="async"></script>  </head>
+  <body>
+    <div id="container">
+      <div id="leftColumn"><a href="../../../index.html">
+          <div id="logo"></div>
+        </a>
+        <div id="paneSearch"></div>
+        <div id="sideMenu"></div>
+      </div>
+      <div id="main">
+        <div id="leftToggler"><span class="icon-toggler"></span></div>
+<script type="text/javascript" src="../../../scripts/main.js"></script>        <div class="main-content" id="content" pageIds="lib::com.irurueta.android.glutils/OpenGlToCameraHelper///PointingToDeclaration//1946847589">
+          <div class="navigation-wrapper" id="navigation-wrapper">
+            <div class="breadcrumbs"><a href="../../../index.html">lib</a>/<a href="../index.html">com.irurueta.android.glutils</a>/<a href="index.html">OpenGlToCameraHelper</a></div>
+            <div class="pull-right d-flex">
+              <div id="searchBar"></div>
+            </div>
+          </div>
+          <div class="cover ">
+            <h1 class="cover"><span>Open</span><wbr></wbr><span>Gl</span><wbr></wbr><span>To</span><wbr></wbr><span>Camera</span><wbr></wbr><span><span>Helper</span></span></h1>
+            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">object <a href="index.html">OpenGlToCameraHelper</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">Helper class to convert matrices used by OpenGL to draw a scene into its corresponding pinhole camera.</p><p class="paragraph">Typically, when using OpenGL, a projective matrix defines the projective geometry (i.e. frustum) of the scene, using parameters such as field of view, near and far planes.</p><p class="paragraph">OpenGL typically also uses a model-view matrix, which defines the amount of translation and rotation between the camera and vertices to be drawn in the scene.</p><p class="paragraph">Using both a projective matrix and a model-view matrix, the corresponding pinhole camera can be estimated.</p><p class="paragraph">If a pinhole camera to convert to Android view coordinates (where y coordinates increase downwards), please use one of the methods provided in <a href="../-orientation-helper/index.html">OrientationHelper</a>.</p></div></div>
+          </div>
+          <div class="tabbedcontent">
+            <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+            <div class="tabs-section-body">
+              <h2 class="">Functions</h2>
+              <div class="table" data-togglable="Functions"><a data-name="-1893552336%2FFunctions%2F1946847589" anchor-label="computePinholeCamera" id="-1893552336%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-pinhole-camera.html"><span>compute</span><wbr></wbr><span>Pinhole</span><wbr></wbr><span><span>Camera</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1893552336%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-pinhole-camera.html">computePinholeCamera</a>(projectionMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>, modelViewMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, result: <span data-unresolved-link="com.irurueta.geometry/PinholeCamera///PointingToDeclaration/">PinholeCamera</span>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes pinhole camera from provided projection and model-view matrices.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="216666114%2FFunctions%2F1946847589" anchor-label="computePinholeCameraAndReturnNew" id="216666114%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-pinhole-camera-and-return-new.html"><span>compute</span><wbr></wbr><span>Pinhole</span><wbr></wbr><span>Camera</span><wbr></wbr><span>And</span><wbr></wbr><span>Return</span><wbr></wbr><span><span>New</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="216666114%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-pinhole-camera-and-return-new.html">computePinholeCameraAndReturnNew</a>(projectionMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>, modelViewMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>): <span data-unresolved-link="com.irurueta.geometry/PinholeCamera///PointingToDeclaration/">PinholeCamera</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes pinhole camera from provided projection and model-view matrices.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="1631983182%2FFunctions%2F1946847589" anchor-label="computePinholeCameraIntrinsics" id="1631983182%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-pinhole-camera-intrinsics.html"><span>compute</span><wbr></wbr><span>Pinhole</span><wbr></wbr><span>Camera</span><wbr></wbr><span><span>Intrinsics</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1631983182%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-pinhole-camera-intrinsics.html">computePinholeCameraIntrinsics</a>(projectionMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, result: <span data-unresolved-link="com.irurueta.geometry/PinholeCameraIntrinsicParameters///PointingToDeclaration/">PinholeCameraIntrinsicParameters</span>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes pinhole camera intrinsic parameters from provided projection matrix and viewport size.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-52071849%2FFunctions%2F1946847589" anchor-label="computePinholeCameraIntrinsicsAndReturnNew" id="-52071849%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-pinhole-camera-intrinsics-and-return-new.html"><span>compute</span><wbr></wbr><span>Pinhole</span><wbr></wbr><span>Camera</span><wbr></wbr><span>Intrinsics</span><wbr></wbr><span>And</span><wbr></wbr><span>Return</span><wbr></wbr><span><span>New</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-52071849%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-pinhole-camera-intrinsics-and-return-new.html">computePinholeCameraIntrinsicsAndReturnNew</a>(projectionMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>): <span data-unresolved-link="com.irurueta.geometry/PinholeCameraIntrinsicParameters///PointingToDeclaration/">PinholeCameraIntrinsicParameters</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes pinhole camera intrinsic parameters from provided projection matrix and viewport size.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="553092910%2FFunctions%2F1946847589" anchor-label="computePoseTransformation" id="553092910%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-pose-transformation.html"><span>compute</span><wbr></wbr><span>Pose</span><wbr></wbr><span><span>Transformation</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="553092910%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-pose-transformation.html">computePoseTransformation</a>(modelViewMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>, result: <span data-unresolved-link="com.irurueta.geometry/ProjectiveTransformation3D///PointingToDeclaration/">ProjectiveTransformation3D</span>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes transformation defining pose of a pinhole camera. Camera pose contains both camera rotation and center.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-408059053%2FFunctions%2F1946847589" anchor-label="computePoseTransformationAndReturnNew" id="-408059053%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-pose-transformation-and-return-new.html"><span>compute</span><wbr></wbr><span>Pose</span><wbr></wbr><span>Transformation</span><wbr></wbr><span>And</span><wbr></wbr><span>Return</span><wbr></wbr><span><span>New</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-408059053%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-pose-transformation-and-return-new.html">computePoseTransformationAndReturnNew</a>(modelViewMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>): <span data-unresolved-link="com.irurueta.geometry/ProjectiveTransformation3D///PointingToDeclaration/">ProjectiveTransformation3D</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes transformation defining pose of a pinhole camera. Camera pose contains both camera rotation and center.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h2 class="">Properties</h2>
+              <div class="table" data-togglable="Properties"><a data-name="-226662133%2FProperties%2F1946847589" anchor-label="MATRIX_LENGTH" id="-226662133%2FProperties%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="-m-a-t-r-i-x_-l-e-n-g-t-h.html">MATRIX_LENGTH</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-226662133%2FProperties%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><a data-name="-226662133%2FProperties%2F1946847589" anchor-label="MATRIX_LENGTH" id="-226662133%2FProperties%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a><div class="symbol monospace">const val <a href="-m-a-t-r-i-x_-l-e-n-g-t-h.html">MATRIX_LENGTH</a>: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a> = 16<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><a data-name="-226662133%2FProperties%2F1946847589" anchor-label="MATRIX_LENGTH" id="-226662133%2FProperties%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a><p class="paragraph">Length of arrays used to store values of 4x4 homogeneous matrices.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#content"></a></span><span>© 2021 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
+      </div>
+    </div>
+  </body>
+</html>
+
