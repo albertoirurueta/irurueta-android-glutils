@@ -1,0 +1,256 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>CameraToOpenGlHelper</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script><script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../../scripts/main.js" async="async"></script>  </head>
+  <body>
+    <div id="container">
+      <div id="leftColumn"><a href="../../../index.html">
+          <div id="logo"></div>
+        </a>
+        <div id="paneSearch"></div>
+        <div id="sideMenu"></div>
+      </div>
+      <div id="main">
+        <div id="leftToggler"><span class="icon-toggler"></span></div>
+<script type="text/javascript" src="../../../scripts/main.js"></script>        <div class="main-content" id="content" pageIds="lib::com.irurueta.android.glutils/CameraToOpenGlHelper///PointingToDeclaration//1946847589">
+          <div class="navigation-wrapper" id="navigation-wrapper">
+            <div class="breadcrumbs"><a href="../../../index.html">lib</a>/<a href="../index.html">com.irurueta.android.glutils</a>/<a href="index.html">CameraToOpenGlHelper</a></div>
+            <div class="pull-right d-flex">
+              <div id="searchBar"></div>
+            </div>
+          </div>
+          <div class="cover ">
+            <h1 class="cover"><span>Camera</span><wbr></wbr><span>To</span><wbr></wbr><span>Open</span><wbr></wbr><span>Gl</span><wbr></wbr><span><span>Helper</span></span></h1>
+            <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">object <a href="index.html">CameraToOpenGlHelper</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">Helper class to convert a pinhole camera into arrays used as matrices when drawing projective 3D scenes with OpenGL.</p><p class="paragraph">Typically, when using OpenGL, a projective matrix defines the projective geometry (i.e. frustum) of the scene, using parameters such as field of view, near and far planes. This kind of information is partially encoded in pinhole camera intrinsic parameters.</p><p class="paragraph">OpenGL typically also uses a model-view matrix, which defines the amount of translation and rotation between the camera and vertices to be drawn in the scene. This information is contained in a pinhole camera as its extrinsic parameters (i.e. rotation and camera center).</p><p class="paragraph">Finally, OpenGL uses the model-view projection matrix, which is the combination of both the projection and the model-view matrices to draw the scene.</p></div></div>
+          </div>
+          <div class="tabbedcontent">
+            <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+            <div class="tabs-section-body">
+              <h2 class="">Functions</h2>
+              <div class="table" data-togglable="Functions"><a data-name="717497951%2FFunctions%2F1946847589" anchor-label="centerFromCamera" id="717497951%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="center-from-camera.html"><span>center</span><wbr></wbr><span>From</span><wbr></wbr><span><span>Camera</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="717497951%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="center-from-camera.html">centerFromCamera</a>(camera: <span data-unresolved-link="com.irurueta.geometry/PinholeCamera///PointingToDeclaration/">PinholeCamera</span>): <span data-unresolved-link="com.irurueta.geometry/Point3D///PointingToDeclaration/">Point3D</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Obtains the camera center for provided pinhole camera.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="1725688808%2FFunctions%2F1946847589" anchor-label="computeModelViewMatrix" id="1725688808%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-model-view-matrix.html"><span>compute</span><wbr></wbr><span>Model</span><wbr></wbr><span>View</span><wbr></wbr><span><span>Matrix</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1725688808%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-model-view-matrix.html">computeModelViewMatrix</a>(camera: <span data-unresolved-link="com.irurueta.geometry/PinholeCamera///PointingToDeclaration/">PinholeCamera</span>, result: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes model-view matrix using provided pinhole camera.</p></div></div>
+<div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-model-view-matrix.html">computeModelViewMatrix</a>(rotationMatrix: <span data-unresolved-link="com.irurueta.algebra/Matrix///PointingToDeclaration/">Matrix</span>, cameraCenter: <span data-unresolved-link="com.irurueta.geometry/Point3D///PointingToDeclaration/">Point3D</span>, result: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="symbol monospace">fun <a href="compute-model-view-matrix.html">computeModelViewMatrix</a>(cameraRotation: <span data-unresolved-link="com.irurueta.geometry/Rotation3D///PointingToDeclaration/">Rotation3D</span>, cameraCenter: <span data-unresolved-link="com.irurueta.geometry/Point3D///PointingToDeclaration/">Point3D</span>, result: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes model-view matrix using provided camera rotation and center.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="2047408854%2FFunctions%2F1946847589" anchor-label="computeModelViewMatrixAndReturnNew" id="2047408854%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-model-view-matrix-and-return-new.html"><span>compute</span><wbr></wbr><span>Model</span><wbr></wbr><span>View</span><wbr></wbr><span>Matrix</span><wbr></wbr><span>And</span><wbr></wbr><span>Return</span><wbr></wbr><span><span>New</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2047408854%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-model-view-matrix-and-return-new.html">computeModelViewMatrixAndReturnNew</a>(camera: <span data-unresolved-link="com.irurueta.geometry/PinholeCamera///PointingToDeclaration/">PinholeCamera</span>): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes model-view matrix using provided pinhole camera.</p></div></div>
+<div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-model-view-matrix-and-return-new.html">computeModelViewMatrixAndReturnNew</a>(rotationMatrix: <span data-unresolved-link="com.irurueta.algebra/Matrix///PointingToDeclaration/">Matrix</span>, cameraCenter: <span data-unresolved-link="com.irurueta.geometry/Point3D///PointingToDeclaration/">Point3D</span>): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="symbol monospace">fun <a href="compute-model-view-matrix-and-return-new.html">computeModelViewMatrixAndReturnNew</a>(cameraRotation: <span data-unresolved-link="com.irurueta.geometry/Rotation3D///PointingToDeclaration/">Rotation3D</span>, cameraCenter: <span data-unresolved-link="com.irurueta.geometry/Point3D///PointingToDeclaration/">Point3D</span>): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes model-view matrix using provided camera rotation and center.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="649664481%2FFunctions%2F1946847589" anchor-label="computeModelViewProjectionMatrix" id="649664481%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-model-view-projection-matrix.html"><span>compute</span><wbr></wbr><span>Model</span><wbr></wbr><span>View</span><wbr></wbr><span>Projection</span><wbr></wbr><span><span>Matrix</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="649664481%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-model-view-projection-matrix.html">computeModelViewProjectionMatrix</a>(projectionMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>, modelViewMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>, result: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes model-view projection matrix using provided projection and model-view matrices.</p></div></div>
+<div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-model-view-projection-matrix.html">computeModelViewProjectionMatrix</a>(camera: <span data-unresolved-link="com.irurueta.geometry/PinholeCamera///PointingToDeclaration/">PinholeCamera</span>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, nearPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, farPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, result: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes model-view projection matrix using provided pinhole camera, viewport size expressed in pixels, near and far planes and field of view.</p></div></div>
+<div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-model-view-projection-matrix.html">computeModelViewProjectionMatrix</a>(intrinsicParameters: <span data-unresolved-link="com.irurueta.geometry/PinholeCameraIntrinsicParameters///PointingToDeclaration/">PinholeCameraIntrinsicParameters</span>, rotationMatrix: <span data-unresolved-link="com.irurueta.algebra/Matrix///PointingToDeclaration/">Matrix</span>, cameraCenter: <span data-unresolved-link="com.irurueta.geometry/Point3D///PointingToDeclaration/">Point3D</span>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, nearPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, farPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, result: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="symbol monospace">fun <a href="compute-model-view-projection-matrix.html">computeModelViewProjectionMatrix</a>(intrinsicParameters: <span data-unresolved-link="com.irurueta.geometry/PinholeCameraIntrinsicParameters///PointingToDeclaration/">PinholeCameraIntrinsicParameters</span>, cameraRotation: <span data-unresolved-link="com.irurueta.geometry/Rotation3D///PointingToDeclaration/">Rotation3D</span>, cameraCenter: <span data-unresolved-link="com.irurueta.geometry/Point3D///PointingToDeclaration/">Point3D</span>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, nearPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, farPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, result: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes model-view projection matrix using provided intrinsic pinhole camera parameters, viewport size expressed in pixels, near and far planes and field of view.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="309763343%2FFunctions%2F1946847589" anchor-label="computeModelViewProjectionMatrixAndReturnNew" id="309763343%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-model-view-projection-matrix-and-return-new.html"><span>compute</span><wbr></wbr><span>Model</span><wbr></wbr><span>View</span><wbr></wbr><span>Projection</span><wbr></wbr><span>Matrix</span><wbr></wbr><span>And</span><wbr></wbr><span>Return</span><wbr></wbr><span><span>New</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="309763343%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-model-view-projection-matrix-and-return-new.html">computeModelViewProjectionMatrixAndReturnNew</a>(projectionMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>, modelViewMatrix: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes model-view projection matrix using provided projection and model-view matrices.</p></div></div>
+<div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-model-view-projection-matrix-and-return-new.html">computeModelViewProjectionMatrixAndReturnNew</a>(camera: <span data-unresolved-link="com.irurueta.geometry/PinholeCamera///PointingToDeclaration/">PinholeCamera</span>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, nearPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, farPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes model-view projection matrix using provided pinhole camera, viewport size expressed in pixels, near and far planes and field of view.</p></div></div>
+<div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-model-view-projection-matrix-and-return-new.html">computeModelViewProjectionMatrixAndReturnNew</a>(intrinsicParameters: <span data-unresolved-link="com.irurueta.geometry/PinholeCameraIntrinsicParameters///PointingToDeclaration/">PinholeCameraIntrinsicParameters</span>, rotationMatrix: <span data-unresolved-link="com.irurueta.algebra/Matrix///PointingToDeclaration/">Matrix</span>, cameraCenter: <span data-unresolved-link="com.irurueta.geometry/Point3D///PointingToDeclaration/">Point3D</span>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, nearPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, farPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="symbol monospace">fun <a href="compute-model-view-projection-matrix-and-return-new.html">computeModelViewProjectionMatrixAndReturnNew</a>(intrinsicParameters: <span data-unresolved-link="com.irurueta.geometry/PinholeCameraIntrinsicParameters///PointingToDeclaration/">PinholeCameraIntrinsicParameters</span>, cameraRotation: <span data-unresolved-link="com.irurueta.geometry/Rotation3D///PointingToDeclaration/">Rotation3D</span>, cameraCenter: <span data-unresolved-link="com.irurueta.geometry/Point3D///PointingToDeclaration/">Point3D</span>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, nearPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, farPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes model-view projection matrix using provided intrinsic pinhole camera parameters, viewport size expressed in pixels, near and far planes and field of view.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-1603506279%2FFunctions%2F1946847589" anchor-label="computeProjectionMatrix" id="-1603506279%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-projection-matrix.html"><span>compute</span><wbr></wbr><span>Projection</span><wbr></wbr><span><span>Matrix</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1603506279%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-projection-matrix.html">computeProjectionMatrix</a>(camera: <span data-unresolved-link="com.irurueta.geometry/PinholeCamera///PointingToDeclaration/">PinholeCamera</span>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, nearPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, farPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, result: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes projection matrix using provided pinhole camera, viewport size expressed in pixels, near and far planes and field of view.</p></div></div>
+<div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-projection-matrix.html">computeProjectionMatrix</a>(intrinsicParameters: <span data-unresolved-link="com.irurueta.geometry/PinholeCameraIntrinsicParameters///PointingToDeclaration/">PinholeCameraIntrinsicParameters</span>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, nearPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, farPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, result: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a>)<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes projection matrix using provided intrinsic pinhole camera parameters, viewport size expressed in pixels, near and far planes and field of view.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="1437594311%2FFunctions%2F1946847589" anchor-label="computeProjectionMatrixAndReturnNew" id="1437594311%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="compute-projection-matrix-and-return-new.html"><span>compute</span><wbr></wbr><span>Projection</span><wbr></wbr><span>Matrix</span><wbr></wbr><span>And</span><wbr></wbr><span>Return</span><wbr></wbr><span><span>New</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1437594311%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-projection-matrix-and-return-new.html">computeProjectionMatrixAndReturnNew</a>(camera: <span data-unresolved-link="com.irurueta.geometry/PinholeCamera///PointingToDeclaration/">PinholeCamera</span>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, nearPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, farPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes projection matrix using provided pinhole camera, viewport size expressed in pixels, near and far planes and field of view.</p></div></div>
+<div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="compute-projection-matrix-and-return-new.html">computeProjectionMatrixAndReturnNew</a>(intrinsicParameters: <span data-unresolved-link="com.irurueta.geometry/PinholeCameraIntrinsicParameters///PointingToDeclaration/">PinholeCameraIntrinsicParameters</span>, width: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, height: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a>, nearPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>, farPlane: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float/index.html">Float</a>): <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html">FloatArray</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Computes projection matrix using provided intrinsic pinhole camera parameters, viewport size expressed in pixels, near and far planes and field of view.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-250726475%2FFunctions%2F1946847589" anchor-label="intrinsicParametersFromCamera" id="-250726475%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="intrinsic-parameters-from-camera.html"><span>intrinsic</span><wbr></wbr><span>Parameters</span><wbr></wbr><span>From</span><wbr></wbr><span><span>Camera</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-250726475%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="intrinsic-parameters-from-camera.html">intrinsicParametersFromCamera</a>(camera: <span data-unresolved-link="com.irurueta.geometry/PinholeCamera///PointingToDeclaration/">PinholeCamera</span>): <span data-unresolved-link="com.irurueta.geometry/PinholeCameraIntrinsicParameters///PointingToDeclaration/">PinholeCameraIntrinsicParameters</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Obtains the intrinsic parameters contained within provided pinhole camera.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+<a data-name="-591459768%2FFunctions%2F1946847589" anchor-label="rotationFromCamera" id="-591459768%2FFunctions%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="rotation-from-camera.html"><span>rotation</span><wbr></wbr><span>From</span><wbr></wbr><span><span>Camera</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-591459768%2FFunctions%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title"><div class="divergent-group" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release"><div class="with-platform-tags"><span class="pull-right"></span></div>
+
+  <div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><div class="symbol monospace">fun <a href="rotation-from-camera.html">rotationFromCamera</a>(camera: <span data-unresolved-link="com.irurueta.geometry/PinholeCamera///PointingToDeclaration/">PinholeCamera</span>): <span data-unresolved-link="com.irurueta.geometry/Rotation3D///PointingToDeclaration/">Rotation3D</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+  </div>
+<div class="brief "><p class="paragraph">Obtains the camera rotation for provided pinhole camera.</p></div></div>
+</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h2 class="">Properties</h2>
+              <div class="table" data-togglable="Properties"><a data-name="2007916299%2FProperties%2F1946847589" anchor-label="MATRIX_LENGTH" id="2007916299%2FProperties%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a>
+                <div class="table-row" data-filterable-current=":lib:dokkaHtml/release" data-filterable-set=":lib:dokkaHtml/release">
+                  <div class="main-subrow keyValue ">
+                    <div class=""><span class="inline-flex"><a href="-m-a-t-r-i-x_-l-e-n-g-t-h.html">MATRIX_LENGTH</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2007916299%2FProperties%2F1946847589"></span>
+                          <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                        </span></span></div>
+                    <div>
+                      <div class="title">
+                        <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":lib:dokkaHtml/release"><a data-name="2007916299%2FProperties%2F1946847589" anchor-label="MATRIX_LENGTH" id="2007916299%2FProperties%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a><div class="symbol monospace">const val <a href="-m-a-t-r-i-x_-l-e-n-g-t-h.html">MATRIX_LENGTH</a>: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a> = 16<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><a data-name="2007916299%2FProperties%2F1946847589" anchor-label="MATRIX_LENGTH" id="2007916299%2FProperties%2F1946847589" data-filterable-set=":lib:dokkaHtml/release"></a><p class="paragraph">Length of arrays used to store values of 4x4 homogeneous matrices.</p></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><span class="go-to-top-icon"><a href="#content"></a></span><span>© 2023 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span></div>
+      </div>
+    </div>
+  </body>
+</html>
+
