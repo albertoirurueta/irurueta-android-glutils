@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2021 Alberto Irurueta Carro (alberto@irurueta.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irurueta.android.glutils
 
 import android.content.Context
@@ -6,14 +22,22 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.view.Display
 import android.view.Surface
-import android.view.WindowManager
-import com.irurueta.geometry.*
+import com.irurueta.geometry.InhomogeneousPoint2D
+import com.irurueta.geometry.InhomogeneousPoint3D
+import com.irurueta.geometry.PinholeCamera
+import com.irurueta.geometry.Point3D
+import com.irurueta.geometry.ProjectiveTransformation2D
+import com.irurueta.geometry.Quaternion
+import com.irurueta.geometry.Rotation2D
+import com.irurueta.geometry.Rotation3D
 import com.irurueta.statistics.UniformRandomizer
 import io.mockk.every
-import io.mockk.mockk
-import io.mockk.unmockkAll
-import org.junit.After
-import org.junit.Assert.*
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit4.MockKRule
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -23,10 +47,20 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 class OrientationHelperTest {
 
-    @After
-    fun afterTest() {
-        unmockkAll()
-    }
+    @get:Rule
+    val mockkRule = MockKRule(this)
+
+    @MockK
+    private lateinit var cameraCharacteristics: CameraCharacteristics
+
+    @MockK
+    private lateinit var cameraManager: CameraManager
+
+    @MockK
+    private lateinit var display: Display
+
+    @MockK
+    private lateinit var context: Context
 
     @Test
     fun checkConstants() {
@@ -39,16 +73,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation0DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -59,16 +86,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation0DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -79,16 +99,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation0DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -99,16 +112,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation0DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -119,16 +125,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation90DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -139,16 +138,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation90DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -159,16 +151,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation90DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -179,16 +164,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation90DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -199,16 +177,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation180DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -219,16 +190,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation180DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -239,16 +203,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation180DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -259,16 +216,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation180DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -279,16 +229,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation270DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -299,16 +242,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation270DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -319,16 +255,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation270DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -339,16 +268,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraIdSensorOrientation270DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -359,13 +281,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation0DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -375,13 +292,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation0DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -391,13 +303,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation0DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -407,13 +314,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation0DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -423,13 +325,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation90DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -439,13 +336,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation90DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -455,13 +347,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation90DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -471,13 +358,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation90DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -487,13 +369,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation180DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -503,13 +380,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation180DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -519,13 +391,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation180DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -535,13 +402,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation180DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -551,13 +413,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation270DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -567,13 +424,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation270DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -583,13 +435,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation270DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -599,13 +446,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientation_whenCameraCharacteristicsSensorOrientation270DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.getCameraDisplayOrientation(context, cameraCharacteristics)
@@ -615,16 +457,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation0DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -635,16 +470,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation0DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -655,16 +483,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation0DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -675,16 +496,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation0DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -695,16 +509,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation90DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -715,16 +522,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation90DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -735,16 +535,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation90DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -755,16 +548,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation90DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -775,16 +561,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation180DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -795,16 +574,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation180DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -815,16 +587,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation180DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -835,16 +600,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation180DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -855,16 +613,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation270DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -875,16 +626,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation270DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -895,16 +639,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation270DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -915,16 +652,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraIdSensorOrientation270DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -935,13 +665,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation0DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -952,13 +677,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation0DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -969,13 +689,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation0DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -986,13 +701,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation0DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1003,13 +713,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation90DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1020,13 +725,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation90DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1037,13 +737,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation90DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1054,13 +749,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation90DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1071,13 +761,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation180DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1088,13 +773,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation180DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1105,13 +785,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation180DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1122,13 +797,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation180DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1139,13 +809,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation270DisplayRotation0AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1156,13 +821,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation270DisplayRotation90AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_90)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1173,13 +833,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation270DisplayRotation180AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_180)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1190,13 +845,8 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenCameraCharacteristicsSensorOrientation270DisplayRotation270AndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_270)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result =
@@ -1207,16 +857,9 @@ class OrientationHelperTest {
     @Config(sdk = [Build.VERSION_CODES.R])
     @Test
     fun getCameraDisplayOrientationDegrees_whenDisplayRotationUnknownAndSdk30_returnsExpectedValue() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(-1)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1226,16 +869,9 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraIdSensorOrientation0_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1246,16 +882,9 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraIdSensorOrientation90_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1266,16 +895,9 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraIdSensorOrientation180_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1286,16 +908,9 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraIdSensorOrientation270_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1306,13 +921,8 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation0_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = Rotation2D()
@@ -1322,13 +932,8 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation90_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = Rotation2D()
@@ -1338,13 +943,8 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation180_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = Rotation2D()
@@ -1354,13 +954,8 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation270_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = Rotation2D()
@@ -1370,16 +965,9 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraIdSensorOrientation0New_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1389,16 +977,9 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraIdSensorOrientation90New_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1408,16 +989,9 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraIdSensorOrientation180New_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1427,16 +1001,9 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraIdSensorOrientation270New_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1446,13 +1013,8 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation0New_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.toViewCoordinatesRotation(context, cameraCharacteristics)
@@ -1461,13 +1023,8 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation90New_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.toViewCoordinatesRotation(context, cameraCharacteristics)
@@ -1476,13 +1033,8 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation180New_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.toViewCoordinatesRotation(context, cameraCharacteristics)
@@ -1491,13 +1043,8 @@ class OrientationHelperTest {
 
     @Test
     fun toViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation270New_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.toViewCoordinatesRotation(context, cameraCharacteristics)
@@ -1506,16 +1053,9 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraIdSensorOrientation0_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1526,16 +1066,9 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraIdSensorOrientation90_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1546,16 +1079,9 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraIdSensorOrientation180_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1566,16 +1092,9 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraIdSensorOrientation270_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1586,13 +1105,8 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation0_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = Rotation2D()
@@ -1602,13 +1116,8 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation90_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = Rotation2D()
@@ -1618,13 +1127,8 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation180_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = Rotation2D()
@@ -1634,13 +1138,8 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation270_returnsExpectedRotation() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = Rotation2D()
@@ -1650,16 +1149,9 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraIdSensorOrientation0New_returnExpectedResult() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1669,16 +1161,9 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraIdSensorOrientation90New_returnsExpectedResult() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1688,16 +1173,9 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraIdSensorOrientation180New_returnsExpectedResult() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1707,16 +1185,9 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraIdSensorOrientation270New_returnsExpectedResult() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1726,13 +1197,8 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation0New_returnsExpectedResult() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.fromViewCoordinatesRotation(context, cameraCharacteristics)
@@ -1740,14 +1206,9 @@ class OrientationHelperTest {
     }
 
     @Test
-    fun fromViewCoordinatesRotation_whenCameracharacteristicsSensorOrientation90New_returnsExpectedResult() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
+    fun fromViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation90New_returnsExpectedResult() {
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.fromViewCoordinatesRotation(context, cameraCharacteristics)
@@ -1756,13 +1217,8 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation180New_returnsExpectedResult() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.fromViewCoordinatesRotation(context, cameraCharacteristics)
@@ -1771,13 +1227,8 @@ class OrientationHelperTest {
 
     @Test
     fun fromViewCoordinatesRotation_whenCameraCharacteristicsSensorOrientation270New_returnsExpectedResult() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val result = OrientationHelper.fromViewCoordinatesRotation(context, cameraCharacteristics)
@@ -1786,16 +1237,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation0AndIntrinsics_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1838,16 +1282,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation90AndIntrinsics_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1890,16 +1327,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation180AndIntrinsics_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1942,16 +1372,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation270AndIntrinsics_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -1994,13 +1417,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation0AndIntrinsics_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val projectionMatrix = createProjectionMatrix()
@@ -2042,13 +1460,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation90AndIntrinsics_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val projectionMatrix = createProjectionMatrix()
@@ -2090,13 +1503,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation180AndIntrinsics_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val projectionMatrix = createProjectionMatrix()
@@ -2138,13 +1546,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation270AndIntrinsics_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val projectionMatrix = createProjectionMatrix()
@@ -2417,16 +1820,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation0AndPivot_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -2463,16 +1859,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation90AndPivot_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -2509,16 +1898,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation180AndPivot_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -2555,16 +1937,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation270AndPivot_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -2601,13 +1976,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation0AndPivot_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val randomizer = UniformRandomizer()
@@ -2648,13 +2018,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation90AndPivot_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val randomizer = UniformRandomizer()
@@ -2695,13 +2060,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation180AndPivot_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val randomizer = UniformRandomizer()
@@ -2742,13 +2102,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation270AndPivot_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val randomizer = UniformRandomizer()
@@ -3013,16 +2368,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation0AndIntrinsicsNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -3061,16 +2409,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation90AndIntrinsicsNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -3109,16 +2450,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation180AndIntrinsicsNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -3157,16 +2491,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation270AndIntrinsicsNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -3205,13 +2532,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation0AndIntrinsicsNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val projectionMatrix = createProjectionMatrix()
@@ -3249,13 +2571,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation90AndIntrinsicsNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val projectionMatrix = createProjectionMatrix()
@@ -3293,13 +2610,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation180AndIntrinsicsNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val projectionMatrix = createProjectionMatrix()
@@ -3337,13 +2649,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation270AndIntrinsicsNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val projectionMatrix = createProjectionMatrix()
@@ -3591,16 +2898,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation0AndPivotNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -3635,16 +2935,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation90AndPivotNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -3679,16 +2972,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation180AndPivotNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -3723,16 +3009,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraIdSensorOrientation270AndPivotNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -3767,13 +3046,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation0AndPivotNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val randomizer = UniformRandomizer()
@@ -3810,13 +3084,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation90AndPivotNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val randomizer = UniformRandomizer()
@@ -3853,13 +3122,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation180AndPivotNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val randomizer = UniformRandomizer()
@@ -3896,13 +3160,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesTransformation_whenCameraCharacteristicsSensorOrientation270AndPivotNew_areInverseTransformations() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         val randomizer = UniformRandomizer()
@@ -4142,16 +3401,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation0_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -4190,16 +3442,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation90_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -4238,16 +3483,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation180_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -4286,16 +3524,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation270_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -4334,13 +3565,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation0_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -4388,13 +3614,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation90_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -4442,13 +3663,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation180_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -4496,13 +3712,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation270_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -4817,16 +4028,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation0AndPivot_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -4877,16 +4081,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation90AndPivot_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -4937,16 +4134,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation180AndPivot_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -4997,16 +4187,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation270AndPivot_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -5057,13 +4240,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation0AndPivot_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -5119,13 +4297,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation90AndPivot_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -5181,13 +4354,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation180AndPivot_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -5243,13 +4411,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation270AndPivot_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -5619,16 +4782,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation0New_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -5666,16 +4822,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation90New_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -5713,16 +4862,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation180New_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -5760,16 +4902,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation270New_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -5807,13 +4942,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation0New_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -5857,13 +4987,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation90New_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -5907,13 +5032,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation180New_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -5957,13 +5077,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation270New_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -6251,16 +5366,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation0PivotNew_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -6309,16 +5417,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation90PivotNew_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -6367,16 +5468,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation180PivotNew_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -6425,16 +5519,9 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraIdSensorOrientation270PivotNew_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val cameraManager = mockk<CameraManager>()
         every { cameraManager.getCameraCharacteristics(any()) }.returns(cameraCharacteristics)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.getSystemService(Context.CAMERA_SERVICE) }.returns(cameraManager)
         every { context.display }.returns(display)
 
@@ -6483,13 +5570,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation0PivotNew_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(0)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -6541,13 +5623,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation90PivotNew_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(90)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -6599,13 +5676,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation180PivotNew_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(180)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation
@@ -6657,13 +5729,8 @@ class OrientationHelperTest {
 
     @Test
     fun toAndFromViewCoordinatesCamera_whenCameraCharacteristicsOrientation270PivotNew_areInverseCameras() {
-        val cameraCharacteristics = mockk<CameraCharacteristics>()
         every { cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) }.returns(270)
-
-        val display = mockk<Display>()
         every { display.rotation }.returns(Surface.ROTATION_0)
-
-        val context = mockk<Context>()
         every { context.display }.returns(display)
 
         // camera with no orientation

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.irurueta.android.glutils
 
 import android.content.Context
@@ -22,7 +23,6 @@ import android.opengl.GLSurfaceView
 import android.util.AttributeSet
 import android.util.Log
 import android.view.TextureView
-import android.view.View.OnLayoutChangeListener
 import java.io.Writer
 import java.lang.ref.WeakReference
 import java.util.concurrent.locks.Condition
@@ -42,6 +42,7 @@ import kotlin.concurrent.withLock
  * @param attrs XML layout attributes.
  * @param defStyleAttr style to be used.
  */
+@Suppress("DEPRECATION")
 open class GLTextureView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -282,29 +283,29 @@ open class GLTextureView @JvmOverloads constructor(
     }
 
     /**
-     * Gets or sets the rendering mode. When renderMode is [RENDERMODE_CONTINUOUSLY], the renderer
-     * is called repeatedly to re-render the scene. When renderMode is [RENDERMODE_WHEN_DIRTY], the
+     * Gets or sets the rendering mode. When renderMode is [RENDER_MODE_CONTINUOUSLY], the renderer
+     * is called repeatedly to re-render the scene. When renderMode is [RENDER_MODE_WHEN_DIRTY], the
      * renderer only renders when the surface is created, or when [requestRender] is called.
-     * Defaults to [RENDERMODE_CONTINUOUSLY].
+     * Defaults to [RENDER_MODE_CONTINUOUSLY].
      *
-     * Using [RENDERMODE_WHEN_DIRTY] can improve battery life and overall system performance by
+     * Using [RENDER_MODE_WHEN_DIRTY] can improve battery life and overall system performance by
      * allowing the GPU and CPU to become idle when the view does not need to be updated.
      *
      * Setter can only be called after [setRenderer]
      * Getter can be called from any thread.
      *
-     * @see [RENDERMODE_CONTINUOUSLY]
-     * @see [RENDERMODE_WHEN_DIRTY]
+     * @see [RENDER_MODE_CONTINUOUSLY]
+     * @see [RENDER_MODE_WHEN_DIRTY]
      */
     var renderMode: Int
-        get() = glThread?.renderMode ?: RENDERMODE_CONTINUOUSLY
+        get() = glThread?.renderMode ?: RENDER_MODE_CONTINUOUSLY
         set(value) {
             glThread?.renderMode = value
         }
 
     /**
      * Requests tha the renderer renders a frame.
-     * This method is typically used when the render mode has ben set to [RENDERMODE_WHEN_DIRTY], so
+     * This method is typically used when the render mode has ben set to [RENDER_MODE_WHEN_DIRTY], so
      * that frames are only rendered on demand.
      * May be called from any thread.
      * Calling it before a renderer has been set has no effect.
@@ -378,12 +379,12 @@ open class GLTextureView @JvmOverloads constructor(
      * Creates and starts GL thread if not already initialized.
      */
     protected open fun initializeGlThread() {
-        val renderMode = glThread?.renderMode ?: RENDERMODE_CONTINUOUSLY
+        val renderMode = glThread?.renderMode ?: RENDER_MODE_CONTINUOUSLY
         glThreadManager.lock.withLock {
-            val threadAlive = glThread?.isAlive ?: false
+            val threadAlive = glThread?.isAlive == true
             if (!threadAlive) {
                 glThread = GLThread(thisWeakRef, glThreadManager)
-                if (renderMode != RENDERMODE_CONTINUOUSLY) {
+                if (renderMode != RENDER_MODE_CONTINUOUSLY) {
                     glThread?.renderMode = renderMode
                 }
                 glThread?.start()
@@ -443,14 +444,14 @@ open class GLTextureView @JvmOverloads constructor(
          * @see renderMode
          * @see requestRender
          */
-        const val RENDERMODE_WHEN_DIRTY = 0
+        const val RENDER_MODE_WHEN_DIRTY = 0
 
         /**
          * The renderer is called continuously to re-render the scene.
          *
          * @see renderMode
          */
-        const val RENDERMODE_CONTINUOUSLY = 1
+        const val RENDER_MODE_CONTINUOUSLY = 1
 
         /**
          * Check glError() after every GL call and throw an exception if glError indicates that an
@@ -469,14 +470,14 @@ open class GLTextureView @JvmOverloads constructor(
         const val DEBUG_LOG_GL_CALLS = 2
 
         /**
-         * Flag to set client version to GLES2.0.
+         * Flag to set client version to GL ES2.0.
          */
         const val EGL_CONTEXT_CLIENT_VERSION = 0x3098
 
         /**
-         * Version of GLES2.0.
+         * Version of GL ES2.0.
          */
-        private const val EGL_OPENGL_ES2_BIT = 4;
+        private const val EGL_OPENGL_ES2_BIT = 4
     }
 
     /**
@@ -971,7 +972,7 @@ open class GLTextureView @JvmOverloads constructor(
         private var shouldReleaseEglContext = false
         private var width = 0
         private var height = 0
-        private var _renderMode = RENDERMODE_CONTINUOUSLY
+        private var _renderMode = RENDER_MODE_CONTINUOUSLY
         private var requestRender = true
         private var renderComplete = false
         private var eventQueue = ArrayList<Runnable>()
@@ -989,7 +990,7 @@ open class GLTextureView @JvmOverloads constructor(
 
             try {
                 guardedRun()
-            } catch (e: InterruptedException) {
+            } catch (_: InterruptedException) {
                 // fall through and exit normally
             } finally {
                 glThreadManager.threadExiting(this)
@@ -1002,7 +1003,7 @@ open class GLTextureView @JvmOverloads constructor(
 
         fun readyToDraw(): Boolean {
             return !paused && hasSurface && !surfaceIsBad && width > 0 && height > 0 &&
-                    (requestRender || _renderMode == RENDERMODE_CONTINUOUSLY)
+                    (requestRender || _renderMode == RENDER_MODE_CONTINUOUSLY)
         }
 
         var renderMode: Int
@@ -1012,7 +1013,7 @@ open class GLTextureView @JvmOverloads constructor(
                 }
             }
             set(value) {
-                if (value !in RENDERMODE_WHEN_DIRTY..RENDERMODE_CONTINUOUSLY) {
+                if (value !in RENDER_MODE_WHEN_DIRTY..RENDER_MODE_CONTINUOUSLY) {
                     throw IllegalArgumentException("renderMode")
                 }
                 glThreadManager.lock.withLock {
@@ -1038,7 +1039,7 @@ open class GLTextureView @JvmOverloads constructor(
                 while (waitingForSurface && !exited) {
                     try {
                         glThreadManager.condition.await()
-                    } catch (e: InterruptedException) {
+                    } catch (_: InterruptedException) {
                         currentThread().interrupt()
                     }
                 }
@@ -1055,7 +1056,7 @@ open class GLTextureView @JvmOverloads constructor(
                 while (!waitingForSurface && !exited) {
                     try {
                         glThreadManager.condition.await()
-                    } catch (e: InterruptedException) {
+                    } catch (_: InterruptedException) {
                         currentThread().interrupt()
                     }
                 }
@@ -1075,7 +1076,7 @@ open class GLTextureView @JvmOverloads constructor(
                     }
                     try {
                         glThreadManager.condition.await()
-                    } catch (ex: InterruptedException) {
+                    } catch (_: InterruptedException) {
                         currentThread().interrupt()
                     }
                 }
@@ -1097,7 +1098,7 @@ open class GLTextureView @JvmOverloads constructor(
                     }
                     try {
                         glThreadManager.condition.await()
-                    } catch (e: InterruptedException) {
+                    } catch (_: InterruptedException) {
                         currentThread().interrupt()
                     }
                 }
@@ -1123,7 +1124,7 @@ open class GLTextureView @JvmOverloads constructor(
                     }
                     try {
                         glThreadManager.condition.await()
-                    } catch (e: InterruptedException) {
+                    } catch (_: InterruptedException) {
                         currentThread().interrupt()
                     }
                 }
@@ -1139,7 +1140,7 @@ open class GLTextureView @JvmOverloads constructor(
                 while (!exited) {
                     try {
                         glThreadManager.condition.await()
-                    } catch (e: InterruptedException) {
+                    } catch (_: InterruptedException) {
                         currentThread().interrupt()
                     }
                 }
@@ -1257,7 +1258,7 @@ open class GLTextureView @JvmOverloads constructor(
                             if (pausing && haveEglContext) {
                                 val view = glSurfaceViewWeakRef.get()
                                 val preserveEglContextOnPause =
-                                    view?.preserveEGLContextOnPause ?: false
+                                    view?.preserveEGLContextOnPause == true
                                 if (!preserveEglContextOnPause ||
                                     glThreadManager.shouldReleaseEGLContextWhenPausing()
                                 ) {
@@ -1388,7 +1389,7 @@ open class GLTextureView @JvmOverloads constructor(
                     }
 
                     if (event != null) {
-                        event?.run()
+                        event.run()
                         event = null
                         continue
                     }
@@ -1419,9 +1420,7 @@ open class GLTextureView @JvmOverloads constructor(
                             Log.w("GLThread", "onSurfaceCreated")
                         }
                         val view = glSurfaceViewWeakRef.get()
-                        if (view != null) {
-                            view.renderer?.onSurfaceCreated(gl, eglHelper?.eglConfig)
-                        }
+                        view?.renderer?.onSurfaceCreated(gl, eglHelper?.eglConfig)
                         createEglContext = false
                     }
 
@@ -1430,9 +1429,7 @@ open class GLTextureView @JvmOverloads constructor(
                             Log.w("GLThread", "onSurfaceChanged($w, $h)")
                         }
                         val view = glSurfaceViewWeakRef.get()
-                        if (view != null) {
-                            view.renderer?.onSurfaceChanged(gl, w, h)
-                        }
+                        view?.renderer?.onSurfaceChanged(gl, w, h)
                         sizeChanged = false
                     }
 
@@ -1593,7 +1590,7 @@ open class GLTextureView @JvmOverloads constructor(
                 if (!glESDriverCheckComplete) {
                     val renderer = gl?.glGetString(GL10.GL_RENDERER)
                     multipleGLESContextsAllowed =
-                        renderer?.startsWith(kMSM7K_RENDERER_PREFIX) != true
+                        renderer?.startsWith(RENDERER_PREFIX) != true
                     condition.signalAll()
                     limitedGLESContexts = !multipleGLESContextsAllowed
                     if (LOG_SURFACE) {
@@ -1612,7 +1609,7 @@ open class GLTextureView @JvmOverloads constructor(
         companion object {
             const val TAG = "GLThreadManager"
 
-            const val kMSM7K_RENDERER_PREFIX = "Q3Dimension MSM7500 "
+            const val RENDERER_PREFIX = "Q3Dimension MSM7500 "
         }
     }
 }

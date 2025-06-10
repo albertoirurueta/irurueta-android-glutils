@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.irurueta.android.glutils
 
 import android.content.Context
@@ -131,7 +132,7 @@ object OrientationHelper {
 
         // Device orientation (portrait, landscape, etc)
         val rotation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            context.display?.rotation
+            context.display.rotation
         } else {
             val windowManager = context.getSystemService(
                 Context.WINDOW_SERVICE

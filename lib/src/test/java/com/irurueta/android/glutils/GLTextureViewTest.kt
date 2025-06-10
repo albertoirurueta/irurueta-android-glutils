@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2021 Alberto Irurueta Carro (alberto@irurueta.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irurueta.android.glutils
 
 import android.content.Context
@@ -7,9 +23,12 @@ import android.view.TextureView
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
 import io.mockk.*
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit4.MockKRule
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -26,6 +45,42 @@ import kotlin.concurrent.withLock
 @RunWith(RobolectricTestRunner::class)
 class GLTextureViewTest {
 
+    @get:Rule
+    val mockkRule = MockKRule(this)
+
+    @MockK
+    private lateinit var renderer: GLSurfaceView.Renderer
+
+    @MockK
+    private lateinit var glWrapper: GLTextureView.GLWrapper
+
+    @MockK
+    private lateinit var texture: SurfaceTexture
+
+    @MockK
+    private lateinit var surface: SurfaceTexture
+
+    @MockK
+    private lateinit var egl: EGL10
+
+    @MockK
+    private lateinit var display: EGLDisplay
+
+    @MockK
+    private lateinit var eglConfig: EGLConfig
+
+    @MockK
+    private lateinit var eglContext: EGLContext
+
+    @MockK
+    private lateinit var config: EGLConfig
+
+    @MockK
+    private lateinit var eglSurface: EGLSurface
+
+    @MockK
+    private lateinit var eglDisplay: EGLDisplay
+
     private var threadFailures = 0
 
     @Before
@@ -35,6 +90,7 @@ class GLTextureViewTest {
 
     @After
     fun afterTest() {
+        clearAllMocks()
         unmockkAll()
     }
 
@@ -68,7 +124,6 @@ class GLTextureViewTest {
         assertNull(view.getPrivateProperty("glWrapper"))
 
         // set new value
-        val glWrapper = mockk<GLTextureView.GLWrapper>()
         view.setGLWrapper(glWrapper)
 
         // check
@@ -100,6 +155,7 @@ class GLTextureViewTest {
         view.preserveEGLContextOnPause = true
 
         // check
+        @Suppress("KotlinConstantConditions")
         assertTrue(view.preserveEGLContextOnPause)
     }
 
@@ -113,7 +169,6 @@ class GLTextureViewTest {
         assertNull(view.getPrivateProperty("glThread"))
 
         // set new value
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
@@ -136,7 +191,6 @@ class GLTextureViewTest {
         assertNull(view.getPrivateProperty("renderer"))
 
         // set new value
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
@@ -175,7 +229,6 @@ class GLTextureViewTest {
         assertNull(view.getPrivateProperty("eglContextFactory"))
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         assertNotNull(view.getPrivateProperty("eglContextFactory"))
@@ -210,7 +263,6 @@ class GLTextureViewTest {
         assertNull(view.getPrivateProperty("eglWindowSurfaceFactory"))
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         assertNotNull(view.getPrivateProperty("eglWindowSurfaceFactory"))
@@ -229,7 +281,6 @@ class GLTextureViewTest {
         assertNull(view.getPrivateProperty("eglConfigChooser"))
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         assertNotNull(view.getPrivateProperty("eglConfigChooser"))
@@ -308,7 +359,6 @@ class GLTextureViewTest {
         assertEquals(0, view.getPrivateProperty("eglContextClientVersion"))
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         assertEquals(0, view.getPrivateProperty("eglContextClientVersion"))
@@ -323,13 +373,13 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // check default value
-        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, view.renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_CONTINUOUSLY, view.renderMode)
 
         // set new value
-        view.renderMode = GLTextureView.RENDERMODE_WHEN_DIRTY
+        view.renderMode = GLTextureView.RENDER_MODE_WHEN_DIRTY
 
         // check
-        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, view.renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_CONTINUOUSLY, view.renderMode)
     }
 
     @Test
@@ -338,17 +388,16 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check default value
-        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, view.renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_CONTINUOUSLY, view.renderMode)
 
         // set new value
-        view.renderMode = GLTextureView.RENDERMODE_WHEN_DIRTY
+        view.renderMode = GLTextureView.RENDER_MODE_WHEN_DIRTY
 
         // check
-        assertEquals(GLTextureView.RENDERMODE_WHEN_DIRTY, view.renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_WHEN_DIRTY, view.renderMode)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -357,11 +406,10 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check default value
-        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, view.renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_CONTINUOUSLY, view.renderMode)
 
         // set new value
         view.renderMode = 2
@@ -382,7 +430,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -428,7 +475,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -467,7 +513,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -511,7 +556,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -556,7 +600,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -594,7 +637,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val texture = mockk<SurfaceTexture>()
         view.callPrivateFunc("surfaceCreated", texture)
 
         assertNull(view.getPrivateProperty("glThread"))
@@ -605,7 +647,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -625,7 +666,6 @@ class GLTextureViewTest {
         assertFalse(hasSurface1)
 
         // notify surface creation
-        val texture = mockk<SurfaceTexture>()
         view.callPrivateFunc("surfaceCreated", texture)
 
         // check
@@ -638,7 +678,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val texture = mockk<SurfaceTexture>()
         view.callPrivateFunc("surfaceDestroyed", texture)
 
         assertNull(view.getPrivateProperty("glThread"))
@@ -649,7 +688,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -669,7 +707,6 @@ class GLTextureViewTest {
         assertFalse(hasSurface1)
 
         // notify surface creation
-        val texture = mockk<SurfaceTexture>()
         view.callPrivateFunc("surfaceCreated", texture)
 
         // check
@@ -689,7 +726,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val texture = mockk<SurfaceTexture>()
         view.callPrivateFunc("surfaceChanged", texture, WIDTH, HEIGHT)
 
         assertNull(view.getPrivateProperty("glThread"))
@@ -700,7 +736,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -725,7 +760,6 @@ class GLTextureViewTest {
         assertEquals(0, height1)
 
         // notify surface creation
-        val texture = mockk<SurfaceTexture>()
         view.callPrivateFunc("surfaceChanged", texture, WIDTH, HEIGHT)
 
         // check
@@ -780,7 +814,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -807,12 +840,11 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
-        view.renderMode = GLTextureView.RENDERMODE_WHEN_DIRTY
+        view.renderMode = GLTextureView.RENDER_MODE_WHEN_DIRTY
 
         // check
-        assertEquals(GLTextureView.RENDERMODE_WHEN_DIRTY, view.renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_WHEN_DIRTY, view.renderMode)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
         requireNotNull(glThread)
@@ -824,7 +856,7 @@ class GLTextureViewTest {
         val field = glThreadClass.getDeclaredField("_renderMode")
         field.isAccessible = true
         val renderMode = field.getInt(glThread)
-        assertEquals(GLTextureView.RENDERMODE_WHEN_DIRTY, renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_WHEN_DIRTY, renderMode)
 
         val detached1: Boolean? = view.getPrivateProperty("detached")
         requireNotNull(detached1)
@@ -838,7 +870,7 @@ class GLTextureViewTest {
 
         assertTrue(glThread.isAlive)
 
-        assertEquals(GLTextureView.RENDERMODE_WHEN_DIRTY, view.renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_WHEN_DIRTY, view.renderMode)
     }
 
     @Test
@@ -890,7 +922,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -911,10 +942,10 @@ class GLTextureViewTest {
         assertFalse(detached2)
 
         // set render mode
-        view.renderMode = GLTextureView.RENDERMODE_WHEN_DIRTY
+        view.renderMode = GLTextureView.RENDER_MODE_WHEN_DIRTY
 
         // check
-        assertEquals(GLTextureView.RENDERMODE_WHEN_DIRTY, view.renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_WHEN_DIRTY, view.renderMode)
 
         // detach
         view.callPrivateFunc("onDetachedFromWindow")
@@ -924,7 +955,7 @@ class GLTextureViewTest {
         requireNotNull(detached3)
         assertTrue(detached3)
 
-        assertEquals(GLTextureView.RENDERMODE_WHEN_DIRTY, view.renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_WHEN_DIRTY, view.renderMode)
 
         // attach again
         view.callPrivateFunc("onAttachedToWindow")
@@ -934,7 +965,7 @@ class GLTextureViewTest {
         assertFalse(detached4)
 
         // ensure render mode is preserved
-        assertEquals(GLTextureView.RENDERMODE_WHEN_DIRTY, view.renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_WHEN_DIRTY, view.renderMode)
     }
 
     @Test
@@ -957,7 +988,6 @@ class GLTextureViewTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = GLTextureView(context)
 
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -1005,7 +1035,6 @@ class GLTextureViewTest {
             view.getPrivateProperty("surfaceTextureListener")
         requireNotNull(surfaceTextureListener)
 
-        val surface = mockk<SurfaceTexture>()
         surfaceTextureListener.onSurfaceTextureAvailable(surface, WIDTH, HEIGHT)
 
         assertNull(view.getPrivateProperty("glThread"))
@@ -1020,7 +1049,6 @@ class GLTextureViewTest {
             view.getPrivateProperty("surfaceTextureListener")
         requireNotNull(surfaceTextureListener)
 
-        val surface = mockk<SurfaceTexture>()
         surfaceTextureListener.onSurfaceTextureSizeChanged(surface, WIDTH, HEIGHT)
 
         assertNull(view.getPrivateProperty("glThread"))
@@ -1035,7 +1063,6 @@ class GLTextureViewTest {
             view.getPrivateProperty("surfaceTextureListener")
         requireNotNull(surfaceTextureListener)
 
-        val surface = mockk<SurfaceTexture>()
         assertTrue(surfaceTextureListener.onSurfaceTextureDestroyed(surface))
 
         assertNull(view.getPrivateProperty("glThread"))
@@ -1050,7 +1077,6 @@ class GLTextureViewTest {
             view.getPrivateProperty("surfaceTextureListener")
         requireNotNull(surfaceTextureListener)
 
-        val surface = mockk<SurfaceTexture>()
         surfaceTextureListener.onSurfaceTextureUpdated(surface)
 
         assertNull(view.getPrivateProperty("glThread"))
@@ -1062,7 +1088,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
@@ -1070,10 +1095,6 @@ class GLTextureViewTest {
             view.getPrivateProperty("eglContextFactory")
         requireNotNull(eglContextFactory)
 
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
-        val eglConfig = mockk<EGLConfig>()
-        val eglContext = mockk<EGLContext>()
         every { egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, null) }.returns(
             eglContext
         )
@@ -1089,17 +1110,12 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
         val eglContextFactory: GLTextureView.EGLContextFactory? =
             view.getPrivateProperty("eglContextFactory")
         requireNotNull(eglContextFactory)
-
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
-        val eglContext = mockk<EGLContext>()
 
         every { egl.eglDestroyContext(display, eglContext) }.returns(false)
 
@@ -1119,17 +1135,12 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
         val eglContextFactory: GLTextureView.EGLContextFactory? =
             view.getPrivateProperty("eglContextFactory")
         requireNotNull(eglContextFactory)
-
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
-        val eglContext = mockk<EGLContext>()
 
         every { egl.eglDestroyContext(display, eglContext) }.returns(true)
 
@@ -1144,7 +1155,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
@@ -1152,11 +1162,7 @@ class GLTextureViewTest {
             view.getPrivateProperty("eglWindowSurfaceFactory")
         requireNotNull(eglWindowSurfaceFactory)
 
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
-        val config = mockk<EGLConfig>()
-        val surfaceTexture = mockk<SurfaceTexture>()
-        every { egl.eglCreateWindowSurface(display, config, surfaceTexture, null) }.throws(
+        every { egl.eglCreateWindowSurface(display, config, surface, null) }.throws(
             IllegalArgumentException()
         )
 
@@ -1165,11 +1171,11 @@ class GLTextureViewTest {
                 egl,
                 display,
                 config,
-                surfaceTexture
+                surface
             )
         )
 
-        verify(exactly = 1) { egl.eglCreateWindowSurface(display, config, surfaceTexture, null) }
+        verify(exactly = 1) { egl.eglCreateWindowSurface(display, config, surface, null) }
     }
 
     @Test
@@ -1178,7 +1184,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
@@ -1186,21 +1191,16 @@ class GLTextureViewTest {
             view.getPrivateProperty("eglWindowSurfaceFactory")
         requireNotNull(eglWindowSurfaceFactory)
 
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
-        val config = mockk<EGLConfig>()
-        val surfaceTexture = mockk<SurfaceTexture>()
-        val eglSurface = mockk<EGLSurface>()
-        every { egl.eglCreateWindowSurface(display, config, surfaceTexture, null) }.returns(
+        every { egl.eglCreateWindowSurface(display, config, surface, null) }.returns(
             eglSurface
         )
 
         assertSame(
             eglSurface,
-            eglWindowSurfaceFactory.createWindowSurface(egl, display, config, surfaceTexture)
+            eglWindowSurfaceFactory.createWindowSurface(egl, display, config, surface)
         )
 
-        verify(exactly = 1) { egl.eglCreateWindowSurface(display, config, surfaceTexture, null) }
+        verify(exactly = 1) { egl.eglCreateWindowSurface(display, config, surface, null) }
     }
 
     @Test
@@ -1209,7 +1209,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
@@ -1217,14 +1216,11 @@ class GLTextureViewTest {
             view.getPrivateProperty("eglWindowSurfaceFactory")
         requireNotNull(eglWindowSurfaceFactory)
 
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
-        val surface = mockk<EGLSurface>()
-        every { egl.eglDestroySurface(display, surface) }.returns(true)
+        every { egl.eglDestroySurface(display, eglSurface) }.returns(true)
 
-        eglWindowSurfaceFactory.destroySurface(egl, display, surface)
+        eglWindowSurfaceFactory.destroySurface(egl, display, eglSurface)
 
-        verify(exactly = 1) { egl.eglDestroySurface(display, surface) }
+        verify(exactly = 1) { egl.eglDestroySurface(display, eglSurface) }
     }
 
     @Test
@@ -1233,16 +1229,12 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
         val eglConfigChooser: GLTextureView.EGLConfigChooser? =
             view.getPrivateProperty("eglConfigChooser")
         requireNotNull(eglConfigChooser)
-
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
 
         every { egl.eglChooseConfig(display, any(), null, 0, any()) }.returns(
             false
@@ -1264,16 +1256,12 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
         val eglConfigChooser: GLTextureView.EGLConfigChooser? =
             view.getPrivateProperty("eglConfigChooser")
         requireNotNull(eglConfigChooser)
-
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
 
         every { egl.eglChooseConfig(display, any(), null, 0, any()) }.answers { call ->
             val numConfig = call.invocation.args[4] as IntArray
@@ -1301,16 +1289,12 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
         val eglConfigChooser: GLTextureView.EGLConfigChooser? =
             view.getPrivateProperty("eglConfigChooser")
         requireNotNull(eglConfigChooser)
-
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
 
         every { egl.eglChooseConfig(display, any(), null, 0, any()) }.answers { call ->
             val numConfig = call.invocation.args[4] as IntArray
@@ -1351,16 +1335,12 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
         val eglConfigChooser: GLTextureView.EGLConfigChooser? =
             view.getPrivateProperty("eglConfigChooser")
         requireNotNull(eglConfigChooser)
-
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
 
         every { egl.eglChooseConfig(display, any(), null, 0, any()) }.answers { call ->
             val numConfig = call.invocation.args[4] as IntArray
@@ -1402,7 +1382,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
@@ -1410,16 +1389,12 @@ class GLTextureViewTest {
             view.getPrivateProperty("eglConfigChooser")
         requireNotNull(eglConfigChooser)
 
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
-
         every { egl.eglChooseConfig(display, any(), null, 0, any()) }.answers { call ->
             val numConfig = call.invocation.args[4] as IntArray
             numConfig[0] = 1
             return@answers true
         }
 
-        val config = mockk<EGLConfig>()
         every {
             egl.eglChooseConfig(
                 display,
@@ -1553,7 +1528,6 @@ class GLTextureViewTest {
         view.setEGLContextClientVersion(2)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         // check
@@ -1561,16 +1535,12 @@ class GLTextureViewTest {
             view.getPrivateProperty("eglConfigChooser")
         requireNotNull(eglConfigChooser)
 
-        val egl = mockk<EGL10>()
-        val display = mockk<EGLDisplay>()
-
         every { egl.eglChooseConfig(display, any(), null, 0, any()) }.answers { call ->
             val numConfig = call.invocation.args[4] as IntArray
             numConfig[0] = 1
             return@answers true
         }
 
-        val config = mockk<EGLConfig>()
         every {
             egl.eglChooseConfig(
                 display,
@@ -1716,7 +1686,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -1732,7 +1701,6 @@ class GLTextureViewTest {
         val eglHelper = eglHelperField.get(glThread)
         requireNotNull(eglHelper)
 
-        val egl = mockk<EGL10>()
         every { egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY) }.returns(EGL10.EGL_NO_DISPLAY)
 
         mockkStatic(EGLContext::class)
@@ -1755,7 +1723,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -1771,8 +1738,6 @@ class GLTextureViewTest {
         val eglHelper = eglHelperField.get(glThread)
         requireNotNull(eglHelper)
 
-        val eglDisplay = mockk<EGLDisplay>()
-        val egl = mockk<EGL10>()
         every { egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY) }.returns(eglDisplay)
         every { egl.eglInitialize(eglDisplay, any()) }.returns(false)
 
@@ -1796,7 +1761,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -1816,8 +1780,6 @@ class GLTextureViewTest {
         glSurfaceViewWeakRefField.isAccessible = true
         glSurfaceViewWeakRefField.set(eglHelper, WeakReference(null))
 
-        val eglDisplay = mockk<EGLDisplay>()
-        val egl = mockk<EGL10>()
         every { egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY) }.returns(eglDisplay)
         every { egl.eglInitialize(eglDisplay, any()) }.returns(true)
 
@@ -1841,7 +1803,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -1860,20 +1821,16 @@ class GLTextureViewTest {
         val glSurfaceViewWeakRefField = eglHelper.javaClass.getDeclaredField("glSurfaceViewWeakRef")
         glSurfaceViewWeakRefField.isAccessible = true
 
-        val eglDisplay = mockk<EGLDisplay>()
-        val egl = mockk<EGL10>()
         every { egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY) }.returns(eglDisplay)
         every { egl.eglInitialize(eglDisplay, any()) }.returns(true)
 
         mockkStatic(EGLContext::class)
         every { EGLContext.getEGL() }.returns(egl)
 
-        val eglConfig = mockk<EGLConfig>()
         val eglConfigChooser = mockk<GLTextureView.EGLConfigChooser>()
         every { eglConfigChooser.chooseConfig(egl, eglDisplay) }.returns(eglConfig)
         view.setPrivateProperty("eglConfigChooser", eglConfigChooser)
 
-        val eglContext = mockk<EGLContext>()
         val eglContextFactory = mockk<GLTextureView.EGLContextFactory>()
         every { eglContextFactory.createContext(egl, eglDisplay, eglConfig) }.returns(eglContext)
         view.setPrivateProperty("eglContextFactory", eglContextFactory)
@@ -1897,7 +1854,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -1946,7 +1902,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -1968,7 +1923,6 @@ class GLTextureViewTest {
         assertNull(eglField.get(eglHelper))
 
         // set egl
-        val egl = mockk<EGL10>()
         eglField.set(eglHelper, egl)
 
         assertSame(egl, eglField.get(eglHelper))
@@ -2001,7 +1955,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2023,7 +1976,6 @@ class GLTextureViewTest {
         assertNull(eglField.get(eglHelper))
 
         // set egl
-        val egl = mockk<EGL10>()
         eglField.set(eglHelper, egl)
 
         assertSame(egl, eglField.get(eglHelper))
@@ -2034,7 +1986,6 @@ class GLTextureViewTest {
         assertNull(eglDisplayField.get(eglHelper))
 
         // set eglDisplay
-        val eglDisplay = mockk<EGLDisplay>()
         eglDisplayField.set(eglHelper, eglDisplay)
 
         assertSame(eglDisplay, eglDisplayField.get(eglHelper))
@@ -2061,7 +2012,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2083,7 +2033,6 @@ class GLTextureViewTest {
         assertNull(eglField.get(eglHelper))
 
         // set egl
-        val egl = mockk<EGL10>()
         every { egl.eglGetError() }.returns(EGL10.EGL_BAD_NATIVE_WINDOW)
         eglField.set(eglHelper, egl)
 
@@ -2095,7 +2044,6 @@ class GLTextureViewTest {
         assertNull(eglDisplayField.get(eglHelper))
 
         // set eglDisplay
-        val eglDisplay = mockk<EGLDisplay>()
         eglDisplayField.set(eglHelper, eglDisplay)
 
         assertSame(eglDisplay, eglDisplayField.get(eglHelper))
@@ -2106,7 +2054,6 @@ class GLTextureViewTest {
         assertNull(eglConfigField.get(eglHelper))
 
         // set eglConfig
-        val eglConfig = mockk<EGLConfig>()
         eglConfigField.set(eglHelper, eglConfig)
 
         assertSame(eglConfig, eglConfigField.get(eglHelper))
@@ -2136,7 +2083,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2158,7 +2104,6 @@ class GLTextureViewTest {
         assertNull(eglField.get(eglHelper))
 
         // set egl
-        val egl = mockk<EGL10>()
         every { egl.eglGetError() }.returns(EGL10.EGL_BAD_DISPLAY)
         eglField.set(eglHelper, egl)
 
@@ -2170,7 +2115,6 @@ class GLTextureViewTest {
         assertNull(eglDisplayField.get(eglHelper))
 
         // set eglDisplay
-        val eglDisplay = mockk<EGLDisplay>()
         eglDisplayField.set(eglHelper, eglDisplay)
 
         assertSame(eglDisplay, eglDisplayField.get(eglHelper))
@@ -2181,7 +2125,6 @@ class GLTextureViewTest {
         assertNull(eglConfigField.get(eglHelper))
 
         // set eglConfig
-        val eglConfig = mockk<EGLConfig>()
         eglConfigField.set(eglHelper, eglConfig)
 
         assertSame(eglConfig, eglConfigField.get(eglHelper))
@@ -2212,7 +2155,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2234,7 +2176,6 @@ class GLTextureViewTest {
         assertNull(eglField.get(eglHelper))
 
         // set egl
-        val egl = mockk<EGL10>()
         every { egl.eglGetError() }.returns(EGL10.EGL_BAD_NATIVE_WINDOW)
         eglField.set(eglHelper, egl)
 
@@ -2246,7 +2187,6 @@ class GLTextureViewTest {
         assertNull(eglDisplayField.get(eglHelper))
 
         // set eglDisplay
-        val eglDisplay = mockk<EGLDisplay>()
         eglDisplayField.set(eglHelper, eglDisplay)
 
         assertSame(eglDisplay, eglDisplayField.get(eglHelper))
@@ -2257,7 +2197,6 @@ class GLTextureViewTest {
         assertNull(eglConfigField.get(eglHelper))
 
         // set eglConfig
-        val eglConfig = mockk<EGLConfig>()
         eglConfigField.set(eglHelper, eglConfig)
 
         assertSame(eglConfig, eglConfigField.get(eglHelper))
@@ -2300,7 +2239,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2322,7 +2260,6 @@ class GLTextureViewTest {
         assertNull(eglField.get(eglHelper))
 
         // set egl
-        val egl = mockk<EGL10>()
         every { egl.eglGetError() }.returns(EGL10.EGL_BAD_NATIVE_WINDOW)
         eglField.set(eglHelper, egl)
 
@@ -2334,7 +2271,6 @@ class GLTextureViewTest {
         assertNull(eglDisplayField.get(eglHelper))
 
         // set eglDisplay
-        val eglDisplay = mockk<EGLDisplay>()
         eglDisplayField.set(eglHelper, eglDisplay)
 
         assertSame(eglDisplay, eglDisplayField.get(eglHelper))
@@ -2345,7 +2281,6 @@ class GLTextureViewTest {
         assertNull(eglConfigField.get(eglHelper))
 
         // set eglConfig
-        val eglConfig = mockk<EGLConfig>()
         eglConfigField.set(eglHelper, eglConfig)
 
         assertSame(eglConfig, eglConfigField.get(eglHelper))
@@ -2357,7 +2292,6 @@ class GLTextureViewTest {
         assertNull(eglContextField.get(eglHelper))
 
         // set eglContext
-        val eglContext = mockk<EGLContext>()
         eglContextField.set(eglHelper, eglContext)
 
 
@@ -2378,7 +2312,6 @@ class GLTextureViewTest {
             view.getPrivateProperty("eglWindowSurfaceFactory")
         assertNotNull(eglWindowSurfaceFactory)
 
-        val eglSurface = mockk<EGLSurface>()
         every {
             egl.eglCreateWindowSurface(
                 eglDisplay,
@@ -2402,7 +2335,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2424,7 +2356,6 @@ class GLTextureViewTest {
         assertNull(eglField.get(eglHelper))
 
         // set egl
-        val egl = mockk<EGL10>()
         every { egl.eglGetError() }.returns(EGL10.EGL_BAD_NATIVE_WINDOW)
         eglField.set(eglHelper, egl)
 
@@ -2436,7 +2367,6 @@ class GLTextureViewTest {
         assertNull(eglDisplayField.get(eglHelper))
 
         // set eglDisplay
-        val eglDisplay = mockk<EGLDisplay>()
         eglDisplayField.set(eglHelper, eglDisplay)
 
         assertSame(eglDisplay, eglDisplayField.get(eglHelper))
@@ -2447,7 +2377,6 @@ class GLTextureViewTest {
         assertNull(eglConfigField.get(eglHelper))
 
         // set eglConfig
-        val eglConfig = mockk<EGLConfig>()
         eglConfigField.set(eglHelper, eglConfig)
 
         assertSame(eglConfig, eglConfigField.get(eglHelper))
@@ -2458,9 +2387,7 @@ class GLTextureViewTest {
 
         assertNull(eglContextField.get(eglHelper))
 
-        val eglContext = mockk<EGLContext>()
         eglContextField.set(eglHelper, eglContext)
-
 
         every {
             egl.eglMakeCurrent(
@@ -2479,7 +2406,6 @@ class GLTextureViewTest {
             view.getPrivateProperty("eglWindowSurfaceFactory")
         assertNotNull(eglWindowSurfaceFactory)
 
-        val eglSurface = mockk<EGLSurface>()
         every {
             egl.eglCreateWindowSurface(
                 eglDisplay,
@@ -2503,7 +2429,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2536,7 +2461,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2568,7 +2492,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2588,7 +2511,6 @@ class GLTextureViewTest {
         glSurfaceViewWeakRefField.isAccessible = true
         assertNotNull(glSurfaceViewWeakRefField.get(eglHelper))
 
-        val glWrapper = mockk<GLTextureView.GLWrapper>()
         every { glWrapper.wrap(any()) }.returns(null)
         view.setGLWrapper(glWrapper)
 
@@ -2604,7 +2526,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         view.debugFlags = GLTextureView.DEBUG_CHECK_GL_ERROR
@@ -2626,7 +2547,6 @@ class GLTextureViewTest {
         glSurfaceViewWeakRefField.isAccessible = true
         assertNotNull(glSurfaceViewWeakRefField.get(eglHelper))
 
-        val glWrapper = mockk<GLTextureView.GLWrapper>()
         every { glWrapper.wrap(any()) }.returns(null)
         view.setGLWrapper(glWrapper)
 
@@ -2642,7 +2562,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         view.debugFlags = GLTextureView.DEBUG_LOG_GL_CALLS
@@ -2664,7 +2583,6 @@ class GLTextureViewTest {
         glSurfaceViewWeakRefField.isAccessible = true
         assertNotNull(glSurfaceViewWeakRefField.get(eglHelper))
 
-        val glWrapper = mockk<GLTextureView.GLWrapper>()
         every { glWrapper.wrap(any()) }.returns(null)
         view.setGLWrapper(glWrapper)
 
@@ -2680,7 +2598,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         view.debugFlags = GLTextureView.DEBUG_LOG_GL_CALLS
@@ -2704,7 +2621,6 @@ class GLTextureViewTest {
         assertNull(eglField.get(eglHelper))
 
         // set egl
-        val egl = mockk<EGL10>()
         every { egl.eglSwapBuffers(any(), any()) }.returns(false)
         every { egl.eglGetError() }.returns(EGL10.EGL_BAD_NATIVE_WINDOW)
         eglField.set(eglHelper, egl)
@@ -2722,7 +2638,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         view.debugFlags = GLTextureView.DEBUG_LOG_GL_CALLS
@@ -2746,7 +2661,6 @@ class GLTextureViewTest {
         assertNull(eglField.get(eglHelper))
 
         // set egl
-        val egl = mockk<EGL10>()
         every { egl.eglSwapBuffers(any(), any()) }.returns(true)
         eglField.set(eglHelper, egl)
 
@@ -2762,7 +2676,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2794,7 +2707,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2816,7 +2728,6 @@ class GLTextureViewTest {
 
         assertNull(eglSurfaceField.get(eglHelper))
 
-        val eglSurface = mockk<EGLSurface>()
         eglSurfaceField.set(eglHelper, eglSurface)
 
         assertSame(eglSurface, eglSurfaceField.get(eglHelper))
@@ -2827,7 +2738,6 @@ class GLTextureViewTest {
         assertNull(eglField.get(eglHelper))
 
         // set egl
-        val egl = mockk<EGL10>()
         eglField.set(eglHelper, egl)
 
         assertSame(egl, eglField.get(eglHelper))
@@ -2856,7 +2766,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2878,7 +2787,6 @@ class GLTextureViewTest {
 
         assertNull(eglContextField.get(eglHelper))
 
-        val eglContext = mockk<EGLContext>()
         eglContextField.set(eglHelper, eglContext)
 
         assertSame(eglContext, eglContextField.get(eglHelper))
@@ -2889,7 +2797,6 @@ class GLTextureViewTest {
 
         assertNull(eglDisplayField.get(eglHelper))
 
-        val eglDisplay = mockk<EGLDisplay>()
         eglDisplayField.set(eglHelper, eglDisplay)
 
         // invoke finish
@@ -2909,7 +2816,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         val glThread: Thread? = view.getPrivateProperty("glThread")
@@ -2931,7 +2837,6 @@ class GLTextureViewTest {
 
         assertNull(eglField.get(eglHelper))
 
-        val egl = mockk<EGL10>()
         every { egl.eglDestroyContext(any(), any()) }.returns(true)
         every { egl.eglTerminate(any()) }.returns(true)
         eglField.set(eglHelper, egl)
@@ -2942,7 +2847,6 @@ class GLTextureViewTest {
 
         assertNull(eglContextField.get(eglHelper))
 
-        val eglContext = mockk<EGLContext>()
         eglContextField.set(eglHelper, eglContext)
 
         assertSame(eglContext, eglContextField.get(eglHelper))
@@ -2953,7 +2857,6 @@ class GLTextureViewTest {
 
         assertNull(eglDisplayField.get(eglHelper))
 
-        val eglDisplay = mockk<EGLDisplay>()
         eglDisplayField.set(eglHelper, eglDisplay)
 
         // invoke finish
@@ -2970,7 +2873,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -3025,7 +2927,7 @@ class GLTextureViewTest {
         val renderModeField = glThreadClass.getDeclaredField("_renderMode")
         renderModeField.isAccessible = true
         val renderMode = renderModeField.getInt(glThread)
-        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_CONTINUOUSLY, renderMode)
 
         // invoke ableToDraw
         val ableToDrawMethod = glThread.javaClass.getMethod("ableToDraw")
@@ -3039,7 +2941,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -3100,7 +3001,7 @@ class GLTextureViewTest {
         val renderModeField = glThreadClass.getDeclaredField("_renderMode")
         renderModeField.isAccessible = true
         val renderMode = renderModeField.getInt(glThread)
-        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_CONTINUOUSLY, renderMode)
 
         // invoke ableToDraw
         val ableToDrawMethod = glThread.javaClass.getMethod("ableToDraw")
@@ -3114,7 +3015,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -3181,7 +3081,7 @@ class GLTextureViewTest {
         val renderModeField = glThreadClass.getDeclaredField("_renderMode")
         renderModeField.isAccessible = true
         val renderMode = renderModeField.getInt(glThread)
-        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_CONTINUOUSLY, renderMode)
 
         // invoke ableToDraw
         val ableToDrawMethod = glThread.javaClass.getMethod("ableToDraw")
@@ -3195,7 +3095,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -3280,7 +3179,7 @@ class GLTextureViewTest {
         val renderModeField = glThreadClass.getDeclaredField("_renderMode")
         renderModeField.isAccessible = true
         val renderMode = renderModeField.getInt(glThread)
-        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_CONTINUOUSLY, renderMode)
 
         // invoke ableToDraw
         val ableToDrawMethod = glThread.javaClass.getMethod("ableToDraw")
@@ -3294,7 +3193,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -3339,7 +3237,7 @@ class GLTextureViewTest {
         val renderModeField = glThreadClass.getDeclaredField("_renderMode")
         renderModeField.isAccessible = true
         val renderMode = renderModeField.getInt(glThread)
-        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_CONTINUOUSLY, renderMode)
 
         // invoke readyToDraw
         val readyToDrawMethod = glThread.javaClass.getMethod("readyToDraw")
@@ -3353,7 +3251,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -3416,7 +3313,7 @@ class GLTextureViewTest {
         val renderModeField = glThreadClass.getDeclaredField("_renderMode")
         renderModeField.isAccessible = true
         val renderMode = renderModeField.getInt(glThread)
-        assertEquals(GLTextureView.RENDERMODE_CONTINUOUSLY, renderMode)
+        assertEquals(GLTextureView.RENDER_MODE_CONTINUOUSLY, renderMode)
 
         // invoke readyToDraw
         val readyToDrawMethod = glThread.javaClass.getMethod("readyToDraw")
@@ -3430,7 +3327,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -3494,7 +3390,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         justRun { renderer.onSurfaceChanged(any(), any(), any()) }
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
@@ -3579,7 +3474,6 @@ class GLTextureViewTest {
         assertNull(eglField.get(eglHelper))
 
         // set egl
-        val egl = mockk<EGL10>()
         every { egl.eglGetError() }.returns(EGL10.EGL_BAD_NATIVE_WINDOW)
         eglField.set(eglHelper, egl)
 
@@ -3591,7 +3485,6 @@ class GLTextureViewTest {
         assertNull(eglDisplayField.get(eglHelper))
 
         // set eglDisplay
-        val eglDisplay = mockk<EGLDisplay>()
         eglDisplayField.set(eglHelper, eglDisplay)
 
         assertSame(eglDisplay, eglDisplayField.get(eglHelper))
@@ -3602,7 +3495,6 @@ class GLTextureViewTest {
         assertNull(eglConfigField.get(eglHelper))
 
         // set eglConfig
-        val eglConfig = mockk<EGLConfig>()
         eglConfigField.set(eglHelper, eglConfig)
 
         assertSame(eglConfig, eglConfigField.get(eglHelper))
@@ -3613,7 +3505,6 @@ class GLTextureViewTest {
 
         assertNull(eglContextField.get(eglHelper))
 
-        val eglContext = mockk<EGLContext>()
         eglContextField.set(eglHelper, eglContext)
 
         every {
@@ -3633,7 +3524,6 @@ class GLTextureViewTest {
             view.getPrivateProperty("eglWindowSurfaceFactory")
         assertNotNull(eglWindowSurfaceFactory)
 
-        val eglSurface = mockk<EGLSurface>()
         every {
             egl.eglCreateWindowSurface(
                 eglDisplay,
@@ -3673,7 +3563,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -3722,7 +3611,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -3762,8 +3650,9 @@ class GLTextureViewTest {
         // it from another thread, and then we need to request thread to exit
         val thread = Thread {
             try {
+                @Suppress("CallToThreadRun")
                 glThread.run()
-            } catch (e: Throwable) {
+            } catch (_: Throwable) {
                 threadFailures++
                 fail()
             }
@@ -3789,7 +3678,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -3836,7 +3724,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         view.setRenderer(renderer)
 
         Thread.sleep(SLEEP)
@@ -3884,7 +3771,7 @@ class GLTextureViewTest {
         @Suppress("UNCHECKED_CAST")
         val logWriterClass: Class<Writer> =
             classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
-        val logWriter = logWriterClass.newInstance()
+        val logWriter = logWriterClass.getDeclaredConstructor().newInstance()
         requireNotNull(logWriter)
 
         logWriter.close()
@@ -3897,7 +3784,7 @@ class GLTextureViewTest {
         @Suppress("UNCHECKED_CAST")
         val logWriterClass: Class<Writer> =
             classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
-        val logWriter = logWriterClass.newInstance()
+        val logWriter = logWriterClass.getDeclaredConstructor().newInstance()
         requireNotNull(logWriter)
 
         logWriter.use {
@@ -3912,7 +3799,7 @@ class GLTextureViewTest {
         @Suppress("UNCHECKED_CAST")
         val logWriterClass: Class<Writer> =
             classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
-        val logWriter = logWriterClass.newInstance()
+        val logWriter = logWriterClass.getDeclaredConstructor().newInstance()
         requireNotNull(logWriter)
 
         logWriter.use {
@@ -3927,7 +3814,7 @@ class GLTextureViewTest {
         @Suppress("UNCHECKED_CAST")
         val logWriterClass: Class<Writer> =
             classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
-        val logWriter = logWriterClass.newInstance()
+        val logWriter = logWriterClass.getDeclaredConstructor().newInstance()
         requireNotNull(logWriter)
 
         val msg = "message with \nline break"
@@ -3943,7 +3830,7 @@ class GLTextureViewTest {
         @Suppress("UNCHECKED_CAST")
         val logWriterClass: Class<Writer> =
             classes.firstOrNull { it.name.endsWith("LogWriter") } as Class<Writer>
-        val logWriter = logWriterClass.newInstance()
+        val logWriter = logWriterClass.getDeclaredConstructor().newInstance()
         requireNotNull(logWriter)
 
         logWriter.use {
@@ -3957,7 +3844,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         justRun { renderer.onSurfaceChanged(any(), any(), any()) }
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
@@ -4005,7 +3891,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         justRun { renderer.onSurfaceChanged(any(), any(), any()) }
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
@@ -4059,7 +3944,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         justRun { renderer.onSurfaceChanged(any(), any(), any()) }
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
@@ -4108,7 +3992,6 @@ class GLTextureViewTest {
         val view2 = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         justRun { renderer.onSurfaceChanged(any(), any(), any()) }
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
@@ -4171,7 +4054,6 @@ class GLTextureViewTest {
         val view2 = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         justRun { renderer.onSurfaceChanged(any(), any(), any()) }
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
@@ -4235,7 +4117,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         justRun { renderer.onSurfaceChanged(any(), any(), any()) }
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
@@ -4278,7 +4159,6 @@ class GLTextureViewTest {
         val view = GLTextureView(context)
 
         // set renderer
-        val renderer = mockk<GLSurfaceView.Renderer>()
         justRun { renderer.onSurfaceChanged(any(), any(), any()) }
         justRun { renderer.onDrawFrame(any()) }
         view.setRenderer(renderer)
