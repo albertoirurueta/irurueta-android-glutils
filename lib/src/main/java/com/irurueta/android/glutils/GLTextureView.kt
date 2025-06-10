@@ -49,38 +49,129 @@ open class GLTextureView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : TextureView(context, attrs, defStyleAttr) {
 
+    /**
+     * Weak reference to this view.
+     */
     @Suppress("LeakingThis")
     private val thisWeakRef = WeakReference(this)
+
+    /**
+     * The thread that will call the renderer.
+     */
     private var glThread: GLThread? = null
+
+    /**
+     * Manager of the GL thread.
+     * Keeps lock and condition to synchronize access to the GL thread.
+     */
     private val glThreadManager = GLThreadManager()
+
+    /**
+     * The renderer that will draw the scene.
+     * A renderer is responsible for drawing graphics using OpenGL ES.
+     * An application typically creates an implementation of this interface, and calls
+     * [setRenderer] to register it with the GLTextureView.
+     */
     private var renderer: GLSurfaceView.Renderer? = null
+
+    /**
+     * Indicates whether the view is detached from a window.
+     */
     private var detached = true
+
+    /**
+     * The EGL configuration chooser.
+     * This is used to choose an EGLConfig configuration from a list of potential configurations,
+     * such as the color depth, stencil buffer, and so on.
+     */
     private var eglConfigChooser: EGLConfigChooser? = null
+
+    /**
+     * The EGL context factory.
+     * This is used to customize the eglCreateContext and eglDestroyContext calls, such as setting
+     * the EGLContext client version.
+     */
     private var eglContextFactory: EGLContextFactory? = null
+
+    /**
+     * The EGL window surface factory.
+     * This is used to customize the eglCreateWindowSurface and eglDestroySurface calls, such as
+     * setting the EGLConfig configuration.
+     */
     private var eglWindowSurfaceFactory: EGLWindowSurfaceFactory? = null
+
+    /**
+     * The GL wrapper.
+     * If the glWrapper is not null, its [GLWrapper.wrap] method is called whenever a surface is
+     * created. A GLWrapper can be used to wrap the GL object that's passed to the renderer.
+     * Wrapping a GL object enables examining and modifying the behavior of the GL calls made by
+     * the renderer.
+     */
     private var glWrapper: GLWrapper? = null
+
+    /**
+     * The EGL context client version.
+     * This is used to set the EGLContext client version to pick.
+     */
     private var eglContextClientVersion = 0
 
+    /**
+     * Listener to handle surface texture events.
+     * This is used to create and start the GL thread when the surface is created.
+     */
     private val surfaceTextureListener = object : SurfaceTextureListener {
+        /**
+         * Called when the surface texture is available.
+         * This is used to create and start the GL thread.
+         *
+         * @param surface the surface texture.
+         * @param width the width of the surface texture expressed in pixels.
+         * @param height the height of the surface texture expressed in pixels.
+         */
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
             surfaceCreated(surface)
             surfaceChanged(surface, width, height)
         }
 
+        /**
+         * Called when the size of the surface texture changes.
+         * This is used to update the size of the surface.
+         *
+         * @param surface the surface texture.
+         * @param width the new width of the surface texture expressed in pixels.
+         * @param height the new height of the surface texture expressed in pixels.
+         */
         override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
             surfaceChanged(surface, width, height)
         }
 
+        /**
+         * Called when the surface texture is destroyed.
+         * This is used to destroy the surface.
+         *
+         * @param surface the surface texture.
+         * @return true if the surface texture is destroyed, false otherwise.
+         */
         override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
             surfaceDestroyed(surface)
             return true
         }
 
+        /**
+         * Called when the surface texture is updated.
+         * This is used to update the surface.
+         *
+         * @param surface the surface texture.
+         */
         override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
             // no action needed
         }
     }
 
+    /**
+     * Listener to handle layout changes.
+     * This is used to update the size of the surface when the layout changes.
+     */
     private val layoutChangeListener =
         OnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
             surfaceChanged(
@@ -227,6 +318,13 @@ open class GLTextureView @JvmOverloads constructor(
      *
      * If no [setEGLConfigChooser] method is called, then by default the view will choose an RGB_888
      * surface with a depth buffer of at least 16 bits.
+     *
+     * @param redSize the size of the red component in bits.
+     * @param greenSize the size of the green component in bits.
+     * @param blueSize the size of the blue component in bits.
+     * @param alphaSize the size of the alpha component in bits.
+     * @param depthSize the size of the depth buffer in bits.
+     * @param stencilSize the size of the stencil buffer in bits.
      */
     fun setEGLConfigChooser(
         redSize: Int,
@@ -344,6 +442,10 @@ open class GLTextureView @JvmOverloads constructor(
         glThread?.queueEvent(r)
     }
 
+    /**
+     * This method is used by the internal [TextureView.SurfaceTextureListener], and is not normally
+     * called or subclassed by clients of GLTextureView.
+     */
     protected fun finalize() {
         // GLThread may still be running if this view was never
         // attached to a window
@@ -428,14 +530,49 @@ open class GLTextureView @JvmOverloads constructor(
     }
 
     companion object {
+        /**
+         * The tag for logging.
+         */
         private const val TAG = "GLTextureView"
+
+        /**
+         * Set to true to enable verbose logging.
+         */
         private const val LOG_ATTACH_DETACH = true
+
+        /**
+         * Set to true to log thread creation and destruction.
+         */
         private const val LOG_THREADS = true
+
+        /**
+         * Set to true to log thread pause and resume.
+         */
         private const val LOG_PAUSE_RESUME = true
+
+        /**
+         * Set to true to log surface creation and destruction.
+         */
         private const val LOG_SURFACE = true
+
+        /**
+         * Set to true to log surface size changes.
+         */
         private const val LOG_RENDERER = true
+
+        /**
+         * Set to true to log draw frame completion.
+         */
         private const val LOG_RENDERER_DRAW_FRAME = false
+
+        /**
+         * Set to true to log EGL configuration changes.
+         */
         private const val LOG_EGL = true
+
+        /**
+         * The main thread name.
+         */
         const val MAIN_THREAD = "Main thread"
 
         /**
@@ -518,8 +655,23 @@ open class GLTextureView @JvmOverloads constructor(
      * This interface must be implemented by clients wishing to call [setEGLContextFactory]
      */
     interface EGLContextFactory {
+        /**
+         * Create a GL context.
+         *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @param eglConfig the current EGLConfig.
+         * @return the EGL context.
+         */
         fun createContext(egl: EGL10?, display: EGLDisplay?, eglConfig: EGLConfig?): EGLContext?
 
+        /**
+         * Destroy a GL context.
+         *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @param context the context to destroy.
+         */
         fun destroyContext(egl: EGL10?, display: EGLDisplay?, context: EGLContext?)
     }
 
@@ -532,6 +684,10 @@ open class GLTextureView @JvmOverloads constructor(
         /**
          * Creates a window surface to draw into.
          *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @param config the current EGLConfig.
+         * @param nativeWindow the native window to draw into.
          * @return null if the surface cannot be constructed
          */
         fun createWindowSurface(
@@ -541,6 +697,13 @@ open class GLTextureView @JvmOverloads constructor(
             nativeWindow: Any?
         ): EGLSurface?
 
+        /**
+         * Destroys a window surface.
+         *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @param surface the surface to destroy.
+         */
         fun destroySurface(egl: EGL10?, display: EGLDisplay?, surface: EGLSurface?)
     }
 
@@ -562,7 +725,19 @@ open class GLTextureView @JvmOverloads constructor(
         fun chooseConfig(egl: EGL10?, display: EGLDisplay?): EGLConfig
     }
 
+    /**
+     * A simple [EGLContextFactory] for use with [GLTextureView] classes.
+     * This class is used to create a new OpenGL ES context when the view is created
+     * and to destroy the OpenGL ES context when the view is destroyed.
+     */
     private inner class DefaultContextFactory : EGLContextFactory {
+        /**
+         * Create a new OpenGL ES context.
+         *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @param eglConfig the current EGLConfig.
+         */
         override fun createContext(
             egl: EGL10?,
             display: EGLDisplay?,
@@ -578,6 +753,13 @@ open class GLTextureView @JvmOverloads constructor(
             )
         }
 
+        /**
+         * Destroy an OpenGL ES context.
+         *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @param context the context to destroy.
+         */
         override fun destroyContext(egl: EGL10?, display: EGLDisplay?, context: EGLContext?) {
             if (egl?.eglDestroyContext(display, context) != true) {
                 Log.e("DefaultContextFactory", "display: $display context: $context")
@@ -589,7 +771,21 @@ open class GLTextureView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * A default [EGLWindowSurfaceFactory] for use with [GLTextureView] classes.
+     * This class is used to create a new window surface when the view is created
+     * and to destroy the window surface when the view is destroyed.
+     */
     private class DefaultWindowSurfaceFactory : EGLWindowSurfaceFactory {
+        /**
+         * Creates a window surface to draw into.
+         *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @param config the current EGLConfig.
+         * @param nativeWindow the native window to draw into.
+         * @return null if the surface cannot be constructed
+         */
         override fun createWindowSurface(
             egl: EGL10?,
             display: EGLDisplay?,
@@ -610,18 +806,41 @@ open class GLTextureView @JvmOverloads constructor(
             return result
         }
 
+        /**
+         * Destroys a window surface.
+         *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @param surface the surface to destroy.
+         */
         override fun destroySurface(egl: EGL10?, display: EGLDisplay?, surface: EGLSurface?) {
             egl?.eglDestroySurface(display, surface)
         }
     }
 
+    /**
+     * An abstract base class for choosing an EGLConfig configuration.
+     */
     private abstract inner class BaseConfigChooser(configSpec: IntArray) : EGLConfigChooser {
+        /**
+         * The configuration spec.
+         */
         private var configSpec: IntArray? = null
 
+        /**
+         * Initializes the base config chooser.
+         */
         init {
             this.configSpec = filterConfigSpec(configSpec)
         }
 
+        /**
+         * Choose a configuration from the list.
+         *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @return the chosen configuration.
+         */
         override fun chooseConfig(egl: EGL10?, display: EGLDisplay?): EGLConfig {
             val numConfig = IntArray(1)
             if (egl?.eglChooseConfig(display, configSpec, null, 0, numConfig) != true) {
@@ -642,12 +861,26 @@ open class GLTextureView @JvmOverloads constructor(
                 ?: throw IllegalArgumentException("No config chosen")
         }
 
+        /**
+         * Chooses a configuration from the list of configurations.
+         *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @param configs the list of configurations.
+         * @return the chosen configuration.
+         */
         abstract fun chooseConfig(
             egl: EGL10?,
             display: EGLDisplay?,
             configs: Array<EGLConfig?>
         ): EGLConfig?
 
+        /**
+         * Filters the configuration spec.
+         *
+         * @param configSpec the configuration spec.
+         * @return the filtered configuration spec.
+         */
         private fun filterConfigSpec(configSpec: IntArray): IntArray {
             if (eglContextClientVersion != 2) {
                 return configSpec
@@ -667,6 +900,13 @@ open class GLTextureView @JvmOverloads constructor(
     /**
      * Choose a configuration with exactly the specified r,g,b,a sizes, and at least the specified
      * depth and stencil sizes.
+     *
+     * @param redSize the size of the red component in bits.
+     * @param greenSize the size of the green component in bits.
+     * @param blueSize the size of the blue component in bits.
+     * @param alphaSize the size of the alpha component in bits.
+     * @param depthSize the size of the depth buffer in bits.
+     * @param stencilSize the size of the stencil buffer in bits.
      */
     private open inner class ComponentSizeChooser(
         private val redSize: Int,
@@ -692,8 +932,19 @@ open class GLTextureView @JvmOverloads constructor(
             EGL10.EGL_NONE
         )
     ) {
+        /**
+         * A value.
+         */
         private val value = IntArray(1)
 
+        /**
+         * Chooses a configuration from the list of configurations.
+         *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @param configs the list of configurations.
+         * @return the chosen configuration.
+         */
         override fun chooseConfig(
             egl: EGL10?,
             display: EGLDisplay?,
@@ -715,6 +966,14 @@ open class GLTextureView @JvmOverloads constructor(
             return null
         }
 
+        /**
+         * Finds a configuration attribute.
+         *
+         * @param egl the EGL10 for the current display.
+         * @param display the current display.
+         * @param config the current configuration.
+         * @param attribute the attribute to find.
+         */
         private fun findConfigAttrib(
             egl: EGL10?,
             display: EGLDisplay?,
@@ -737,14 +996,34 @@ open class GLTextureView @JvmOverloads constructor(
 
     /**
      * An EGL helper class.
+     *
+     * @param glSurfaceViewWeakRef the weak reference to the GLTextureView.
      */
     private class EglHelper(private val glSurfaceViewWeakRef: WeakReference<GLTextureView>) {
 
+        /**
+         * The EGL10.
+         */
         private var egl: EGL10? = null
+
+        /**
+         * The EGL display.
+         */
         private var eglDisplay: EGLDisplay? = null
+
+        /**
+         * The EGL surface.
+         */
         private var eglSurface: EGLSurface? = null
+
+        /**
+         * The EGL context.
+         */
         private var eglContext: EGLContext? = null
 
+        /**
+         * The EGL configuration.
+         */
         var eglConfig: EGLConfig? = null
             private set
 
@@ -888,6 +1167,9 @@ open class GLTextureView @JvmOverloads constructor(
             return EGL10.EGL_SUCCESS
         }
 
+        /**
+         * Destroy the current surface.
+         */
         fun destroySurface() {
             if (LOG_EGL) {
                 Log.w("EglHelper", "destroySurface() tid=" + Thread.currentThread().id)
@@ -895,6 +1177,9 @@ open class GLTextureView @JvmOverloads constructor(
             destroySurfaceImp()
         }
 
+        /**
+         * Finish the egl context.
+         */
         fun finish() {
             if (LOG_EGL) {
                 Log.w("EglHelper", "finish() tid=" + Thread.currentThread().id)
@@ -910,6 +1195,9 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Terminate the egl context.
+         */
         private fun destroySurfaceImp() {
             if (eglSurface != null && eglSurface != EGL10.EGL_NO_SURFACE) {
                 egl?.eglMakeCurrent(
@@ -925,6 +1213,12 @@ open class GLTextureView @JvmOverloads constructor(
         }
 
         companion object {
+            /**
+             * Throws an exception with the given function and error.
+             *
+             * @param function the function.
+             * @param error the error.
+             */
             fun throwEglException(function: String, error: Int?) {
                 val message = formatEglError(function, error)
                 if (LOG_THREADS) {
@@ -936,10 +1230,24 @@ open class GLTextureView @JvmOverloads constructor(
                 throw RuntimeException(message)
             }
 
+            /**
+             * Logs an EGL error as a warning.
+             *
+             * @param tag the tag.
+             * @param function the function.
+             * @param error the error.
+             */
             fun logEglErrorAsWarning(tag: String, function: String, error: Int?) {
                 Log.w(tag, formatEglError(function, error))
             }
 
+            /**
+             * Formats an EGL error.
+             *
+             * @param function the function.
+             * @param error the error.
+             * @return the formatted error.
+             */
             fun formatEglError(function: String, error: Int?): String {
                 return function + " failed" + if (error != null) ": $error" else ""
             }
@@ -952,6 +1260,8 @@ open class GLTextureView @JvmOverloads constructor(
      * @property glSurfaceViewWeakRef set once at thread construction time. Nulled out when the
      * parent view is garbage called. This weak reference allows the GLTextureView to be garbage
      * collected while the GLThread is still alive.
+     * @property glThreadManager the manager for the GLThread. This is used to communicate with the
+     * the parent GLTextureView.
      */
     private class GLThread(
         private val glSurfaceViewWeakRef: WeakReference<GLTextureView>,
@@ -960,28 +1270,102 @@ open class GLTextureView @JvmOverloads constructor(
 
         // Once the thread is started, all accesses to the following member variables are protected
         // by the glThreadManager monitor
+
+        /**
+         * Indicates if the thread has exited.
+         */
         var exited = false
+
+        /**
+         * Indicates if the thread should exit.
+         */
         private var shouldExit = false
+
+        /**
+         * Indicates if there is a thread pending to be paused.
+         */
         private var requestPaused = false
+
+        /**
+         * Indicates if the thread is paused.
+         */
         private var paused = false
+
+        /**
+         * Indicates if the surface is ready.
+         */
         private var hasSurface = false
+
+        /**
+         * Indicates if the surface is bad.
+         */
         private var surfaceIsBad = false
+
+        /**
+         * Indicates if the thread is waiting for the surface.
+         */
         private var waitingForSurface = false
+
+        /**
+         * Indicates if the thread has an EGL context.
+         */
         private var haveEglContext = false
+
+        /**
+         * Indicates if the thread has an EGL surface.
+         */
         private var haveEglSurface = false
+
+        /**
+         * Indicates if the thread should release the EGL context.
+         */
         private var shouldReleaseEglContext = false
+
+        /**
+         * Width of the surface in pixels.
+         */
         private var width = 0
+
+        /**
+         * Height of the surface in pixels.
+         */
         private var height = 0
+
+        /**
+         * The render mode.
+         */
         private var _renderMode = RENDER_MODE_CONTINUOUSLY
+
+        /**
+         * Indicates if a render is requested.
+         */
         private var requestRender = true
+
+        /**
+         * Indicates if the render is complete.
+         */
         private var renderComplete = false
+
+        /**
+         * The event queue. This is used to queue events to be run on the GL rendering thread.
+         */
         private var eventQueue = ArrayList<Runnable>()
+
+        /**
+         * Indicates if the size has changed.
+         */
         private var sizeChanged = true
 
         // End of member variables protected by the glThreadManager monitor
 
+        /**
+         * The EGL helper.
+         */
         private var eglHelper: EglHelper? = null
 
+        /**
+         * Executes the guarded run.
+         */
         override fun run() {
             name = "GLThread $id"
             if (LOG_THREADS) {
@@ -997,15 +1381,30 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Indicates if the thread is able to draw.
+         *
+         * @return true if the thread is able to draw, false otherwise.
+         */
         fun ableToDraw(): Boolean {
             return haveEglContext && haveEglSurface && readyToDraw()
         }
 
+        /**
+         * Indicates if the thread is ready to draw.
+         *
+         * @return true if the thread is ready to draw, false otherwise.
+         */
         fun readyToDraw(): Boolean {
             return !paused && hasSurface && !surfaceIsBad && width > 0 && height > 0 &&
                     (requestRender || _renderMode == RENDER_MODE_CONTINUOUSLY)
         }
 
+        /**
+         * Gets the render mode.
+         *
+         * @return the render mode.
+         */
         var renderMode: Int
             get() {
                 glThreadManager.lock.withLock {
@@ -1022,6 +1421,9 @@ open class GLTextureView @JvmOverloads constructor(
                 }
             }
 
+        /**
+         * Requests a render.
+         */
         fun requestRender() {
             glThreadManager.lock.withLock {
                 requestRender = true
@@ -1029,6 +1431,9 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Called when the surface is created.
+         */
         fun surfaceCreated() {
             glThreadManager.lock.withLock {
                 if (LOG_THREADS) {
@@ -1046,6 +1451,9 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Called when the surface is destroyed.
+         */
         fun surfaceDestroyed() {
             glThreadManager.lock.withLock {
                 if (LOG_THREADS) {
@@ -1063,6 +1471,9 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Called when the thread is paused.
+         */
         fun onPause() {
             glThreadManager.lock.withLock {
                 if (LOG_PAUSE_RESUME) {
@@ -1083,6 +1494,9 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Called when the thread is resumed.
+         */
         fun onResume() {
             glThreadManager.lock.withLock {
                 if (LOG_PAUSE_RESUME) {
@@ -1105,6 +1519,12 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Called when the window is resized.
+         *
+         * @param w the new width of the window.
+         * @param h the new height of the window.
+         */
         fun onWindowResize(w: Int, h: Int) {
             glThreadManager.lock.withLock {
                 width = w
@@ -1131,6 +1551,9 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Requests the thread to exit and waits for it to finish.
+         */
         fun requestExitAndWait() {
             // don't call this from GLThread thread or it is a guaranteed
             // deadlock!
@@ -1147,6 +1570,9 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Requests the thread to release the EGL context.
+         */
         fun requestReleaseEglContextLocked() {
             shouldReleaseEglContext = true
             glThreadManager.condition.signalAll()
@@ -1164,7 +1590,10 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
-        // This private method should only be called inside a glThreadManager.lock.withLock{ }
+        /**
+         * Stops the EGL surface.
+         * This private method should only be called inside a glThreadManager.lock.withLock{ }
+         */
         private fun stopEglSurfaceLocked() {
             if (haveEglSurface) {
                 haveEglSurface = false
@@ -1172,7 +1601,10 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
-        // This private method should only be called inside a glThreadManager.lock.withLock{ }
+        /**
+         * Stops the EGL context.
+         * This private method should only be called inside a glThreadManager.lock.withLock{ }
+         */
         private fun stopEglContextLocked() {
             if (haveEglContext) {
                 eglHelper?.finish()
@@ -1181,6 +1613,9 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Executes the guarded run.
+         */
         private fun guardedRun() {
             eglHelper = EglHelper(glSurfaceViewWeakRef)
             haveEglContext = false
@@ -1474,18 +1909,37 @@ open class GLTextureView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Writer to log messages.
+     */
     private class LogWriter : Writer() {
 
+        /**
+         * The builder to store the log message.
+         */
         private val builder = StringBuilder()
 
+        /**
+         * Closes the writer.
+         */
         override fun close() {
             flushBuilder()
         }
 
+        /**
+         * Flushes the writer.
+         */
         override fun flush() {
             flushBuilder()
         }
 
+        /**
+         * Writes a buffer to the writer.
+         *
+         * @param buf the buffer to write.
+         * @param offset the offset in the buffer.
+         * @param count the number of characters to write.
+         */
         override fun write(buf: CharArray?, offset: Int, count: Int) {
             if (buf == null) {
                 return
@@ -1501,6 +1955,9 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Flushes the builder.
+         */
         private fun flushBuilder() {
             if (builder.isNotEmpty()) {
                 Log.v("GLTextureView", builder.toString())
@@ -1509,8 +1966,18 @@ open class GLTextureView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Manager for the GLThread.
+     */
     private class GLThreadManager {
+        /**
+         * The lock. This is used to synchronize access to the GLThreadManager.
+         */
         val lock = ReentrantLock()
+
+        /**
+         * The condition. This is used to communicate with the GLThread.
+         */
         val condition: Condition = lock.newCondition()
 
         /**
@@ -1519,11 +1986,27 @@ open class GLTextureView @JvmOverloads constructor(
          * on all Android 3.0+ EGL drivers.
          */
         private var glESDriverCheckComplete = false
+
+        /**
+         * Indicates if multiple GLES contexts are allowed.
+         */
         private var multipleGLESContextsAllowed = false
+
+        /**
+         * Indicates if limited GLES contexts are allowed.
+         */
         private var limitedGLESContexts = false
 
+        /**
+         * The EGL owner.
+         */
         private var eglOwner: GLThread? = null
 
+        /**
+         * Exits the thread.
+         *
+         * @param thread the thread.
+         */
         fun threadExiting(thread: GLThread) {
             lock.withLock {
                 if (LOG_THREADS) {
@@ -1542,6 +2025,7 @@ open class GLTextureView @JvmOverloads constructor(
          * Does not block.
          * Requires that we are already in the glThreadManager monitor when this is called.
          *
+         * @param thread the GL thread.
          * @return true if the right to use an EGL context was acquired.
          */
         fun tryAcquireEglContextLocked(thread: GLThread): Boolean {
@@ -1561,6 +2045,8 @@ open class GLTextureView @JvmOverloads constructor(
         /**
          * Releases the EGL context. Requires that we are already in the glThreadManager monitor
          * when this is called.
+         *
+         * @param thread the GL thread.
          */
         fun releaseEglContextLocked(thread: GLThread) {
             if (eglOwner == thread) {
@@ -1572,6 +2058,8 @@ open class GLTextureView @JvmOverloads constructor(
         /**
          * Releases the EGL context when pausing even if the hardware supports multiple EGL
          * contexts. Otherwise the device could run out of EGL contexts.
+         *
+         * @return true if the EGL context should be released when pausing, false otherwise.
          */
         fun shouldReleaseEGLContextWhenPausing(): Boolean {
             lock.withLock {
@@ -1579,12 +2067,22 @@ open class GLTextureView @JvmOverloads constructor(
             }
         }
 
+        /**
+         * Indicates if the EGL should be terminated when pausing.
+         *
+         * @return true if the EGL should be terminated when pausing, false otherwise.
+         */
         fun shouldTerminateEGLWhenPausing(): Boolean {
             lock.withLock {
                 return !multipleGLESContextsAllowed
             }
         }
 
+        /**
+         * Checks the GL driver.
+         *
+         * @param gl the GL.
+         */
         fun checkGLDriver(gl: GL10?) {
             lock.withLock {
                 if (!glESDriverCheckComplete) {
@@ -1607,8 +2105,14 @@ open class GLTextureView @JvmOverloads constructor(
         }
 
         companion object {
+            /**
+             * Tag for the log.
+             */
             const val TAG = "GLThreadManager"
 
+            /**
+             * Indicates if the threads are logged.
+             */
             const val RENDERER_PREFIX = "Q3Dimension MSM7500 "
         }
     }
