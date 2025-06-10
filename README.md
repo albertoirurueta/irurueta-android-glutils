@@ -29,7 +29,7 @@ This library contains:
 - GLTextureView: a view to to draw OpenGL scenes within a texture. Contrary to GLSurfaceView,
     GLTextureView belongs to the normal view hierarchy, allowing the view to be subject to common 
   view animations and effects such as background transparency for view composition.   
-  GLTextureView can be extender or composed into other views. Any renderer compatible with 
+  GLTextureView can be extended or composed into other views. Any renderer compatible with 
   GLSurfaceView is also compatible with GLTextureView.
 - Pinhole camera and camera matrices utilities.
 
