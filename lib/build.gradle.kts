@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.publish)
 }
 
-val libraryVersion = "1.1.1"
+val libraryVersion = "1.1.2"
 
 android {
     namespace = "com.irurueta.android.glutils"
@@ -135,7 +135,7 @@ mavenPublishing {
 
     pom {
         name.set("irurueta-android-glutils")
-        description.set("Recycler view utility to simplify adapter notifications when collections of data are modified")
+        description.set("OpenGL utilities for Android")
         inceptionYear.set("2025")
         url.set("https://github.com/albertoirurueta/irurueta-android-glutils/")
         licenses {
