@@ -1,5 +1,4 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
-import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     alias(libs.plugins.android.library)
@@ -9,7 +8,7 @@ plugins {
     alias(libs.plugins.publish)
 }
 
-val libraryVersion = "1.1.3"
+val libraryVersion = "1.1.4"
 
 android {
     namespace = "com.irurueta.android.glutils"
@@ -123,7 +122,7 @@ mavenPublishing {
         publishJavadocJar = true,
     ))
 
-    publishToMavenCentral(SonatypeHost.DEFAULT)
+    publishToMavenCentral()
     // or when publishing to https://s01.oss.sonatype.org
     //publishToMavenCentral(SonatypeHost.S01)
     // or when publishing to https://central.sonatype.com/
