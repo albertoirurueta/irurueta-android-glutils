@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.publish)
 }
 
-val libraryVersion = "1.1.5"
+val libraryVersion = "1.1.6"
 
 android {
     namespace = "com.irurueta.android.glutils"
@@ -108,6 +108,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core.ktx)
     testImplementation(libs.kotlin.reflect)
+    testImplementation(libs.irurueta.test.utils)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.test.core.ktx)

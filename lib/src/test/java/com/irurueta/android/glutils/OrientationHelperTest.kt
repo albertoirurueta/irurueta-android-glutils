@@ -22,6 +22,8 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.view.Display
 import android.view.Surface
+import com.irurueta.android.testutils.callPrivateStaticFunc
+import com.irurueta.android.testutils.callPrivateStaticFuncWithResult
 import com.irurueta.geometry.InhomogeneousPoint2D
 import com.irurueta.geometry.InhomogeneousPoint3D
 import com.irurueta.geometry.PinholeCamera
@@ -6186,23 +6188,23 @@ class OrientationHelperTest {
         val name = "convertOrientationDegreesToEnum"
         assertEquals(
             CameraToDisplayOrientation.ORIENTATION_0_DEGREES,
-            OrientationHelper.callPrivateStaticFunc(name, 0)
+            OrientationHelper.callPrivateStaticFuncWithResult(name, 0)
         )
         assertEquals(
             CameraToDisplayOrientation.ORIENTATION_90_DEGREES,
-            OrientationHelper.callPrivateStaticFunc(name, 90)
+            OrientationHelper.callPrivateStaticFuncWithResult(name, 90)
         )
         assertEquals(
             CameraToDisplayOrientation.ORIENTATION_180_DEGREES,
-            OrientationHelper.callPrivateStaticFunc(name, 180)
+            OrientationHelper.callPrivateStaticFuncWithResult(name, 180)
         )
         assertEquals(
             CameraToDisplayOrientation.ORIENTATION_270_DEGREES,
-            OrientationHelper.callPrivateStaticFunc(name, 270)
+            OrientationHelper.callPrivateStaticFuncWithResult(name, 270)
         )
         assertEquals(
             CameraToDisplayOrientation.ORIENTATION_UNKNOWN,
-            OrientationHelper.callPrivateStaticFunc(name, 45)
+            OrientationHelper.callPrivateStaticFuncWithResult(name, 45)
         )
     }
 
@@ -6253,42 +6255,42 @@ class OrientationHelperTest {
     @Test
     fun convertOrientationEnumToRotation() {
         val name = "convertOrientationEnumToRotation"
-        var rotation: Rotation2D? = OrientationHelper.callPrivateStaticFunc(
+        var rotation: Rotation2D? = OrientationHelper.callPrivateStaticFuncWithResult(
             name,
             CameraToDisplayOrientation.ORIENTATION_0_DEGREES
-        ) as Rotation2D?
+        )
 
         requireNotNull(rotation)
         assertEquals(0.0, rotation.theta, 0.0)
 
-        rotation = OrientationHelper.callPrivateStaticFunc(
+        rotation = OrientationHelper.callPrivateStaticFuncWithResult(
             name,
             CameraToDisplayOrientation.ORIENTATION_90_DEGREES
-        ) as Rotation2D?
+        )
 
         requireNotNull(rotation)
         assertEquals(Math.PI / 2.0, rotation.theta, 0.0)
 
-        rotation = OrientationHelper.callPrivateStaticFunc(
+        rotation = OrientationHelper.callPrivateStaticFuncWithResult(
             name,
             CameraToDisplayOrientation.ORIENTATION_180_DEGREES
-        ) as Rotation2D?
+        )
 
         requireNotNull(rotation)
         assertEquals(Math.PI, rotation.theta, 0.0)
 
-        rotation = OrientationHelper.callPrivateStaticFunc(
+        rotation = OrientationHelper.callPrivateStaticFuncWithResult(
             name,
             CameraToDisplayOrientation.ORIENTATION_270_DEGREES
-        ) as Rotation2D?
+        )
 
         requireNotNull(rotation)
         assertEquals(3.0 * Math.PI / 2.0, rotation.theta, 0.0)
 
-        rotation = OrientationHelper.callPrivateStaticFunc(
+        rotation = OrientationHelper.callPrivateStaticFuncWithResult(
             name,
             CameraToDisplayOrientation.ORIENTATION_UNKNOWN
-        ) as Rotation2D?
+        )
 
         assertNull(rotation)
     }

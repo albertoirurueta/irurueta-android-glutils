@@ -22,6 +22,9 @@ import android.opengl.GLSurfaceView
 import android.view.TextureView
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
+import com.irurueta.android.testutils.callPrivateFunc
+import com.irurueta.android.testutils.getPrivateProperty
+import com.irurueta.android.testutils.setPrivateProperty
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit4.MockKRule
