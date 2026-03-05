@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.publish)
 }
 
-val libraryVersion = "1.1.10"
+val libraryVersion = "1.1.11"
 
 android {
     namespace = "com.irurueta.android.glutils"
@@ -21,7 +21,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val buildNumber = System.getenv("BUILD_NUMBER")
+        val buildNumber = System.getenv("BUILD_NUMBER") ?: ""
         val apkPrefixLabels = listOf("glutils", libraryVersion, buildNumber)
         base.archivesName = apkPrefixLabels.filter({ it != "" }) .joinToString("-")
     }

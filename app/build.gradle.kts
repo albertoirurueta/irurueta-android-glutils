@@ -19,11 +19,11 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 10
-        versionName = "1.1.10"
+        versionName = "1.1.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val buildNumber = System.getenv("BUILD_NUMBER")
+        val buildNumber = System.getenv("BUILD_NUMBER") ?: ""
         buildConfigField("String", "BUILD_NUMBER", "\"$buildNumber\"")
         val dateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         buildConfigField("String", "BUILD_TIMESTAMP", "\"" + dateFormatter.format(Date()) + "\"")
