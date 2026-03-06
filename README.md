@@ -38,5 +38,5 @@ This library contains:
 Add the following dependency to your project:
 
 ```
-implementation 'com.irurueta:irurueta-android-glutils:1.1.10'
+implementation 'com.irurueta:irurueta-android-glutils:1.1.11'
 ```
