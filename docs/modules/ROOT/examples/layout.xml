@@ -1,0 +1,20 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- regular views drawn behind the OpenGL scene -->
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background" />
+
+    <!-- translucent OpenGL scene composed on top of them -->
+    <com.example.scene.SceneTextureView
+        android:id="@+id/scene"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.9" />
+
+</FrameLayout>
