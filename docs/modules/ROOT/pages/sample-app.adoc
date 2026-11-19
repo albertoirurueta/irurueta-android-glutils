@@ -1,0 +1,20 @@
+= Sample app
+
+NOTE: This documentation was generated with the assistance of AI. Please report any inaccuracies.
+
+The repository contains an `app` module that depends on the `lib` module. It is currently a
+minimal placeholder activity used to check that the library builds and installs in an
+application.
+
+Build and install it on a connected device or emulator:
+
+[source,bash]
+----
+./gradlew :app:installDebug
+----
+
+For complete examples of views built on `GLTextureView` and `CameraConverter`, see the
+https://github.com/albertoirurueta/irurueta-android-gl-cube[irurueta-android-gl-cube] (a
+translucent 3D cube) and
+https://github.com/albertoirurueta/irurueta-android-gl-curl[irurueta-android-gl-curl] (page curl
+effect) libraries.

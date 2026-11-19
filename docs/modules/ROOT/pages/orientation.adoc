@@ -1,0 +1,51 @@
+= Camera and display orientation
+
+NOTE: This documentation was generated with the assistance of AI. Please report any inaccuracies.
+
+OpenGL and Android disagree about the y axis: in OpenGL, y values grow *upwards*, while in Android
+view coordinates they grow *downwards*. On top of that, a camera sensor is usually mounted rotated
+with respect to the display, and the display itself rotates with the device.
+
+`CameraToDisplayOrientation` describes that rotation:
+
+[cols="1,3"]
+|===
+|Value |Meaning
+
+|`ORIENTATION_0_DEGREES`, `ORIENTATION_90_DEGREES`, `ORIENTATION_180_DEGREES`, `ORIENTATION_270_DEGREES`
+|Rotation between the camera sensor and the current display orientation.
+
+|`ORIENTATION_UNKNOWN`
+|Orientation is ignored: computed cameras stay right-handed, with y values growing upwards.
+|===
+
+== Obtaining the orientation
+
+`OrientationHelper.getCameraDisplayOrientation(context, cameraId)` combines the sensor
+orientation reported by `CameraCharacteristics` with the current display rotation. A variant takes
+the `CameraCharacteristics` directly, and `getCameraDisplayOrientationDegrees` returns the angle
+in degrees.
+
+== Cameras in view coordinates
+
+Once `CameraConverter.orientation` is known, the converter also exposes the camera in Android view
+coordinates, so that projecting a 3D point gives the pixel where it appears on the view:
+
+[source,kotlin]
+----
+include::example$viewCamera.kt[]
+----
+
+The `viewCamera` properties are settable too. Setting them while the orientation is
+`ORIENTATION_UNKNOWN` throws `IllegalStateException`.
+
+== Lower-level transformations
+
+`OrientationHelper` also exposes the building blocks, each with overloads taking a camera id,
+`CameraCharacteristics`, a `CameraToDisplayOrientation` or a `Rotation2D`:
+
+* `toViewCoordinatesRotation` / `fromViewCoordinatesRotation`: 2D rotation between both systems.
+* `toViewCoordinatesTransformation` / `fromViewCoordinatesTransformation`: 2D projective
+  transformation of image points, pivoting on the principal point or a given point.
+* `toViewCoordinatesCamera` / `fromViewCoordinatesCamera`: a whole `PinholeCamera` converted
+  between both systems.

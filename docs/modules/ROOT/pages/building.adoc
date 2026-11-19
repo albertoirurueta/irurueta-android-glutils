@@ -1,0 +1,73 @@
+= Building, testing and contributing
+
+NOTE: This documentation was generated with the assistance of AI. Please report any inaccuracies.
+
+== Requirements
+
+* JDK 17 or later (CI uses JDK 21).
+* Android SDK with platform 36. Point `local.properties` at it (`sdk.dir=...`).
+* Node.js 20 or later, only to build this documentation.
+
+== Building
+
+[source,bash]
+----
+./gradlew assembleDebug
+----
+
+== Tests
+
+Unit tests run on the JVM with Robolectric and MockK:
+
+[source,bash]
+----
+./gradlew :lib:testDebugUnitTest
+----
+
+Instrumented tests need a device or emulator:
+
+[source,bash]
+----
+./gradlew :lib:connectedAndroidTest
+----
+
+`DocumentationExamplesTest` contains every Kotlin snippet shown in this documentation between
+`// tag::name[]` and `// end::name[]` comments, and fails if a file in
+`docs/modules/ROOT/examples` differs from its tagged region. Change both together.
+
+== Static analysis and API docs
+
+[source,bash]
+----
+./gradlew lint
+./gradlew :lib:dokkaGenerate
+----
+
+The Dokka output is written to `lib/build/dokka/html`. CI publishes it under `/api/` of the documentation site.
+
+== Documentation
+
+From the `docs` directory:
+
+[source,bash]
+----
+npm ci
+npx antora antora-playbook.yml
+npx pagefind --site build/site
+----
+
+== Branching and releases
+
+The repository follows gitflow:
+
+* `develop` is the integration branch. Feature branches (`feature/<issue>-<name>`) are opened
+  from it and merged back through pull requests.
+* `main` only receives releases. A release branch (`release_x.y.z`) is cut from `develop`,
+  merged into `main`, and a GitHub release publishes the library to Maven Central.
+* Hotfix branches (`hotfix/<issue>-<name>`) are opened from `main`.
+
+== Contributing
+
+Issues and pull requests are welcome at
+https://github.com/albertoirurueta/irurueta-android-glutils. Every source and test file starts with
+the Apache License 2.0 header, and every class and member has KDoc.

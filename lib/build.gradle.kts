@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.publish)
 }
 
-val libraryVersion = "1.1.11"
+val libraryVersion = "1.1.12-SNAPSHOT"
 
 android {
     namespace = "com.irurueta.android.glutils"
