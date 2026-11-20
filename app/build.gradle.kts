@@ -69,17 +69,13 @@ sonar {
         property("sonar.organization", "albertoirurueta-github")
         property("sonar.host.url", "https://sonarcloud.io")
 
-        // Absolute paths: the Sonar Gradle plugin (7.6+) appends the Android source folders it detects as absolute
-        // paths and only deduplicates them against absolute values. A relative path here would be kept twice and
-        // fail the analysis with "File ... can't be indexed twice".
-        property("sonar.tests",
-            listOf(file("src/test/java").absolutePath, file("src/androidTest/java").absolutePath))
+        // sonar.sources and sonar.tests are not set: the Sonar Gradle plugin (7.6+) detects the Android source and
+        // test folders itself. Setting them here too makes the scanner index those folders twice.
         property("sonar.test.inclusions",
             listOf("**/*Test*/**", "src/androidTest/**", "src/test/**"))
         property("sonar.test.exclusions",
             listOf("**/*Test*/**", "src/androidTest/**", "src/test/**"))
         property("sonar.sourceEncoding", "UTF-8")
-        property("sonar.sources", file("src/main/java").absolutePath)
         property("sonar.exclusions", "**/*Test*/**,*.json,'**/*test*/**,**/.gradle/**,**/R.class")
 
         val libraries = project.android.sdkDirectory.path + "/platforms/android-36/android.jar"
