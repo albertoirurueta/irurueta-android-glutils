@@ -1,0 +1,88 @@
+= Cameras and OpenGL matrices
+:stem: latexmath
+
+NOTE: This documentation was generated with the assistance of AI. Please report any inaccuracies.
+
+OpenGL describes the point of view with two 4x4 matrices: a *projection* matrix (the frustum:
+field of view, aspect ratio, near and far planes) and a *model-view* matrix (where the camera is
+and where it looks). Computer vision describes the same thing with a *pinhole camera*: intrinsic
+parameters (focal length, principal point, skewness), a rotation and a center.
+
+The library converts between both, using `PinholeCamera` from
+https://github.com/albertoirurueta/irurueta-geometry[irurueta-geometry]. This is useful to render
+virtual content that matches a real, calibrated camera, for example in augmented reality.
+
+[stem]
+++++
+P = K \, [\, R \mid -R\,C \,] \quad\longleftrightarrow\quad M_{mvp} = M_{projection} \cdot M_{modelview}
+++++
+
+All matrices are 16-length `FloatArray` instances in column-major order, the layout expected by
+`android.opengl.Matrix` and `glUniformMatrix4fv`.
+
+== CameraConverter
+
+`CameraConverter` keeps a camera and its matrices in sync for a viewport size. Setting the camera
+(or its intrinsics, center or rotation) recomputes the matrices; setting a projection or
+model-view matrix recomputes the camera.
+
+[source,kotlin]
+----
+include::example$cameraConverter.kt[]
+----
+
+[cols="1,3"]
+|===
+|Member |Description
+
+|`camera`, `cameraIntrinsicParameters`, `cameraCenter`, `cameraRotation`
+|Camera defining the point of view, or any of its parts.
+
+|`projectionMatrix`, `modelViewMatrix`
+|OpenGL matrices for the current camera. Settable: the camera is then derived from them.
+
+|`modelViewProjectionMatrix`
+|Product of both. Only computed when `isModelViewProjectionMatrixComputationEnabled` is `true`.
+
+|`nearPlane`, `farPlane`, `setNearFarPlanes`
+|Clipping planes. Default `DEFAULT_NEAR_PLANE` (0.1) and `DEFAULT_FAR_PLANE` (1000).
+
+|`width`, `height`, `setViewportSize`
+|Viewport size in pixels. Usually the values received in `onSurfaceChanged`.
+
+|`setValues(nearPlane, farPlane, width, height, camera)`
+|Sets everything at once.
+
+|`orientation`, `viewCamera`, `viewCameraIntrinsicParameters`, `viewCameraCenter`, `viewCameraRotation`
+|The camera expressed in Android view coordinates. See xref:orientation.adoc[].
+|===
+
+NOTE: `CameraConverter` is not thread safe. Use it from the GL thread, as the
+xref:gltextureview.adoc#_writing_a_renderer[renderer example] does.
+
+== CameraToOpenGlHelper
+
+For one-off conversions without keeping state, `CameraToOpenGlHelper` computes the matrices
+directly. Every method has a variant writing into a provided array (to avoid allocations in
+`onDrawFrame`) and an `AndReturnNew` variant:
+
+[source,kotlin]
+----
+include::example$cameraToOpenGl.kt[]
+----
+
+Overloads accept a whole `PinholeCamera`, or its intrinsic parameters, rotation (`Rotation3D`
+or a 3x3 `Matrix`) and center separately.
+
+== OpenGlToCameraHelper
+
+The inverse conversion recovers a pinhole camera from OpenGL matrices, for instance those supplied
+by an AR framework for each frame:
+
+[source,kotlin]
+----
+include::example$openGlToCamera.kt[]
+----
+
+`computePinholeCameraIntrinsics` and `computePoseTransformation` recover only the intrinsic
+parameters or only the pose.

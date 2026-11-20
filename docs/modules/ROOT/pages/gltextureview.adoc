@@ -1,0 +1,135 @@
+= Rendering with GLTextureView
+
+NOTE: This documentation was generated with the assistance of AI. Please report any inaccuracies.
+
+`GLTextureView` has the same API as `GLSurfaceView`: configure the EGL context, set a
+`GLSurfaceView.Renderer`, and forward the lifecycle events of its host. The difference is that it
+is a `TextureView`, so it can be composed with any other view.
+
+TIP: Every Kotlin example on this page is compiled and run by `DocumentationExamplesTest` in the
+`lib` module.
+
+== Subclassing GLTextureView
+
+The usual pattern is a subclass that configures the view and installs its renderer in `init`.
+The `@JvmOverloads` constructor lets the view be inflated from XML.
+
+[source,kotlin]
+----
+include::example$sceneTextureView.kt[]
+----
+
+All configuration methods (`setEGLContextClientVersion`, `setEGLConfigChooser`,
+`setEGLContextFactory`, `setEGLWindowSurfaceFactory`) must be called *before*
+`setRenderer`; calling them afterwards throws `IllegalStateException`. `setRenderer` itself can
+only be called once, and `renderMode` only takes effect after it.
+
+== Writing a renderer
+
+Any `GLSurfaceView.Renderer` works. Its callbacks run on a dedicated GL thread owned by the view.
+This renderer uses a xref:camera-matrices.adoc[CameraConverter] to obtain the
+model-view-projection matrix for its shaders:
+
+[source,kotlin]
+----
+include::example$sceneRenderer.kt[]
+----
+
+To let views behind the scene show through, three things are needed: an EGL config with an alpha
+channel (`setEGLConfigChooser(8, 8, 8, 8, 16, 0)`), `isOpaque = false` on the view, and a clear
+color with alpha `0`.
+
+== Composing with other views
+
+Declare the view in a layout like any other. Here the OpenGL scene is drawn on top of an image:
+
+[source,xml]
+----
+include::example$layout.xml[]
+----
+
+Or create it in code. Because it is a regular view, it can be animated:
+
+[source,kotlin]
+----
+include::example$programmaticView.kt[]
+----
+
+== Lifecycle
+
+The host must forward `onPause` and `onResume`, so that the rendering thread stops when the
+activity is not visible and the EGL context is recreated when it comes back:
+
+[source,kotlin]
+----
+include::example$sceneActivity.kt[]
+----
+
+The rendering thread is started when the view is attached to a window and stopped when it is
+detached.
+
+== Render modes and updating the scene
+
+[cols="1,3"]
+|===
+|Mode |Behaviour
+
+|`RENDER_MODE_CONTINUOUSLY` (default)
+|`onDrawFrame` is called repeatedly, for animations that change every frame.
+
+|`RENDER_MODE_WHEN_DIRTY`
+|A frame is drawn only when the surface is created or resized, or when `requestRender()` is
+called. Lets the GPU and CPU idle and saves battery.
+|===
+
+State read by the renderer should be changed on the GL thread. `queueEvent` runs a block there;
+`requestRender` can be called from any thread:
+
+[source,kotlin]
+----
+include::example$updateScene.kt[]
+----
+
+== Advanced configuration
+
+[cols="1,3"]
+|===
+|Method or property |Use
+
+|`setEGLContextClientVersion(version)`
+|OpenGL ES version of the context created by the default factories (`2` or `3`).
+
+|`setEGLConfigChooser(needDepth)`
+|RGB_888 surface, with or without a 16-bit depth buffer. This (with depth) is the default.
+
+|`setEGLConfigChooser(r, g, b, a, depth, stencil)`
+|Exact color component sizes and minimum depth and stencil sizes.
+
+|`setEGLConfigChooser(chooser)`, `setEGLContextFactory(factory)`, `setEGLWindowSurfaceFactory(factory)`
+|Fully custom EGL setup through the `GLTextureView.EGLConfigChooser`,
+`GLTextureView.EGLContextFactory` and `GLTextureView.EGLWindowSurfaceFactory` interfaces, for
+example to share an EGL context.
+
+|`setGLWrapper(wrapper)`
+|Wraps the `GL` object passed to the renderer, typically for debugging.
+
+|`debugFlags`
+|`DEBUG_CHECK_GL_ERROR` and/or `DEBUG_LOG_GL_CALLS`. Applied when the surface is created.
+
+|`preserveEGLContextOnPause`
+|Tries to keep the EGL context (and the textures, buffers and shaders it owns) while paused.
+Whether it is actually kept depends on the device.
+|===
+
+[source,kotlin]
+----
+include::example$debugOptions.kt[]
+----
+
+== Migrating from GLSurfaceView
+
+. Replace `GLSurfaceView` with `com.irurueta.android.glutils.GLTextureView` in layouts and
+  subclasses.
+. Replace `GLSurfaceView.RENDERMODE_WHEN_DIRTY` / `RENDERMODE_CONTINUOUSLY` with
+  `GLTextureView.RENDER_MODE_WHEN_DIRTY` / `RENDER_MODE_CONTINUOUSLY`.
+. Keep your existing `GLSurfaceView.Renderer` implementation as is.

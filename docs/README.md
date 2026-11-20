@@ -1,0 +1,24 @@
+# Documentation site
+
+Antora site for irurueta-android-glutils. Build from this directory:
+
+```bash
+npm ci
+npx antora antora-playbook.yml
+npx pagefind --site build/site
+npm run test:nav:site
+```
+
+Search only works when the site is served over HTTP, e.g.
+`python3 -m http.server 8090 --directory build/site`.
+
+## Nav authoring rules
+
+- Every nav entry is an `xref:` link or a text-only group heading **with children**. Never add an empty group heading.
+- Nav entries never link to a `#fragment`: it renders as `href="#..."` and the bundle's script then strips every
+  `is-active` class and collapses the default-open groups.
+- A group renamed in `nav.adoc` that is listed in `site.keys.nav_open_groups` must be renamed there too.
+- Prefer a section `index.adoc` link over a text-only heading for a group whose pages should be reachable from other
+  sections: a linked entry's subtree may be pruned, a text-only heading's never is, so it costs HTML on every page of
+  its parent.
+- Run `npm run test:nav:site` (from `docs/`, after a build) after any `nav.adoc` change.
