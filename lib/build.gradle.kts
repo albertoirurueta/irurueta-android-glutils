@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.publish)
 }
 
-val libraryVersion = "1.1.11"
+val libraryVersion = "1.1.12"
 
 android {
     namespace = "com.irurueta.android.glutils"
@@ -61,6 +61,19 @@ android {
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_17
+    }
+}
+
+dokka {
+    dokkaSourceSets {
+        // Since Dokka 2.2 with AGP 9, Dokka also creates a source set per Android variant,
+        // which shares src/main/java with the 'main' (androidJvm) source set and makes
+        // the pre-generation check fail. Only the 'main' source set is documented.
+        // See https://github.com/Kotlin/dokka/issues/3701 and
+        // https://github.com/Kotlin/dokka/issues/4458
+        named("release") {
+            suppress.set(true)
+        }
     }
 }
 
