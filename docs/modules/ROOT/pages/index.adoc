@@ -1,0 +1,65 @@
+= Irurueta Android GL Utils
+
+NOTE: This documentation was generated with the assistance of AI. Please report any inaccuracies.
+
+OpenGL ES utilities for Android: a composable OpenGL view and helpers to convert between
+pinhole cameras and OpenGL matrices.
+
+== Why GLTextureView?
+
+Android's `GLSurfaceView` draws into a separate window surface that is punched through the
+view hierarchy. That makes it fast, but it also means the view:
+
+* cannot be made translucent so that other views show through it,
+* does not follow view animations or transformations (`alpha`, `rotation`, `scaleX`, translation...),
+* does not clip or overlap correctly with sibling views, for instance inside a scrolling list or a
+  `ViewPager`.
+
+`GLTextureView` renders OpenGL ES on a `TextureView` instead. It is a regular member of the view
+hierarchy, so it can be composed, animated and layered with any other view, while keeping the
+same API as `GLSurfaceView`: any `GLSurfaceView.Renderer` works unchanged.
+
+[mermaid]
+....
+flowchart LR
+    A[Activity / Fragment] -->|onPause / onResume| V[GLTextureView]
+    V -->|owns| T[GL thread + EGL context]
+    T -->|onSurfaceCreated / onSurfaceChanged / onDrawFrame| R[GLSurfaceView.Renderer]
+    R -->|matrices| C[CameraConverter]
+    C -->|PinholeCamera| G[irurueta-geometry]
+....
+
+== What the library contains
+
+[cols="1,3"]
+|===
+|Class |Purpose
+
+|`GLTextureView`
+|Drop-in replacement for `GLSurfaceView` that belongs to the normal view hierarchy. See
+xref:gltextureview.adoc[].
+
+|`CameraConverter`
+|Keeps a pinhole camera and the matching OpenGL projection, model-view and
+model-view-projection matrices in sync. See xref:camera-matrices.adoc[].
+
+|`CameraToOpenGlHelper`
+|Stateless conversion from a `PinholeCamera` (or its intrinsics, rotation and center) to OpenGL
+matrices.
+
+|`OpenGlToCameraHelper`
+|Stateless conversion from OpenGL projection and model-view matrices back to a `PinholeCamera`.
+
+|`OrientationHelper`, `CameraToDisplayOrientation`
+|Rotation between a camera sensor and the display, and transformations between OpenGL and Android
+view coordinates. See xref:orientation.adoc[].
+|===
+
+Cameras, rotations and points come from
+https://github.com/albertoirurueta/irurueta-geometry[irurueta-geometry], which the library exposes
+as an `api` dependency.
+
+== Next steps
+
+* xref:installation.adoc[Add the library to your project].
+* xref:gltextureview.adoc[Draw your first scene].

@@ -1,0 +1,11 @@
+= Reference
+
+NOTE: This documentation was generated with the assistance of AI. Please report any inaccuracies.
+
+* https://albertoirurueta.github.io/irurueta-android-glutils/api/[API documentation (Dokka)]
+* https://sonarcloud.io/dashboard?id=albertoirurueta_irurueta-android-glutils[SonarCloud analysis and coverage]
+* https://github.com/albertoirurueta/irurueta-android-glutils/actions[CI builds]
+* https://central.sonatype.com/artifact/com.irurueta/irurueta-android-glutils[Maven Central]
+* https://github.com/albertoirurueta/irurueta-android-glutils/blob/main/CHANGELOG.md[Changelog]
+* https://github.com/albertoirurueta/irurueta-geometry[irurueta-geometry], the geometry library
+  providing `PinholeCamera` and related classes.

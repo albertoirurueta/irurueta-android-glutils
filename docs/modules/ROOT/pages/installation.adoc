@@ -1,0 +1,69 @@
+= Installation
+
+NOTE: This documentation was generated with the assistance of AI. Please report any inaccuracies.
+
+The library is published to Maven Central as an Android library (AAR).
+
+[cols="1,3"]
+|===
+|Group ID |`com.irurueta`
+|Artifact ID |`irurueta-android-glutils`
+|Latest release |`1.1.12`
+|License |Apache License 2.0
+|===
+
+== Requirements
+
+* Android `minSdk` 26 (Android 8.0) or later.
+* A device or emulator supporting OpenGL ES 2.0 or later.
+* The library is compiled against SDK 36 with Java/Kotlin JVM target 17.
+
+== Gradle (Kotlin DSL)
+
+Make sure `mavenCentral()` is among your repositories (in `settings.gradle.kts`):
+
+[source,kotlin]
+----
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+----
+
+Then add the dependency to your module's `build.gradle.kts`:
+
+[source,kotlin]
+----
+dependencies {
+    implementation("com.irurueta:irurueta-android-glutils:1.1.12")
+}
+----
+
+== Gradle (Groovy)
+
+[source,groovy]
+----
+dependencies {
+    implementation 'com.irurueta:irurueta-android-glutils:1.1.12'
+}
+----
+
+== Transitive dependencies
+
+`com.irurueta:irurueta-geometry` is exposed as an `api` dependency, so `PinholeCamera`,
+`PinholeCameraIntrinsicParameters`, `Quaternion`, `InhomogeneousPoint3D` and the other geometry
+classes used by the camera helpers are available without declaring it.
+
+== Manifest
+
+If your app requires OpenGL ES 2.0, declare it so that the store filters out devices without it:
+
+[source,xml]
+----
+<uses-feature android:glEsVersion="0x00020000" android:required="true" />
+----
+
+`OrientationHelper` methods that take a camera id query the `CameraManager`; they need the
+`android.permission.CAMERA` permission to be granted at run time.
