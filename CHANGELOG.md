@@ -7,7 +7,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.13] - 2026-11-20
+
+First release published to Maven Central with the 1.1.12 changes; 1.1.12 was tagged but never published.
+
+### Fixed
+
+- Release pipeline: the SonarCloud analysis failed with "File ... can't be indexed twice" after the Sonar Gradle
+  plugin update to 7.6, because `sonar.sources`/`sonar.tests` were relative paths. They are now absolute.
+- Release pipeline: CI retries dependency downloads when Maven Central rate-limits the runner (HTTP 429), and skips
+  the lint SARIF uploads when lint did not run.
+
 ## [1.1.12] - 2026-11-20
+
+Tagged but not published to Maven Central (the release pipeline failed); use 1.1.13.
 
 ### Changed
 
@@ -168,7 +181,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `CameraConverter`, `CameraToDisplayOrientation` and `OrientationHelper` utilities for camera matrices and
   camera-to-display orientation handling.
 
-[Unreleased]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.12...HEAD
+[Unreleased]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.13...HEAD
+[1.1.13]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.12...1.1.13
 [1.1.12]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.11...1.1.12
 [1.1.11]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.10...1.1.11
 [1.1.10]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.9...1.1.10

@@ -18,8 +18,8 @@ android {
         applicationId = "com.irurueta.android.glutils.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 11
-        versionName = "1.1.12"
+        versionCode = 12
+        versionName = "1.1.13"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
