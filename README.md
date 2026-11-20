@@ -28,7 +28,7 @@ camera and OpenGL matrix helpers.
 | --- | --- |
 | Language | Kotlin (Java 17 bytecode) |
 | Build tool | Gradle (Kotlin DSL) |
-| Current development version | `1.1.14-SNAPSHOT` |
+| Current development version | `1.2.0-SNAPSHOT` |
 | Latest release | `1.1.13` |
 | Platform | Android |
 | Min / compile SDK | `minSdk` 26, `compileSdk` 36 |
