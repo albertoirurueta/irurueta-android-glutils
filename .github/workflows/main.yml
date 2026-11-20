@@ -38,13 +38,24 @@ jobs:
         with:
           dependency-graph: generate-and-submit
 
+      # Downloads the dependencies and compiles before the emulator starts, retrying when Maven Central
+      # rate-limits the runner (HTTP 429 "Too Many Requests"), which otherwise fails the whole emulator step.
+      - name: Download dependencies and compile
+        run: |
+          for attempt in 1 2 3; do
+            ./gradlew assembleDebug compileDebugUnitTestKotlin compileDebugAndroidTestKotlin && exit 0
+            echo "::warning::Dependency download or compilation failed (attempt $attempt of 3), retrying in 60 s"
+            sleep 60
+          done
+          exit 1
+
       - name: Run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
           target: google_apis
           arch: x86_64
-          script: ./gradlew clean test connectedAndroidTest lint lib:dokkaGenerate
+          script: ./gradlew test connectedAndroidTest lint lib:dokkaGenerate
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -80,14 +91,16 @@ jobs:
             --xml lib/build/reports/coverage/test/report.xml || true
 
       - name: Upload lint SARIF results
-        if: (!cancelled())
+        # Skipped when lint never ran (e.g. an earlier step failed), instead of failing with "Path does not exist".
+        if: (!cancelled()) && hashFiles('lib/build/reports/lint-results-debug.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: lib/build/reports/lint-results-debug.sarif
           category: android-lint-lib
 
       - name: Upload app lint SARIF results
-        if: (!cancelled())
+        # Skipped when lint never ran (e.g. an earlier step failed), instead of failing with "Path does not exist".
+        if: (!cancelled()) && hashFiles('app/build/reports/lint-results-debug.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: app/build/reports/lint-results-debug.sarif
