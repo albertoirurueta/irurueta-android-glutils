@@ -85,13 +85,13 @@ sonar {
         property("sonar.organization", "albertoirurueta-github")
         property("sonar.host.url", "https://sonarcloud.io")
 
-        property("sonar.tests", listOf("src/test/java", "src/androidTest/java"))
+        // sonar.sources and sonar.tests are not set: the Sonar Gradle plugin (7.6+) detects the Android source and
+        // test folders itself. Setting them here too makes the scanner index those folders twice.
         property("sonar.test.inclusions",
             listOf("**/*Test*/**", "src/androidTest/**", "src/test/**"))
         property("sonar.test.exclusions",
             listOf("**/*Test*/**", "src/androidTest/**", "src/test/**"))
         property("sonar.sourceEncoding", "UTF-8")
-        property("sonar.sources", "src/main/java")
         property("sonar.exclusions", "**/*Test*/**,*.json,'**/*test*/**,**/.gradle/**,**/R.class")
 
         val libraries = project.android.sdkDirectory.path + "/platforms/android-36/android.jar"
