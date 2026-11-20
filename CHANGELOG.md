@@ -14,7 +14,8 @@ First release published to Maven Central with the 1.1.12 changes; 1.1.12 was tag
 ### Fixed
 
 - Release pipeline: the SonarCloud analysis failed with "File ... can't be indexed twice" after the Sonar Gradle
-  plugin update to 7.6, because `sonar.sources`/`sonar.tests` were relative paths. They are now absolute.
+  plugin update to 7.6, which detects the Android source and test folders itself. `sonar.sources`/`sonar.tests` are
+  no longer set in the build scripts.
 - Release pipeline: CI retries dependency downloads when Maven Central rate-limits the runner (HTTP 429), and skips
   the lint SARIF uploads when lint did not run.
 
