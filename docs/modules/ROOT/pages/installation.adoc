@@ -8,7 +8,7 @@ The library is published to Maven Central as an Android library (AAR).
 |===
 |Group ID |`com.irurueta`
 |Artifact ID |`irurueta-android-glutils`
-|Latest release |`1.1.11`
+|Latest release |`1.1.12`
 |License |Apache License 2.0
 |===
 
@@ -37,7 +37,7 @@ Then add the dependency to your module's `build.gradle.kts`:
 [source,kotlin]
 ----
 dependencies {
-    implementation("com.irurueta:irurueta-android-glutils:1.1.11")
+    implementation("com.irurueta:irurueta-android-glutils:1.1.12")
 }
 ----
 
@@ -46,7 +46,7 @@ dependencies {
 [source,groovy]
 ----
 dependencies {
-    implementation 'com.irurueta:irurueta-android-glutils:1.1.11'
+    implementation 'com.irurueta:irurueta-android-glutils:1.1.12'
 }
 ----
 

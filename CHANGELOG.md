@@ -7,6 +7,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.12] - 2026-11-20
+
+### Changed
+
+- Upgraded the build to Android Gradle Plugin 9.5.1, Gradle 9.9.1 and Kotlin 2.4.21.
+- Updated `irurueta-geometry` (exposed as an `api` dependency) to 1.6.1.
+- Updated `irurueta-android-test-utils` to 1.3.3.
+- Updated Material, Dokka, Sonar, MockK, Robolectric and Maven publish plugin versions.
+- CI workflows now build with JDK 21.
+
 ## [1.1.11] - 2026-03-05
 
 ### Changed
@@ -158,7 +168,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `CameraConverter`, `CameraToDisplayOrientation` and `OrientationHelper` utilities for camera matrices and
   camera-to-display orientation handling.
 
-[Unreleased]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.11...HEAD
+[Unreleased]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.12...HEAD
+[1.1.12]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.11...1.1.12
 [1.1.11]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.10...1.1.11
 [1.1.10]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.9...1.1.10
 [1.1.9]: https://github.com/albertoirurueta/irurueta-android-glutils/compare/1.1.8...1.1.9

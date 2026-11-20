@@ -28,11 +28,11 @@ camera and OpenGL matrix helpers.
 | --- | --- |
 | Language | Kotlin (Java 17 bytecode) |
 | Build tool | Gradle (Kotlin DSL) |
-| Current development version | `1.1.12-SNAPSHOT` |
-| Latest release | `1.1.11` |
+| Current development version | `1.1.13-SNAPSHOT` |
+| Latest release | `1.1.12` |
 | Platform | Android |
 | Min / compile SDK | `minSdk` 26, `compileSdk` 36 |
-| Kotlin / AGP | Kotlin 2.3.10, Android Gradle Plugin 9.0.1 |
+| Kotlin / AGP | Kotlin 2.4.21, Android Gradle Plugin 9.5.1 |
 | License | Apache License 2.0 |
 | CI | GitHub Actions: `develop` branch builds, release builds (Maven Central publish and docs deploy), weekly security scans |
 | Quality | SonarCloud, JaCoCo coverage, Android Lint, Dokka API docs |
@@ -68,7 +68,7 @@ The library is published on Maven Central. Add the dependency to your module's `
 Latest release
 
 ```kotlin
-implementation("com.irurueta:irurueta-android-glutils:1.1.11")
+implementation("com.irurueta:irurueta-android-glutils:1.1.12")
 ```
 
 ## Quick Example
